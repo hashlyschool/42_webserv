@@ -156,7 +156,9 @@ fcntl(fd, F_SETFL, O_NONBLOCK);
 <details>
 	<summary> checklist от ??.??.???? </summary>
 
-Нужно найти чек-лист
+Ссылка на [checklist](https://github.com/evgenkarlson/ALL_SCHOOL_42/blob/master/00_Projects__(%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D0%BE%D0%B5_%D0%9E%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)/07_CPP/01____webserv/webserv_May_12_20.pdf)
+
+Перевода нет
 
 </details>
 
@@ -180,6 +182,25 @@ Usage tester:
 
 <details>
 	<summary> Интересные ссылки по теме </summary>
+
+link  | description
+:------------------:|:---------------
+**information** |
+[web-server](https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B1-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)| wikipedia Веб-сервер
+[http-message](https://developer.mozilla.org/ru/docs/Web/HTTP/Messages) | структура сообщений http
+[Response codes HTTP](https://developer.mozilla.org/ru/docs/Web/HTTP/Status) | Описание кодов ответов HTTP сервера. Посмотреть обязательный код 405
+[chunked encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) | wikipedia. Описание поблочной передачи данных
+[RFC 2616](https://datatracker.ietf.org/doc/html/rfc2616) | описание стандарта `http/1.1`. Важное нашел в п.4,5,6)
+[RFC 3875](https://datatracker.ietf.org/doc/html/rfc3875) | описание работы `cgi`
+[Postman](https://www.postman.com/downloads/) | Download Postman. For generate URI message
+[Header 'connection'](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Connection) | Нужно посмотреть `close` `keep-alive` и их реализовать
+**video** |
+[webserv](https://www.youtube.com/watch?v=86sxYbUkJGk&t=451s&ab_channel=Edu_events_mow) | разбор проекта от edebi
+[Устройство WEB-сервера](https://www.youtube.com/watch?v=4zS6Db7xMuU&ab_channel=%D0%9D%D0%9E%D0%A3%D0%98%D0%9D%D0%A2%D0%A3%D0%98%D0%A2) | Хорошая лекция про общее устройства сервера
+**GitHub example** |
+[webserv edebi](https://github.com/megagosha/webserv) | проект от создателя видео *выше*
+[webserv ettoren1](https://github.com/etorren1/webserv) | Вроде, готовый пример. Не знаю насколько он будет полезен, но можно поглядывать туда
+
 
 
 </details>
