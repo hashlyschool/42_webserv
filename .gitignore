@@ -1,0 +1,7 @@
+*.o
+webserv
+tester
+cgi_tester
+ubuntu_cgi_tester
+ubuntu_tester
+
