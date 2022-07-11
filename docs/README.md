@@ -212,7 +212,7 @@ link  | description
 [webserv](https://www.youtube.com/watch?v=86sxYbUkJGk&t=451s&ab_channel=Edu_events_mow) | разбор проекта от edebi
 [Устройство WEB-сервера](https://www.youtube.com/watch?v=4zS6Db7xMuU&ab_channel=%D0%9D%D0%9E%D0%A3%D0%98%D0%9D%D0%A2%D0%A3%D0%98%D0%A2) | Хорошая лекция про общее устройства сервера
 **GitHub example** |
-[webserv edebi](https://github.com/megagosha/webserv) | проект от создателя видео *выше*
+[webserv edebi](https://github.com/megagosha/webserv) | проект от создателя видео *выше* (edebi)
 [webserv ettoren1](https://github.com/etorren1/webserv) | Вроде, готовый пример. Не знаю насколько он будет полезен, но можно поглядывать туда
 
 

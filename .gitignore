@@ -1,4 +1,4 @@
-*.o
+objs
 webserv
 tester
 cgi_tester
