@@ -1,4 +1,4 @@
-NAME			=	webserv
+NAME				=	webserv
 
 RM					=	rm -rf
 OS					=	$(shell uname)
@@ -24,16 +24,16 @@ SRCS_SOCKET			=	$(addprefix $(SRCS_SOCKET_PATH), $(SRCS_SOCKET_NAME))
 
 #Server include
 INC_SERVER_PATH		=	Server/
-INC_SERVER_NAME		=	SimpleServer.hpp SimpleHTTPServer.hpp
+INC_SERVER_NAME		=	SimpleServer.hpp HTTPServer.hpp
 INC_SERVER			=	$(addprefix $(INC_SERVER_PATH), $(INC_SERVER_NAME))
 #Server source
-SRCS_SERVER_PATH		=	Server/
-SRCS_SERVER_NAME		=	SimpleServer.cpp SimpleHTTPServer.cpp
+SRCS_SERVER_PATH	=	Server/
+SRCS_SERVER_NAME	=	SimpleServer.cpp HTTPServer.cpp
 SRCS_SERVER			=	$(addprefix $(SRCS_SERVER_PATH), $(SRCS_SERVER_NAME))
 
 #Finish include
 INC_PATH			=	./inc/
-INC_NAME			=	$(INC_SOCKET) $(INC_SERVER) #Server.hpp Logger.hpp
+INC_NAME			=	$(INC_SOCKET) $(INC_SERVER)
 INC					=	$(addprefix $(INC_PATH), $(INC_NAME))
 #Finish source
 SRCS_PATH			=	./src/
@@ -44,23 +44,22 @@ OBJS_PATH			=	./objs/
 FULL_OBJS_PATH		=	./objs/ ./objs/Server ./objs/Socket
 OBJS				=	$(addprefix $(OBJS_PATH), $(SRCS_NAME:.cpp=.o))
 
-
 all: ${NAME}
 
 $(NAME): $(OBJS_PATH) $(OBJS)
-	$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I $(INC_PATH) $(LDFLAGS) $(OBJS) -o $(NAME)
+	@$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH) $(LDFLAGS) $(OBJS) -o $(NAME)
 	@echo "built $(NAME) finish"
 
 $(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp $(INC)
 	@echo "Compiling: $<"
-	$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I $(INC_PATH)  $(LDFLAGS) -c $< -o $@
+	@$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH)  $(LDFLAGS) -c $< -o $@
 
 $(OBJS_PATH):
 	@mkdir -p ${FULL_OBJS_PATH}
 
 clean:
 	@echo "Cleaning: $(FULL_OBJS_PATH)"
-	@$(RM) $(FULL_OBJS_PATH)
+	@$(RM) $(OBJS_PATH)
 
 fclean:		clean
 	@echo "Cleaning: $(NAME)"

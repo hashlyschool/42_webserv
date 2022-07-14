@@ -1,16 +1,16 @@
 #include <iostream>
 
-#include "../inc/Server/SimpleHTTPServer.hpp"
+#include "../inc/Server/HTTPServer.hpp"
 
 int main()
 {
 	// insert code here...
 	std::cout << "Hello from mainline\n";
 
-	FT::SimpleHTTPServer *simpleHTTPServer = new FT::SimpleHTTPServer();
+	FT::HTTPServer *HTTPServer = new FT::HTTPServer();
 
 	std::cout << "Exiting mainline\n";
 
-	delete simpleHTTPServer;
+	delete HTTPServer;
 	return 0;
 }
