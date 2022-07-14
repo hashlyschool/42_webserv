@@ -47,12 +47,12 @@ OBJS				=	$(addprefix $(OBJS_PATH), $(SRCS_NAME:.cpp=.o))
 all: ${NAME}
 
 $(NAME): $(OBJS_PATH) $(OBJS)
-	@$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH) $(LDFLAGS) $(OBJS) -o $(NAME)
+	$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH) $(LDFLAGS) $(OBJS) -o $(NAME)
 	@echo "built $(NAME) finish"
 
 $(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp $(INC)
 	@echo "Compiling: $<"
-	@$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH)  $(LDFLAGS) -c $< -o $@
+	$(CC) $(FLAGS) $(OPTFLAGS) $(INCLUDE_KQUEUE) -I$(INC_PATH) -c $< -o $@
 
 $(OBJS_PATH):
 	@mkdir -p ${FULL_OBJS_PATH}
