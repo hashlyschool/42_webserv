@@ -4,11 +4,11 @@
 ft::Parser::Parser(std::string conf)
 {
 	std::ifstream _fd;
-	_fd.open(conf, std::ios::in);
+	_fd.open(conf.c_str(), std::ios::in);
 	if (_fd.is_open() == false)
 		std::cerr << "Error can't open file" << std::endl;
-	try
-	{
+//	try
+//	{
 		std::string buf;
 		while (std::getline(_fd, buf))
 		{
@@ -18,8 +18,8 @@ ft::Parser::Parser(std::string conf)
 			_config += buf;
 			_config += "\n";
 		}
-	}
-	catch (std::ifstream::failure e) { std::cerr << "Ifstream failure exception" << std::endl; }
+//	}
+//	catch (std::ifstream::failure e) { std::cerr << "Ifstream failure exception" << std::endl; }
 	_fd.close();
 	Parse();
 }
@@ -86,8 +86,8 @@ void ft::Parser::checkBrackets()
 			bracket -= 1;
 		begin++;
 	}
-	if (bracket != 0)
-		throw(std::exception());
+	//if (bracket != 0)
+	//	throw(std::exception());
 }
 
 std::string ft::Parser::Split(std::string &line, std::string delimiter)
