@@ -1,26 +1,33 @@
-#pragma once
 
+#pragma once
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
 #include "./ConfigServer.hpp"
 
+namespace ft{
 
-namespace ft
-{
-
-	class Parser
-	{
+	class Parser {
 		private:
+		//	struct servers {
+		//		
+		//	};
 			std::vector<ConfigServer*>	_configServers;
+			t_serverConf				parseOneServer(std::string token);
+			
+			Parser();
+			std::string	Split(std::string &line, std::string delimiter);
+			void checkBrackets();
+			inline std::string	trim(std::string line, std::string trimmer);
+			std::string _config;
 
-			t_serverConf				parseOneServer();
-			void						parseConfig(std::string pathConf);
 		public:
-			Parser(std::string pathConf);
+			Parser(std::string conf);
 			virtual ~Parser();
-
-			//Getters
+			
 			int					getNumServers() const;
 			const ConfigServer*	getConfigServer(int index) const;
-
+			void Parse();
 	};
-
 }
