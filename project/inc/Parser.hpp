@@ -24,7 +24,7 @@ namespace ft{
 
 		public:
 			Parser(std::string conf);
-			~Parser();
+			virtual ~Parser();
 			
 			int					getNumServers() const;
 			const ConfigServer*	getConfigServer(int index) const;
