@@ -13,7 +13,7 @@ namespace ft
 
 		public:
 			Responder();
-			~Responder();
+			virtual	~Responder();
 
 			void	action(int fd);
 	};
