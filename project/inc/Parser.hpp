@@ -14,11 +14,12 @@ namespace ft{
 		//		
 		//	};
 			std::vector<ConfigServer*>	_configServers;
-			t_serverConf				parseOneServer();
+			t_serverConf				parseOneServer(std::string token);
 			
 			Parser();
 			std::string	Split(std::string &line, std::string delimiter);
 			void checkBrackets();
+			inline std::string	trim(std::string line, std::string trimmer);
 			std::string _config;
 
 		public:
