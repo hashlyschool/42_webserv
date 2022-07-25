@@ -1,16 +1,34 @@
-#include <iostream>
+#include "../inc/Webserv.hpp"
+// #include <stdio.h>
+#include <signal.h>
 
-#include "../inc/Server/HTTPServer.hpp"
-
-int main()
+void signal_handler(int signal)
 {
-	// insert code here...
-	std::cout << "Hello from mainline\n";
+	if (signal)
+		signal = 0;
+	// std::cout << "stopping on signal " << signal << std::endl;
+	std::cout << "Using command \'EXIT or HELP\'" << std::endl;
+	// exit(signal);
+}
 
-	FT::HTTPServer *HTTPServer = new FT::HTTPServer();
-
-	std::cout << "Exiting mainline\n";
-
-	delete HTTPServer;
-	return 0;
+int main(int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		std::cout << "[ERROR] for start webserv using: ./webserv path_conf\n";
+		return (1);
+	}
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, signal_handler);
+	signal(SIGQUIT, signal_handler);
+	try
+	{
+		ft::Webserv WebServer(argv[1]);
+		WebServer.serverRun();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	return (0);
 }
