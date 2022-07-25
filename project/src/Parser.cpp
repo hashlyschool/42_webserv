@@ -1,50 +1,66 @@
+
 #include "../inc/Parser.hpp"
 
-ft::Parser::Parser(std::string pathConf)
+ft::Parser::Parser(std::string conf)
 {
-	parseConfig(pathConf);
-}
-
-ft::Parser::~Parser()
-{
-	std::vector<ConfigServer *>::iterator	it;
-
-	for(it = _configServers.begin(); it !=_configServers.end(); ++it)
+	std::ifstream _fd;
+	_fd.open(conf, std::ios::in);
+	if (_fd.is_open() == false)
+		std::cerr << "Error can't open file" << std::endl;
+	try
 	{
-		std::cout << "delete ConfigServer in Parser" << std::endl;
-		delete *it;
+		char buf[10];
+		while (_fd.get(buf, 10, '\0'))
+			_config += buf;
 	}
+	catch (std::ifstream::failure e) { std::cerr << "Ifstream failure exception" << std::endl; }
+	_fd.close();
+	Parse();
+}
+
+void ft::Parser::Parse() {
+	std::vector<std::string> token;
+	checkBrackets();
+	while (!_config.empty())
+		token.push_back(Split(_config, "\n"));
+	for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); it++)
+		std::cout << *it << "\n";
 
 }
 
-ft::t_serverConf ft::Parser::parseOneServer()
+void ft::Parser::checkBrackets()
 {
-	t_serverConf	temp;
-
-	static int	i = 1;
-	temp._host = "127.0.0.1";
-	if (i == 1)
-		temp._port = "8080";
-	else
-		temp._port = "8081";
-	temp._serverName = "hello";
-	temp._maxBodySize = 100;
-	temp._locations.clear();
-	i++;
-	return (temp);
-}
-
-void ft::Parser::parseConfig(std::string pathConf)
-{
-	std::cout << "Parse config: " << pathConf << std::endl;
-	int				numServers = 2;
-	t_serverConf	temp;
-
-	for (int i = 0; i < numServers; ++i)
+	std::string::iterator begin = _config.begin();
+	size_t bracket = 0;
+	while (begin != _config.end())
 	{
-		temp = parseOneServer();
-		_configServers.push_back(new ConfigServer(temp));
+		if (*begin == '{' && !bracket)
+			bracket += 1;
+	//	else if (*begin == '}' && !bracket)
+		//	throw(std::exception());//todo  make parse exception
+		else if (*begin == '}' && bracket)
+			bracket -= 1;
+		begin++;
 	}
+//	if (bracket != 0)
+	//	throw(std::exception());
+}
+
+std::string ft::Parser::Split(std::string &line, std::string delimiter)
+{
+	size_t pos = 0;
+	std::string token;
+	pos = line.find(delimiter);
+	if (pos == std::string::npos)
+		return (0);
+
+    token = line.substr(0, pos);
+    line.erase(0, pos + delimiter.length());
+	return (token);
+}
+
+ft::Parser::~Parser() {
+
 }
 
 int	ft::Parser::getNumServers() const
