@@ -44,7 +44,7 @@ void ft::Parser::Parse() {
 //	for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); it++)
 //		std::cout << *it << "\n";
 	int i = 3;
-	while (--i)
+	while (i--)
 		_configServers.push_back(new ConfigServer((parseOneServer(token[i]))));
 }
 
