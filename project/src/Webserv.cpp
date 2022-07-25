@@ -59,7 +59,7 @@ void	ft::Webserv::createClientSocket(Socket *socket)
 void	ft::Webserv::printHelp() const
 {
 	std::cout <<	"------------------\n" << \
-					"For over working server print EXIT" << \
+					"For over working server print EXIT or Ctrl+D" << \
 					"\n------------------\n";
 }
 
@@ -68,9 +68,7 @@ void	ft::Webserv::processStdInput()
 	std::string	inputStr;
 
 	if (!std::getline(std::cin, inputStr))
-	{
 		return ;
-	}
 	if (inputStr.compare("EXIT") == 0)
 		_num = 0;
 	else
@@ -84,7 +82,7 @@ void	ft::Webserv::serverRun()
 	fd_set	writeFd;
 
 	FD_SET(0, &_mRead);
-	while (_num)
+	while (_num && std::cin)
 	{
 		readFd = _mRead;
 		writeFd = _mWrite;
@@ -92,11 +90,6 @@ void	ft::Webserv::serverRun()
 		if (select(_num, &readFd, &writeFd, 0, 0) <= 0)
 			continue ;
 
-		if (FD_ISSET(0, &readFd))
-		{
-			processStdInput();
-			continue;
-		}
 
 		for (size_t i = 0; i < _sockets.size(); ++i)
 		{
@@ -124,5 +117,7 @@ void	ft::Webserv::serverRun()
 				FD_CLR(*it, &_mWrite);
 			}
 		}
+		if (FD_ISSET(0, &readFd))
+			processStdInput();
 	}
 }
