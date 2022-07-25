@@ -120,8 +120,7 @@ void	ft::Webserv::serverRun()
 		{
 			if (FD_ISSET(*it, &writeFd))
 			{
-				std::string	response("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
-				send(*it,response.c_str(), response.length(), 0);
+				_responder.action(*it);
 				FD_CLR(*it, &_mWrite);
 			}
 		}

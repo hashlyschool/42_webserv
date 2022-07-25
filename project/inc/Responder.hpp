@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <string>
+#include <sys/socket.h>
 
 namespace ft
 {
