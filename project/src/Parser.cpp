@@ -43,7 +43,8 @@ void ft::Parser::Parse() {
 	}
 //	for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); it++)
 //		std::cout << *it << "\n";
-	int i = 3;
+	size_t i = token.size();
+	std::cout << i << " tokens\n";
 	while (i--)
 		_configServers.push_back(new ConfigServer((parseOneServer(token[i]))));
 }
@@ -114,7 +115,7 @@ ft::Parser::~Parser()
 	while (it != _configServers.end())
 	{
 		std::cout << "Virtual Server deleted\n";
-		delete *it;
+		delete *it++;
 	}
 }
 
