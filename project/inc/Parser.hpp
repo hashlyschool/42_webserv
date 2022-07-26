@@ -7,15 +7,15 @@
 #include "./ConfigServer.hpp"
 
 namespace ft{
-
+ 
 	class Parser {
 		private:
 		//	struct servers {
-		//		
+		//
 		//	};
 			std::vector<ConfigServer*>	_configServers;
 			t_serverConf				parseOneServer(std::string token);
-			
+
 			Parser();
 			std::string	Split(std::string &line, std::string delimiter);
 			void checkBrackets();
@@ -25,7 +25,7 @@ namespace ft{
 		public:
 			Parser(std::string conf);
 			virtual ~Parser();
-			
+
 			int					getNumServers() const;
 			const ConfigServer*	getConfigServer(int index) const;
 			void Parse();

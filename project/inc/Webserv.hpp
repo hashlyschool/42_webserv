@@ -12,13 +12,13 @@
 namespace ft
 {
 
-	class Webserv : public Parser, public Responder
+	class Webserv
 	{
 		private:
-			// Parser					_parser;
+			Parser					_parser;
 			std::vector<Socket *>	_sockets;
 			std::list<int>			_clientSocket;
-			// Responder				_responder;
+			Responder				_responder;
 
 			int		_num;
 			fd_set	_mRead;

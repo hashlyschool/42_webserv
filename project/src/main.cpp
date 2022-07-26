@@ -6,9 +6,9 @@ void signal_handler(int signal)
 {
 	if (signal)
 		signal = 0;
-	// std::cout << "stopping on signal " << signal << std::endl;
-	std::cout << "Using command \'EXIT or HELP\'" << std::endl;
-	// exit(signal);
+	std::cout <<	"------------------\n" << \
+					"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'" << \
+					"\n------------------\n";
 }
 
 int main(int argc, char **argv)

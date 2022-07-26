@@ -1,6 +1,6 @@
 #include "../inc/Webserv.hpp"
 
-ft::Webserv::Webserv(std::string pathConf) : Parser(pathConf), Responder()
+ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 {
 	int			temp_port;
 	std::string	temp_host;
@@ -11,10 +11,10 @@ ft::Webserv::Webserv(std::string pathConf) : Parser(pathConf), Responder()
 	_num = 0;
 	try
 	{
-		for (int i = 0; i < getNumServers(); i++)
+		for (int i = 0; i < _parser.getNumServers(); i++)
 		{
-			temp_host = getConfigServer(i)->getHost();
-			temp_port = std::atoi(getConfigServer(i)->getPort().c_str());
+			temp_host = _parser.getConfigServer(i)->getHost();
+			temp_port = std::atoi(_parser.getConfigServer(i)->getPort().c_str());
 			_sockets.push_back(new ft::Socket(temp_port, temp_host, 10));
 			FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
 			if (_sockets.at(i)->get_socket_fd() > _num)
@@ -59,7 +59,7 @@ void	ft::Webserv::createClientSocket(Socket *socket)
 void	ft::Webserv::printHelp() const
 {
 	std::cout <<	"------------------\n" << \
-					"For over working server print EXIT or Ctrl+D" << \
+					"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'" << \
 					"\n------------------\n";
 }
 
@@ -113,7 +113,7 @@ void	ft::Webserv::serverRun()
 		{
 			if (FD_ISSET(*it, &writeFd))
 			{
-				action(*it);
+				_responder.action(*it);
 				FD_CLR(*it, &_mWrite);
 			}
 		}
