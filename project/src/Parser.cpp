@@ -107,8 +107,15 @@ std::string ft::Parser::Split(std::string &line, std::string delimiter)
 	return (trim(token, " \t"));
 }
 
-ft::Parser::~Parser() {
+ft::Parser::~Parser() 
+{
+	std::vector<ConfigServer *>::iterator	it = _configServers.begin();
 
+	while (it != _configServers.end())
+	{
+		std::cout << "Virtual Server deleted\n";
+		delete *it;
+	}
 }
 
 int	ft::Parser::getNumServers() const
