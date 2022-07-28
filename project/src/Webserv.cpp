@@ -49,9 +49,11 @@ void	ft::Webserv::createClientSocket(Socket *socket)
 	if (fd < 0) {
 		return ;
 	}
+
 	if (fd > _num) {
 		_num = fd;
 	}
+
 	FD_SET(fd, &_mRead);
 	_clientSocket.push_back(fd);
 }
@@ -75,9 +77,26 @@ void	ft::Webserv::processStdInput()
 		printHelp();
 }
 
-void	ft::Webserv::serverRun()
+void	ft::Webserv::readFromClientSocket(int &fd)
 {
 	char	buf[2048];
+
+	recv(fd, buf, 2048, 0);
+	std::cout << "----------------\n";
+	std::cout << buf;
+	std::cout << "----------------\n";
+	FD_CLR(fd, &_mRead);
+	FD_SET(fd, &_mWrite);
+}
+
+void	ft::Webserv::sendToClientSocket(int &fd)
+{
+	_responder.action(fd, _dataResr);
+	FD_CLR(fd, &_mWrite);
+}
+
+void	ft::Webserv::serverRun()
+{
 	fd_set	readFd;
 	fd_set	writeFd;
 
@@ -100,22 +119,9 @@ void	ft::Webserv::serverRun()
 		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)
 		{
 			if (FD_ISSET(*it, &readFd))
-			{
-				recv(*it, buf, 2048, 0);
-				std::cout << "----------------\n";
-				std::cout << buf;
-				std::cout << "----------------\n";
-				FD_CLR(*it, &_mRead);
-				FD_SET(*it, &_mWrite);
-			}
-		}
-		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)
-		{
+				readFromClientSocket(*it);
 			if (FD_ISSET(*it, &writeFd))
-			{
-				_responder.action(*it);
-				FD_CLR(*it, &_mWrite);
-			}
+				sendToClientSocket(*it);
 		}
 		if (FD_ISSET(0, &readFd))
 			processStdInput();
