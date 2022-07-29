@@ -35,29 +35,6 @@ ft::Webserv::~Webserv()
 		delete (_sockets.at(i));
 }
 
-void	ft::Webserv::createClientSocket(Socket *socket)
-{
-	struct sockaddr		address;
-	struct sockaddr_in&	addressIn = reinterpret_cast<struct sockaddr_in&>(address);
-	socklen_t			addressLen;
-
-	addressIn.sin_port = socket->get_port();
-	addressIn.sin_addr.s_addr = socket->get_host();
-
-	int fd = accept(socket->get_socket_fd(), &address, &addressLen);
-
-	if (fd < 0) {
-		return ;
-	}
-
-	if (fd > _num) {
-		_num = fd;
-	}
-
-	FD_SET(fd, &_mRead);
-	_clientSocket.push_back(fd);
-}
-
 void	ft::Webserv::printHelp() const
 {
 	std::cout <<	"------------------\n" << \
@@ -77,22 +54,47 @@ void	ft::Webserv::processStdInput()
 		printHelp();
 }
 
+void	ft::Webserv::createClientSocket(Socket *socket, int i)
+{
+	struct sockaddr		address;
+	struct sockaddr_in&	addressIn = reinterpret_cast<struct sockaddr_in&>(address);
+	socklen_t			addressLen;
+
+	addressIn.sin_port = socket->get_port();
+	addressIn.sin_addr.s_addr = socket->get_host();
+
+	int fd = accept(socket->get_socket_fd(), &address, &addressLen);
+	if (fd < 0)
+		return ;
+	if (fd > _num)
+		_num = fd;
+
+	FD_SET(fd, &_mRead);
+	_clientSocket.push_back(fd);
+	_dataResr.dataFd[fd]->statusFd = ft::Nosession;
+	_dataResr.dataFd[fd]->sendBodyByte = 0;
+	_dataResr.dataFd[fd]->configServer = _parser.getConfigServer(i);
+}
+
 void	ft::Webserv::readFromClientSocket(int &fd)
 {
-	char	buf[2048];
-
-	recv(fd, buf, 2048, 0);
-	std::cout << "----------------\n";
-	std::cout << buf;
-	std::cout << "----------------\n";
-	FD_CLR(fd, &_mRead);
-	FD_SET(fd, &_mWrite);
+	_responder.action(fd, _dataResr);
+	if (_dataResr.dataFd[fd]->statusFd == ft::Send ||
+	_dataResr.dataFd[fd]->statusFd == ft::Sendbody)
+	{
+		FD_CLR(fd, &_mRead);
+		FD_SET(fd, &_mWrite);
+	}
 }
 
 void	ft::Webserv::sendToClientSocket(int &fd)
 {
 	_responder.action(fd, _dataResr);
-	FD_CLR(fd, &_mWrite);
+	if (_dataResr.dataFd[fd]->statusFd == ft::Closefd)
+	{
+		_clientSocket.remove(fd);
+		FD_CLR(fd, &_mWrite);
+	}
 }
 
 void	ft::Webserv::serverRun()
@@ -100,7 +102,6 @@ void	ft::Webserv::serverRun()
 	fd_set	readFd;
 	fd_set	writeFd;
 
-	FD_SET(0, &_mRead);
 	while (_num && std::cin)
 	{
 		readFd = _mRead;
@@ -108,19 +109,16 @@ void	ft::Webserv::serverRun()
 
 		if (select(_num, &readFd, &writeFd, 0, 0) <= 0)
 			continue ;
-
-
 		for (size_t i = 0; i < _sockets.size(); ++i)
 		{
 			if (FD_ISSET(_sockets.at(i)->get_socket_fd(), &readFd))
-				createClientSocket(_sockets.at(i));
+				createClientSocket(_sockets.at(i), i);
 		}
-
 		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)
 		{
 			if (FD_ISSET(*it, &readFd))
 				readFromClientSocket(*it);
-			if (FD_ISSET(*it, &writeFd))
+			else if (FD_ISSET(*it, &writeFd))
 				sendToClientSocket(*it);
 		}
 		if (FD_ISSET(0, &readFd))

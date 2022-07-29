@@ -33,9 +33,10 @@ namespace ft
 			void		printHelp() const;
 
 			//For serverRun
-			void					createClientSocket(Socket *socket);
+			void					createClientSocket(Socket *socket, int i);
 			void					readFromClientSocket(int &fd);
 			void					sendToClientSocket(int &fd);
+
 			std::vector<Socket *>	_sockets;
 			std::list<int>			_clientSocket;
 		public:
