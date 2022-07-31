@@ -27,6 +27,8 @@ namespace ft
 			int			_num;
 			fd_set		_mRead;
 			fd_set		_mWrite;
+			fd_set		_tWrite;
+			fd_set		_tRead;
 
 			//Process input
 			void		processStdInput();
@@ -39,6 +41,10 @@ namespace ft
 
 			std::vector<Socket *>	_sockets;
 			std::list<int>			_clientSocket;
+			std::list<int>			_fdForDelete;
+			//free memory
+			void					freeMemory();
+			void					removeFdClientSocket();
 		public:
 			Webserv(std::string pathConf);
 			~Webserv();

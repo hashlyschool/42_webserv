@@ -9,7 +9,7 @@ ft::Socket::Socket(int port, std::string host, int backlog)
 		throw std::runtime_error(strerror(errno));
 	if (_socket_fd < 0)
 		throw std::runtime_error("invalid socket");
-	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
+	// fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(port);
