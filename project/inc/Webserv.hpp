@@ -15,21 +15,36 @@ namespace ft
 	class Webserv
 	{
 		private:
-			Parser					_parser;
-			std::vector<Socket *>	_sockets;
-			std::list<int>			_clientSocket;
-			Responder				_responder;
 
-			int		_num;
-			fd_set	_mRead;
-			fd_set	_mWrite;
+			//Parser
+			Parser		_parser;
+
+			//Responder
+			Responder	_responder;
+			t_dataResp	_dataResr;
+
+			//Select
+			int			_num;
+			fd_set		_mRead;
+			fd_set		_mWrite;
+			fd_set		_tWrite;
+			fd_set		_tRead;
 
 			//Process input
-			void	processStdInput();
-			void	printHelp() const;
+			void		processStdInput();
+			void		printHelp() const;
 
-			//For serverRiun
-			void	createClientSocket(Socket *socket);
+			//For serverRun
+			void					createClientSocket(Socket *socket, int i);
+			void					readFromClientSocket(int &fd);
+			void					sendToClientSocket(int &fd);
+
+			std::vector<Socket *>	_sockets;
+			std::list<int>			_clientSocket;
+			std::list<int>			_fdForDelete;
+			//free memory
+			void					freeMemory();
+			void					removeFdClientSocket();
 		public:
 			Webserv(std::string pathConf);
 			~Webserv();

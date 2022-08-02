@@ -1,26 +1,30 @@
 #include "../inc/Webserv.hpp"
-// #include <stdio.h>
 #include <signal.h>
 
-void signal_handler(int signal)
+void	signal_handler(int signal)
 {
 	if (signal)
 		signal = 0;
-	std::cout <<	"------------------\n" << \
-					"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'" << \
-					"\n------------------\n";
+	std::cout <<	"--------[INFO]--------\n" << \
+					"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'\n" << \
+					"--------[INFO]--------\n";
 }
 
-int main(int argc, char **argv)
+void	check_arg_set_signal(int argc)
 {
 	if (argc != 2)
 	{
 		std::cout << "[ERROR] for start webserv using: ./webserv path_conf\n";
-		return (1);
+		exit(1);
 	}
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGINT, signal_handler);
 	signal(SIGQUIT, signal_handler);
+}
+
+int	main(int argc, char **argv)
+{
+	check_arg_set_signal(argc);
 	try
 	{
 		ft::Webserv WebServer(argv[1]);
