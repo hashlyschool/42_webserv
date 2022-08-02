@@ -13,7 +13,7 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 
 	status = recv(fd, buf, BUF_SIZE, 0);
 	temp = buf;
-	startBody = temp.find("\r\n\r\n");
+	startBody = temp.find("\r\n\r\n"); //\n\n
 	if (startBody != temp.npos)
 	{
 		data.dataFd[fd]->requestHead = temp.substr(0, startBody);
@@ -96,7 +96,6 @@ void	ft::Responder::_autoIndex(int &fd, t_dataResp &data)
 	if (fd || data.dataFd[fd]->statusFd)
 		fd = fd;
 }
-//89258185878
 
 void	ft::Responder::action(int &fd, t_dataResp &data)
 {

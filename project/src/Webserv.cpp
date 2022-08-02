@@ -154,9 +154,9 @@ void	ft::Webserv::serverRun()
 			else if (FD_ISSET(*it, &_tWrite))
 				sendToClientSocket(*it);
 		}
+		removeFdClientSocket();
 		if (FD_ISSET(0, &_tRead))
 			processStdInput();
-		removeFdClientSocket();
 	}
 	freeMemory();
 }
