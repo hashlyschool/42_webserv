@@ -16,7 +16,11 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 	startBody = temp.find("\r\n\r\n"); //\n\n
 	if (startBody != temp.npos)
 	{
-		data.dataFd[fd]->requestHead = temp.substr(0, startBody);
+		httpRequest.parseHeader(temp);
+		// take size of request body
+		// if it is smaller than content-length of it is chuncked:
+		// write it into buffer in httpresponse
+		// and read again
 		data.dataFd[fd]->requestBody = temp.substr(startBody, temp.length());
 	}
 	else
