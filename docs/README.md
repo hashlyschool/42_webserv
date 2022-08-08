@@ -218,3 +218,10 @@ link  | description
 
 
 </details>
+
+<details>
+	<summary> Структура конфигурационного файла </summary>
+
+Тестовый текст
+
+</details>
