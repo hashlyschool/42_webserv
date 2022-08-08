@@ -4,7 +4,9 @@
 #include <string>
 #include <map>
 #include <sys/socket.h>
+#include <cstdlib>
 #include "./ConfigServer.hpp"
+#include "./HttpRequest.hpp"
 #include "./Cgi.hpp"
 
 namespace ft
@@ -41,6 +43,8 @@ namespace ft
 	class Responder
 	{
 		private:
+			HttpRequest httpRequest;
+
 			void	_makeSession(int &fd, t_dataResp &data);
 			void	_readBody(int &fd, t_dataResp &data);
 			void	_send(int &fd, t_dataResp &data);

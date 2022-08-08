@@ -11,21 +11,31 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 	std::string	temp;
 	size_t		startBody;
 
-	status = recv(fd, buf, BUF_SIZE, 0);
+	status = recv(fd, buf, BUF_SIZE - 1, 0);
+	buf[status] = 0;
+	if (status < 0) {
+		std::exit(-1); // read error management
+	}
 	temp = buf;
 	startBody = temp.find("\r\n\r\n"); //\n\n
 	if (startBody != temp.npos)
 	{
-		data.dataFd[fd]->requestHead = temp.substr(0, startBody);
-		data.dataFd[fd]->requestBody = temp.substr(startBody, temp.length());
+		httpRequest.parseHeader(data.dataFd[fd]->requestHead.append(temp));
+		// take size of request body
+		// if it is smaller than content-length of it is chuncked:
+		// write it into buffer in httpresponse
+		// and read again
+		data.dataFd[fd]->requestBody = temp.substr(startBody + 4);
+		if (data.dataFd[fd]->requestBody.length() == httpRequest.getContentLength())
+			data.dataFd[fd]->statusFd = ft::Send;
+		else
+			data.dataFd[fd]->statusFd = ft::Readbody;
 	}
 	else
+	{
+		//set status
 		data.dataFd[fd]->requestHead.append(temp);
-	//set status
-	if (status < BUF_SIZE)
-		data.dataFd[fd]->statusFd = ft::Send;
-	else
-		data.dataFd[fd]->statusFd = ft::Readbody;
+	}
 	// std::cout << "----------------\n";
 	// std::cout << buf;
 	// std::cout << "----------------\n";
@@ -40,7 +50,7 @@ void	ft::Responder::_readBody(int &fd, t_dataResp &data)
 	data.dataFd[fd]->requestBody.append(buf);
 	//set status
 	if (status == 0)
-		data.dataFd[fd]->statusFd = ft::Send;
+		data.dataFd[fd]->statusFd = ft::Send; // ваще не факт; 1. chunked - wait 2. slow client maybe; only if size of body = content length or an empty chunk
 	else
 		data.dataFd[fd]->statusFd = ft::Readbody;
 }
