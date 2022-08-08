@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <map>
 #include <sys/socket.h>
@@ -6,7 +8,7 @@
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
-#include "../inc/Utils.hpp"
+#include "./Utils.hpp"
 
 namespace ft
 {

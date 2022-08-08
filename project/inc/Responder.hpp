@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include "./ConfigServer.hpp"
 #include "./HttpRequest.hpp"
+#include "./Cgi.hpp"
+#include "./Utils.hpp"
 
 namespace ft
 {

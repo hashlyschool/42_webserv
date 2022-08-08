@@ -1,5 +1,4 @@
 #include "../inc/Utils.hpp"
-#include <iostream>
 
 unsigned long ft::Utils::strtoul(std::string string, int base)
 {

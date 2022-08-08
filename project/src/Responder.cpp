@@ -80,8 +80,33 @@ void	ft::Responder::_sendBody(int &fd, t_dataResp &data)
 
 void	ft::Responder::_cgi(int &fd, t_dataResp &data)
 {
-	if (fd || data.dataFd[fd]->statusFd)
-		fd = fd;
+	ft::Cgi	cgi;
+	pid_t	pid;
+
+	cgi.parseQueryString();
+	cgi.preparseExecveData();
+	pid = fork();
+	if (fork() < 0)
+		cgi.error();
+	if (pid == 0)
+		cgi.childProcess();
+	else
+		cgi.ParentProcess(pid);
+	data.dataFd[fd]->responseHead = cgi.getResponseHead();
+	// data.dataFd[fd]->responseBody = cgi.getResponseBody();
+	data.dataFd[fd]->statusFd = ft::Send;
+
+	//createHead
+	// data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\n";
+	//createBody
+	// char	buf[2048];
+	// bzero(buf, 2048);
+	// read()
+	// data.dataFd[fd]->responseBody = read
+	// if (connection == keepAlive && time < MaxTime && Qrequests < max)
+	// 	data.dataFd[fd]->statusFd = ft::Nosession;
+	// else //close
+	// 	data.dataFd[fd]->statusFd = ft::Closefd;
 }
 
 void	ft::Responder::_closeFd(int &fd, t_dataResp &data)
