@@ -8,10 +8,12 @@
 #include "./ConfigServer.hpp"
 #include "./HttpRequest.hpp"
 #include "./Cgi.hpp"
+#include "./Utils.hpp"
 
 namespace ft
 {
 	#define BUF_SIZE	2048
+	#define DELIMITER	"\r\n\r\n"
 
 	enum e_statusSession
 	{
@@ -33,6 +35,7 @@ namespace ft
 		std::string						responseHead;
 		std::string						responseBody;
 		size_t							sendBodyByte;
+		HttpRequest 					httpRequest;
 	}				t_dataFd;
 
 	typedef struct	s_dataResp
@@ -43,7 +46,6 @@ namespace ft
 	class Responder
 	{
 		private:
-			HttpRequest httpRequest;
 
 			void	_makeSession(int &fd, t_dataResp &data);
 			void	_readBody(int &fd, t_dataResp &data);
@@ -52,6 +54,7 @@ namespace ft
 			void	_cgi(int &fd, t_dataResp &data);
 			void	_closeFd(int &fd, t_dataResp &data);
 			void	_autoIndex(int &fd, t_dataResp &data);
+			void	_setStatusRequest(t_dataFd *data);
 
 		public:
 			Responder();

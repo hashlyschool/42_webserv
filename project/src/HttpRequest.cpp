@@ -1,6 +1,11 @@
 #include "../inc/HttpRequest.hpp"
 
-ft::HttpRequest::HttpRequest() {}
+ft::HttpRequest::HttpRequest() {
+	_contentLength = 0;
+	_chunked = false;
+	_headReady = false;
+	_bodyReady = false;
+}
 
 ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	this->_method = rhs._method;
@@ -13,95 +18,242 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	{
 		this->_headers[it->first] = it->second;
 	}
+	this->_headReady = rhs._headReady;
+	this->_bodyReady = rhs._bodyReady;
+	this->_currentChunk = rhs._currentChunk;
 	return *this;
 }
 
-void	ft::HttpRequest::parseRequestLine(std::stringstream &requestStream)
+size_t	ft::HttpRequest::parseRequestLine()
 {
 	//todo error handling
-	std::getline(requestStream, _method, ' ');
-	std::getline(requestStream, _url, ' ');
-	std::getline(requestStream, _httpVersion);
+	size_t pos = 0;
+	pos = ft::Utils::getdelim(_requestStr, _method, " ", pos);
+	pos = ft::Utils::getdelim(_requestStr, _url, " ", pos);
+	pos = ft::Utils::getdelim(_requestStr, _httpVersion, "\r\n", pos);
 
 	// for debug
-	std::cout << "method = " << _method << std::endl;
-	std::cout << "url = " << _url << std::endl;
-	std::cout << "httpVersion = " << _httpVersion << std::endl;
-	std::cout << "-------------request line end---------------"  << std::endl;
+	// std::cout << "method = " << _method << std::endl;
+	// std::cout << "url = " << _url << std::endl;
+	// std::cout << "httpVersion = " << _httpVersion << std::endl;
+	// std::cout << "-------------request line end---------------"  << std::endl;
+	return pos;
 }
 
-void	ft::HttpRequest::parseHeader(std::string requestStr) 
+void	ft::HttpRequest::setHeaderFields(std::string line)
+{
+	std::string key;
+	std::string value;
+	size_t pos = 0;
+
+	pos = ft::Utils::getdelim(line, key, ": ");
+	while ((pos = ft::Utils::getdelim(line, value, ",", pos)) != std::string::npos)
+	{
+		_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
+	}
+	_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
+}
+
+void	ft::HttpRequest::parseHeader() 
 {
 	std::string temp;
-
-	std::stringstream requestStream(requestStr);
-	parseRequestLine(requestStream);
-	std::getline(requestStream, temp);
+	size_t pos = parseRequestLine();
+	// std::getline(requestStream, temp);
 	
-
-	while (!temp.empty()) // happens when \n\n encountered
+	while ((pos = ft::Utils::getdelim(_requestStr, temp, "\r\n", pos)) != std::string::npos && !temp.empty())
 	{
-		
-		std::stringstream curLine(temp);
-		std::string key;
-		std::string value;
-
-		std::getline(curLine, key, ':');
-		while (std::getline(curLine, value, ','))
-		{
-			_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
-		}
-		std::getline(requestStream, temp);
+		setHeaderFields(temp);
 	}
+	if (!temp.empty())
+		setHeaderFields(temp);
+	setContentLength();
+	setChunked();
 
-	//make a method fill in fields
+	// for debug
+	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
+	// 											it != _headers.end(); it++)
+	// {
+	// 	std::cout << it->first << ": " << std::endl;
+	// 	std::vector<std::string> curV = it->second;
+	// 	for (size_t i = 0; i < curV.size(); i++)
+	// 	{
+	// 		std::cout << curV[i];
+	// 	}
+	// 	std::cout << std::endl;
+	// }
+
+	// std::cout << "---------------Request header end--------------------" << std::endl;
+}
+
+void ft::HttpRequest::setContentLength()
+{
 	if (hasContentLength())
 	{
 		std::string sizeStr = _headers["Content-Length"].front();
-		char *startString = &(sizeStr[0]);
-		char *endString = &(sizeStr[sizeStr.length()]);
-
-		_contentLength = std::strtoul(startString, &endString, 10);
+		_contentLength = ft::Utils::strtoul(sizeStr, 10);
 	}
-
-	// for debug
-	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
-												it != _headers.end(); it++)
-	{
-		std::cout << it->first << ": " << std::endl;
-		std::vector<std::string> curV = it->second;
-		for (size_t i = 0; i < curV.size(); i++)
-		{
-			std::cout << curV[i] << "";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << "---------------Request header end--------------------" << std::endl;
 }
 
-bool ft::HttpRequest::isChunked()
+void ft::HttpRequest::setChunked()
 {
-	// A sender MUST NOT send a Content-Length header field 
-	// in any message that contains a Transfer-Encoding header field.
-
 	if (_headers.find("Transfer-Encoding") == _headers.end())
 	{
-		return false;
+		_chunked = false;
+		return;
 	}
 	std::vector<std::string> values = _headers["Transfer-Encoding"];
-	return (std::find(values.begin(), values.end(), "chunked") != values.end());
+	_chunked = (std::find(values.begin(), values.end(), "chunked") != values.end());
 }
 
-unsigned long ft::HttpRequest::getContentLength()
+
+unsigned long ft::HttpRequest::getContentLength() const
 {
 	// A user agent SHOULD NOT send a Content-Length header 
 	// field when the request message does not contain a payload body 
 	// and the method semantics do not anticipate such a body.
+
 	return _contentLength;
 }
 
-bool ft::HttpRequest::hasContentLength()
+bool ft::HttpRequest::isChunked() const
+{
+	// A sender MUST NOT send a Content-Length header field 
+	// in any message that contains a Transfer-Encoding header field.
+
+	return _chunked;
+}
+
+bool ft::HttpRequest::hasContentLength() const
 {
 	return (_headers.find("Content-Length") != _headers.end());
+}
+
+void ft::HttpRequest::readBodyByChunks(std::string buffer)
+{
+	std::string lengthLine;
+	size_t pos = 0;
+
+	if (_currentChunk.isEmpty())
+		pos = ft::Utils::getdelim(buffer, lengthLine, "\r\n");
+	while (lengthLine != "0")
+	{
+		if (_currentChunk.isEmpty())
+		{
+			_currentChunk.setBytesToRead(ft::Utils::strtoul(lengthLine, 16));
+		}
+		std::string chunkBuf = buffer.substr(pos, _currentChunk.getBytesToRead());
+		size_t bytesRead = chunkBuf.length();
+		pos += bytesRead;
+
+		_currentChunk.setBytesToRead(_currentChunk.getBytesToRead() - bytesRead);
+		_currentChunk.append(chunkBuf);
+		if (pos == buffer.length())
+			break;
+		if (_currentChunk.isRead())
+		{
+			_body.append(_currentChunk.getChunk());
+			_currentChunk.clear();
+			if ((pos = ft::Utils::getdelim(buffer, lengthLine, "\r\n", pos)) == std::string::npos)
+				break;
+		}
+	}
+	if (lengthLine == "0")
+	{
+		_bodyReady = true;
+	}
+}
+
+void ft::HttpRequest::readBody(std::string current)
+{
+	if (_method == "DELETE" || _method == "GET")
+	{
+		_bodyReady = true;
+		return;
+	}
+	if (isChunked())
+	{
+		readBodyByChunks(current);
+	}
+	else
+	{
+		size_t bytesToRead = getContentLength() - _body.length();
+		_body.append(current.substr(0, bytesToRead));
+		if (_body.length() == getContentLength())
+			_bodyReady = true;
+	}
+}
+
+std::string ft::HttpRequest::getBody() const
+{
+	return _body;
+}
+
+bool ft::HttpRequest::bodyIsRead() const
+{
+	return _bodyReady;
+}
+
+void ft::HttpRequest::appendHead(std::string buf)
+{
+	_requestStr.append(buf);
+}
+
+std::string ft::HttpRequest::getRequestStr() const
+{
+	return _requestStr;
+}
+
+void ft::HttpRequest::setRequestStr(std::string source)
+{
+	_requestStr = source;
+}
+
+/* Chunk class definition */
+
+ft::HttpRequest::Chunk::Chunk(): empty(true) {}
+
+ft::HttpRequest::Chunk& ft::HttpRequest::Chunk::operator=(const Chunk & rhs)
+{
+	this->_bytesToRead = rhs._bytesToRead;
+	this->_chunk = rhs._chunk;
+	this->empty = rhs.empty;
+	return *this;
+}
+
+void ft::HttpRequest::Chunk::setBytesToRead(unsigned long bytesToRead)
+{
+	_bytesToRead = bytesToRead;
+	empty = false;
+}
+
+unsigned long ft::HttpRequest::Chunk::getBytesToRead() const
+{
+	return _bytesToRead;
+}
+
+std::string	 ft::HttpRequest::Chunk::getChunk() const
+{
+	return _chunk;
+}
+
+bool ft::HttpRequest::Chunk::isRead() const
+{
+	return (_bytesToRead == 0 && !empty);
+}
+
+bool ft::HttpRequest::Chunk::isEmpty() const
+{
+	return empty;
+}
+
+void ft::HttpRequest::Chunk::append(std::string string)
+{
+	_chunk.append(string);
+}
+
+void ft::HttpRequest::Chunk::clear()
+{
+	_bytesToRead = 0;
+	_chunk.clear();
+	empty = true;
 }

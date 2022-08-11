@@ -6,53 +6,41 @@ ft::Responder::~Responder() {}
 
 void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 {
-	int			status;
-	char		buf[BUF_SIZE];
-	std::string	temp;
+	std::string	input;
+	std::string inputHeader;
 	size_t		startBody;
+	HttpRequest &curRequest = data.dataFd[fd]->httpRequest;
 
-	status = recv(fd, buf, BUF_SIZE - 1, 0);
-	buf[status] = 0;
-	if (status < 0) {
-		std::exit(-1); // read error management
-	}
-	temp = buf;
-	startBody = temp.find("\r\n\r\n"); //\n\n
-	if (startBody != temp.npos)
+	input = ft::Utils::readFromSocket(fd, BUF_SIZE);
+	startBody = ft::Utils::getdelim(input, inputHeader, DELIMITER);
+	curRequest.appendHead(inputHeader);
+	if (startBody != std::string::npos)
 	{
-		httpRequest.parseHeader(data.dataFd[fd]->requestHead.append(temp));
-		// take size of request body
-		// if it is smaller than content-length of it is chuncked:
-		// write it into buffer in httpresponse
-		// and read again
-		data.dataFd[fd]->requestBody = temp.substr(startBody + 4);
-		if (data.dataFd[fd]->requestBody.length() == httpRequest.getContentLength())
-			data.dataFd[fd]->statusFd = ft::Send;
-		else
-			data.dataFd[fd]->statusFd = ft::Readbody;
+		curRequest.parseHeader();
+		curRequest.readBody(input.substr(startBody));
+		_setStatusRequest(data.dataFd[fd]);
 	}
-	else
+	// we could be really lucky to get delimiter in different portions of data
+	else if ((startBody = ft::Utils::getdelim(curRequest.getRequestStr(), inputHeader, DELIMITER)) != std::string::npos)
 	{
-		//set status
-		data.dataFd[fd]->requestHead.append(temp);
+		// trim request head so that part of the body wouldn't be there
+		// the remainder append to the body => it already contains the body from input; its fine
+		
+		std::string body = curRequest.getRequestStr().substr(startBody);
+		curRequest.setRequestStr(inputHeader);
+		curRequest.parseHeader();
+		curRequest.readBody(body);
+		_setStatusRequest(data.dataFd[fd]);
 	}
-	// std::cout << "----------------\n";
-	// std::cout << buf;
-	// std::cout << "----------------\n";
 }
 
 void	ft::Responder::_readBody(int &fd, t_dataResp &data)
 {
-	int		status;
-	char	buf[BUF_SIZE];
+	std::string input = ft::Utils::readFromSocket(fd, BUF_SIZE);
 
-	status = recv(fd, buf, BUF_SIZE, 0);
-	data.dataFd[fd]->requestBody.append(buf);
+	data.dataFd[fd]->httpRequest.readBody(input);
 	//set status
-	if (status == 0)
-		data.dataFd[fd]->statusFd = ft::Send; // ваще не факт; 1. chunked - wait 2. slow client maybe; only if size of body = content length or an empty chunk
-	else
-		data.dataFd[fd]->statusFd = ft::Readbody;
+	_setStatusRequest(data.dataFd[fd]);
 }
 
 void	ft::Responder::_send(int &fd, t_dataResp &data)
@@ -60,6 +48,7 @@ void	ft::Responder::_send(int &fd, t_dataResp &data)
 	int	status;
 
 	//create response head
+	std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
 	data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\n";
 	//create response body
 	data.dataFd[fd]->responseBody = "Hello world!";
@@ -162,4 +151,12 @@ void	ft::Responder::action(int &fd, t_dataResp &data)
 		default:
 			break;
 	}
+}
+
+void ft::Responder::_setStatusRequest(t_dataFd *data)
+{
+	if (data->httpRequest.bodyIsRead())
+		data->statusFd = ft::Send;
+	else
+		data->statusFd = ft::Readbody;
 }
