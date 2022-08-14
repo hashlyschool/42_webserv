@@ -53,14 +53,14 @@ if you add the flag -std=c++98.
 ## Обязательная часть ##
 
 
-Название программы  | webserv
-:------------------:|:---------------
-Файлы для сдачи     | Makefile, *.{h, hpp}, *.cpp, *.tpp, *.ipp, configuration files
-Makefile            | NAME, all, clean, fclean, re
-Параметры			| [A configuration file]
-Разрешенные внешние функции     |Everything in C++ 98. htons, htonl, ntohs, ntohl, select, poll, epoll (epoll_create, epoll_ctl, epoll_wait), kqueue (kqueue, kevent), socket, accept, listen, send, recv, bind, connect, inet_addr, setsockopt, getsockname, fcntl
-Использование libft | n/a
-Описание            | A HTTP server in C++ 98
+|     Название программы      | webserv                                                                                                                                                                                                                            |
+| :-------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       Файлы для сдачи       | Makefile, *.{h, hpp}, *.cpp, *.tpp, *.ipp, configuration files                                                                                                                                                                     |
+|          Makefile           | NAME, all, clean, fclean, re                                                                                                                                                                                                       |
+|          Параметры          | [A configuration file]                                                                                                                                                                                                             |
+| Разрешенные внешние функции | Everything in C++ 98. htons, htonl, ntohs, ntohl, select, poll, epoll (epoll_create, epoll_ctl, epoll_wait), kqueue (kqueue, kevent), socket, accept, listen, send, recv, bind, connect, inet_addr, setsockopt, getsockname, fcntl |
+|     Использование libft     | n/a                                                                                                                                                                                                                                |
+|          Описание           | A HTTP server in C++ 98                                                                                                                                                                                                            |
 
 You must write a HTTP server in C++ 98.
 
@@ -197,24 +197,142 @@ Usage tester:
 
 # Links #
 
-link  | description
-:------------------:|:---------------
-**information** |
-[web-server](https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B1-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)| wikipedia Веб-сервер
-[http-message](https://developer.mozilla.org/ru/docs/Web/HTTP/Messages) | структура сообщений http
-[Response codes HTTP](https://developer.mozilla.org/ru/docs/Web/HTTP/Status) | Описание кодов ответов HTTP сервера. Посмотреть обязательный код 405
-[chunked encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) | wikipedia. Описание поблочной передачи данных
-[RFC 2616](https://datatracker.ietf.org/doc/html/rfc2616) | описание стандарта `http/1.1`. Важное нашел в п.4,5,6)
-[RFC 3875](https://datatracker.ietf.org/doc/html/rfc3875) | описание работы `cgi`
-[Postman](https://www.postman.com/downloads/) | Download Postman. For generate URI message
-[Header 'connection'](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Connection) | Нужно посмотреть `close` `keep-alive` и их реализовать
-**video** |
-[webserv](https://www.youtube.com/watch?v=86sxYbUkJGk&t=451s&ab_channel=Edu_events_mow) | разбор проекта от edebi
-[Устройство WEB-сервера](https://www.youtube.com/watch?v=4zS6Db7xMuU&ab_channel=%D0%9D%D0%9E%D0%A3%D0%98%D0%9D%D0%A2%D0%A3%D0%98%D0%A2) | Хорошая лекция про общее устройства сервера
-**GitHub example** |
-[webserv edebi](https://github.com/megagosha/webserv) | проект от создателя видео *выше* (edebi)
-[webserv ettoren1](https://github.com/etorren1/webserv) | Вроде, готовый пример. Не знаю насколько он будет полезен, но можно поглядывать туда
+|                                                                  link                                                                   | description                                                                          |
+| :-------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------- |
+|                                                             **information**                                                             |
+|                   [web-server](https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B1-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)                   | wikipedia Веб-сервер                                                                 |
+|                                 [http-message](https://developer.mozilla.org/ru/docs/Web/HTTP/Messages)                                 | структура сообщений http                                                             |
+|                              [Response codes HTTP](https://developer.mozilla.org/ru/docs/Web/HTTP/Status)                               | Описание кодов ответов HTTP сервера. Посмотреть обязательный код 405                 |
+|                               [chunked encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding)                               | wikipedia. Описание поблочной передачи данных                                        |
+|                                        [RFC 2616](https://datatracker.ietf.org/doc/html/rfc2616)                                        | описание стандарта `http/1.1`. Важное нашел в п.4,5,6)                               |
+|                                        [RFC 3875](https://datatracker.ietf.org/doc/html/rfc3875)                                        | описание работы `cgi`                                                                |
+|                                              [Postman](https://www.postman.com/downloads/)                                              | Download Postman. For generate URI message                                           |
+|                        [Header 'connection'](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Connection)                         | Нужно посмотреть `close` `keep-alive` и их реализовать                               |
+|                                                                **video**                                                                |
+|                         [webserv](https://www.youtube.com/watch?v=86sxYbUkJGk&t=451s&ab_channel=Edu_events_mow)                         | разбор проекта от edebi                                                              |
+| [Устройство WEB-сервера](https://www.youtube.com/watch?v=4zS6Db7xMuU&ab_channel=%D0%9D%D0%9E%D0%A3%D0%98%D0%9D%D0%A2%D0%A3%D0%98%D0%A2) | Хорошая лекция про общее устройства сервера                                          |
+|                                                           **GitHub example**                                                            |
+|                                          [webserv edebi](https://github.com/megagosha/webserv)                                          | проект от создателя видео *выше* (edebi)                                             |
+|                                         [webserv ettoren1](https://github.com/etorren1/webserv)                                         | Вроде, готовый пример. Не знаю насколько он будет полезен, но можно поглядывать туда |
 
 
+
+</details>
+
+<details>
+	<summary> Структура конфигурационного файла </summary>
+
+<br/>
+	Конфигурационный файл состоит из модулей, которые настраиваются директивами (командами).
+Директивы делятся на простые и блочные. Простая директива состоит из имени и параметров, разделённых пробелами, и оканчивается точкой с запятой (;).
+Блочная директива устроена так же, как и простая директива, но вместо точки с запятой после имени и параметров следует набор дополнительных инструкций, помещённых внутри фигурных скобок ({ и }).
+Если у блочной директивы внутри фигурных скобок можно задавать другие директивы, то она называется контекстом (примеры: server, location).
+
+В общем случае конфигурационный файл может содержать несколько блоков server, различаемых по портам, на которых они слушают, и по имени сервера.
+Определив, какой server будет обрабатывать запрос, webserver сравнивает URI, указанный в заголовке запроса, с параметрами директив location, определённых внутри блока server.
+
+
+Блоки location определяют правила обработки контента для переданного URI из запроса.
+Если есть совпадение с несколькими блоками location, webserver выбирает блок с самым длинным префиксом. Блок location с самым коротким префиксом, длины один, является "/":
+
+>location / {<br/>
+    root /data/www;
+}
+
+ и поэтому этот блок будет использован, только если не будет совпадения ни с одним из остальных блоков location.
+
+Если же контент не существует в запрашиваемом location, webserver отправит ответ, указывающий на ошибку 404.
+
+В рамках нашего проекта мы определили следующие упрощения для конфигурационного файла:
+1. Мы рассматриваем только "server" и "location" контексты, которые неявно находятся в контексте "http";
+2. Первая строка для блока "server" должна выглядеть как "server {";
+3. Каждый блок должен закрываться отдельной строкой со скобкой "}" для логического завершения контекста;
+
+>Например:
+	server {<br/>
+		root /var/www/html;<br/>
+		}<br/>
+
+4. Строка начинающаяся с символа # рассматривается как комментарий и пропускается;
+5. Каждая директива внутри контекста состоит из его названия (root) и параметра(ов) (/var/www/html) через пробел, с закрытием строки символом ";". Если у директивы несколько параметров, то они разделяются запятой и пробелом;
+
+>Например:<br/>
+location /images {<br/>
+	autoindex on;<br/>
+	allowed_methods DELETE, POST;<br/>
+	}<br/>
+
+6. Мы проверяем что настройка сервера содержит как минимум "listen" и "server_name" директивы;
+7. Разрешенный список директив смотреть в ...<указать место структуры>;
+
+### Синтаксис:	server { ... }
+Умолчание:	—
+Контекст:	файл конфига
+
+Задаёт конфигурацию для виртуального сервера. Чёткого разделения виртуальных серверов на IP-based (на основании IP-адреса) и name-based (на основании поля “Host” заголовка запроса) нет.
+Вместо этого директивами listen описываются все адреса и порты, на которых нужно принимать соединения для этого сервера, а в директиве server_name указываются все имена серверов.
+
+### Синтаксис:	listen адрес[:порт];
+Умолчание:	listen *:80 | *:8000;
+Контекст:	server
+
+Задаёт адрес и порт для IP, на которых сервер будет принимать запросы. Можно указать адрес и порт, либо только адрес или только порт.
+
+>Пример:<br/>
+	>listen 127.0.0.1:8000;<br/>
+	>listen 127.0.0.1;<br/>
+	>listen 8000;<br/>
+
+Если указан только адрес, то используется порт 80.
+
+<!-- Если директива не указана, то используется либо *:80, если webserver работает с привилегиями суперпользователя, либо *:8000. -->
+
+<!-- Если у директивы есть параметр default_server, то сервер, в котором описана эта директива, будет сервером по умолчанию для указанной пары адрес:порт. Если же директив с параметром default_server нет, то сервером по умолчанию будет первый сервер, в котором описана пара адрес:порт. -->
+
+### Синтаксис:	server_name имя;
+Умолчание:	server_name "";
+Контекст:	server
+
+Задаёт имена виртуального сервера, например:
+
+>server {<br/>
+    server_name example.com;<br/>
+}<br/>
+
+### Синтаксис:	root путь;
+Умолчание:	root html;
+Контекст:	server, location
+
+Задаёт корневой каталог для запросов. Если в контексте location не указан root, то используется директива root из общего блока server.
+
+>Например:<br/>
+location /i/ {<br/>
+    root /data/w3;<br/>
+}<br/>
+
+### Синтаксис:	index файл;
+Умолчание:	index index.html;
+Контекст:	server, location
+
+Определяет файлы, которые будут использоваться в качестве индекса. Наличие файлов проверяется в порядке их перечисления. В конце списка может стоять файл с абсолютным путём.
+
+>Пример:<br/>
+index index.geo.html index.0.html /index.html;<br/>
+
+
+<!-- # Синтаксис:	try_files файл ... uri; #
+try_files файл ... =код;
+Умолчание:	—
+Контекст:	server, location
+
+* Проверяет существование файлов в заданном порядке и использует для обработки запроса первый найденный файл, причём обработка делается в контексте этого же location’а.
+Путь к файлу строится из параметра файл в соответствии с директивами root и alias.
+В случае, если ни один файл не найден, то делается внутреннее перенаправление на uri, заданный последним параметром. Каждая директива try_files использует последний параметр в качестве запасного варианта, потому этот файл должен существовать в системе. -->
+
+### Синтаксис:	autoindex on | off;
+Умолчание:	autoindex off;
+Контекст:	server, location
+
+Разрешает или запрещает вывод листинга каталога. Директива обслуживает запросы, оканчивающиеся слэшом (‘/’), и выдаёт листинг каталога.
 
 </details>
