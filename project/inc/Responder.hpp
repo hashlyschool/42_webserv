@@ -4,7 +4,10 @@
 #include <string>
 #include <map>
 #include <sys/socket.h>
+#include <cstdlib>
 #include "./ConfigServer.hpp"
+#include "./HttpRequest.hpp"
+#include "./Cgi.hpp"
 
 namespace ft
 {
@@ -16,7 +19,7 @@ namespace ft
 		Readbody,	//идет чтение body request
 		Send,		//Чтение закончено, нужно обработать запрос и сформировать строку ответа
 		Sendbody,	//Запрос обработан, идет отправка ответа
-		Cgi,		//Это cgi, нужно обработать по другому
+		CGI,		//Это cgi, нужно обработать по другому
 		Closefd,	//Нужно закрыть fd, удалить из соответвтвующих мест
 		AutoIndex	//хз
 	};
@@ -40,6 +43,8 @@ namespace ft
 	class Responder
 	{
 		private:
+			HttpRequest httpRequest;
+
 			void	_makeSession(int &fd, t_dataResp &data);
 			void	_readBody(int &fd, t_dataResp &data);
 			void	_send(int &fd, t_dataResp &data);

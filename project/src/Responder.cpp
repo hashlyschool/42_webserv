@@ -11,21 +11,31 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 	std::string	temp;
 	size_t		startBody;
 
-	status = recv(fd, buf, BUF_SIZE, 0);
+	status = recv(fd, buf, BUF_SIZE - 1, 0);
+	buf[status] = 0;
+	if (status < 0) {
+		std::exit(-1); // read error management
+	}
 	temp = buf;
 	startBody = temp.find("\r\n\r\n"); //\n\n
 	if (startBody != temp.npos)
 	{
-		data.dataFd[fd]->requestHead = temp.substr(0, startBody);
-		data.dataFd[fd]->requestBody = temp.substr(startBody, temp.length());
+		httpRequest.parseHeader(data.dataFd[fd]->requestHead.append(temp));
+		// take size of request body
+		// if it is smaller than content-length of it is chuncked:
+		// write it into buffer in httpresponse
+		// and read again
+		data.dataFd[fd]->requestBody = temp.substr(startBody + 4);
+		if (data.dataFd[fd]->requestBody.length() == httpRequest.getContentLength())
+			data.dataFd[fd]->statusFd = ft::Send;
+		else
+			data.dataFd[fd]->statusFd = ft::Readbody;
 	}
 	else
+	{
+		//set status
 		data.dataFd[fd]->requestHead.append(temp);
-	//set status
-	if (status < BUF_SIZE)
-		data.dataFd[fd]->statusFd = ft::Send;
-	else
-		data.dataFd[fd]->statusFd = ft::Readbody;
+	}
 	// std::cout << "----------------\n";
 	// std::cout << buf;
 	// std::cout << "----------------\n";
@@ -40,7 +50,7 @@ void	ft::Responder::_readBody(int &fd, t_dataResp &data)
 	data.dataFd[fd]->requestBody.append(buf);
 	//set status
 	if (status == 0)
-		data.dataFd[fd]->statusFd = ft::Send;
+		data.dataFd[fd]->statusFd = ft::Send; // ваще не факт; 1. chunked - wait 2. slow client maybe; only if size of body = content length or an empty chunk
 	else
 		data.dataFd[fd]->statusFd = ft::Readbody;
 }
@@ -81,8 +91,33 @@ void	ft::Responder::_sendBody(int &fd, t_dataResp &data)
 
 void	ft::Responder::_cgi(int &fd, t_dataResp &data)
 {
-	if (fd || data.dataFd[fd]->statusFd)
-		fd = fd;
+	ft::Cgi	cgi;
+	pid_t	pid;
+
+	cgi.parseQueryString();
+	cgi.preparseExecveData();
+	pid = fork();
+	if (fork() < 0)
+		cgi.error();
+	if (pid == 0)
+		cgi.childProcess();
+	else
+		cgi.ParentProcess(pid);
+	data.dataFd[fd]->responseHead = cgi.getResponseHead();
+	// data.dataFd[fd]->responseBody = cgi.getResponseBody();
+	data.dataFd[fd]->statusFd = ft::Send;
+
+	//createHead
+	// data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\n";
+	//createBody
+	// char	buf[2048];
+	// bzero(buf, 2048);
+	// read()
+	// data.dataFd[fd]->responseBody = read
+	// if (connection == keepAlive && time < MaxTime && Qrequests < max)
+	// 	data.dataFd[fd]->statusFd = ft::Nosession;
+	// else //close
+	// 	data.dataFd[fd]->statusFd = ft::Closefd;
 }
 
 void	ft::Responder::_closeFd(int &fd, t_dataResp &data)
@@ -115,7 +150,7 @@ void	ft::Responder::action(int &fd, t_dataResp &data)
 		case ft::Sendbody:
 			_sendBody(fd, data);
 			break;
-		case ft::Cgi:
+		case ft::CGI:
 			_cgi(fd, data);
 			break;
 		case ft::Closefd:
