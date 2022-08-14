@@ -7,10 +7,12 @@ FLAGS			=	-std=c++98 -Wall -Wextra -Werror -pedantic -MMD -MP
 
 #Main
 INCS_FILES		=	ALocation.hpp ConfigServer.hpp Location.hpp Parser.hpp \
-					Responder.hpp Socket.hpp Cgi.hpp HttpRequest.hpp Webserv.hpp
+					Responder.hpp Socket.hpp Cgi.hpp HttpRequest.hpp Webserv.hpp \
+					Utils.hpp
 
 SOURCE_FILES	=	ALocation.cpp ConfigServer.cpp Location.cpp Parser.cpp \
-					Responder.cpp Socket.cpp Webserv.cpp Cgi.cpp HttpRequest.cpp main.cpp
+					Responder.cpp Socket.cpp Webserv.cpp Cgi.cpp HttpRequest.cpp \
+					main.cpp Utils.cpp
 
 #Finish include
 INC_PATH		=	./inc/
