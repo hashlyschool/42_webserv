@@ -11,10 +11,10 @@ ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 	_num = 0;
 	try
 	{
-		for (int i = 0; i < _parser.getNumServers(); i++)
+		for (size_t i = 0; i < _parser.getNumServers(); i++)
 		{
 			temp_host = _parser.getConfigServer(i)->getHost();
-			temp_port = std::atoi(_parser.getConfigServer(i)->getPort().c_str());
+			temp_port = _parser.getConfigServer(i)->getPort();
 			_sockets.push_back(new ft::Socket(temp_port, temp_host, 10));
 			FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
 			if (_sockets.at(i)->get_socket_fd() > _num)

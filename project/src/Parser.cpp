@@ -1,130 +1,208 @@
 
 #include "../inc/Parser.hpp"
 
-ft::Parser::Parser(std::string conf)
+const ft::ParserException exception_ToManyArgError("Too many input arguments, only conf file path for the webserver is necessary!");
+const ft::ParserException exception_ReadConfFileError("Error reading server configuration file!");
+const ft::ParserException exception_NoServerError("No server found in the conf file!");
+const ft::ParserException exception_NameParseError("Found unknown directive in the conf file!");
+const ft::ParserException exeption_ServerParamError("Did not find either 'listen' or 'server_name' parameter in the conf file!");
+const ft::ParserException exception_ServerRedundancyError("There are two servers serving at the same IP address/port!");
+const ft::ParserException exception_IndexOutOfRangeError("Index is out of range!");
+
+ft::Parser::Parser(std::string pathConf): _pathConf(pathConf)
 {
-	std::ifstream _fd;
-	_fd.open(conf.c_str(), std::ios::in);
-	if (_fd.is_open() == false)
-		std::cerr << "Error can't open file" << std::endl;
-//	try
-//	{
-		std::string buf;
-		while (std::getline(_fd, buf))
+	parse_config();
+}
+
+ft::Parser::~Parser()
+{
+}
+
+size_t ft::Parser::getNumServers() const
+{
+	return (server_group.size());
+}
+
+ft::ConfigServer *ft::Parser::getConfigServer(int num) const
+{
+	// if (num > server_group.size() || num < 0)
+	// 	throw exception_IndexOutOfRangeError;
+	return (server_group[num]);
+}
+
+void ft::Parser::parse_config()
+{
+	_parse_server_config(_pathConf);
+}
+
+std::string ft::Parser::_verify_input(int ac, char **av)
+{
+	if (ac > 2)
+		throw exception_ToManyArgError;
+	if (ac == 2)
+		return av[1];
+	else
+		return default_config_file;
+}
+
+void ft::Parser::_parse_server_config(const std::string &conf_file)
+{
+	std::vector<std::string> parsed_line;
+	serverBlockConfig_t serverBlock;
+
+	int brackets = 0;
+
+	// Читаем файл в строку
+	if (!read_file(conf_file, raw_config_file))
+		throw exception_ReadConfFileError;
+
+	std::istringstream iss(raw_config_file);
+	while (!iss.eof())
+	{
+		// Проходим по каждой строке файла, разбивая ее на токены
+		split_next_line(iss, parsed_line);
+		// Проверка на пустую строку или комментарий
+		if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
+			continue;
+		// Если нашли директиву Server
+		if (parsed_line[0] == "server" && parsed_line[1] == "{")
 		{
-			buf = trim(buf, " \t");
-			if (buf.empty() || buf[0] == '#')
+			brackets = 1;
+			while (brackets > 0)
+			{
+				split_next_line(iss, parsed_line);
+				if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
+					continue;
+				_parse_server_block(iss, parsed_line, serverBlock, brackets);
+			}
+		}
+	}
+	if (server_group.size() == 0)
+		throw exception_NoServerError;
+	// if (_check_server_redundancy())
+	// 	throw exception_ServerRedundancyError;
+}
+
+bool ft::Parser::read_file(const std::string &file_name, std::string &raw_record)
+{
+	std::ostringstream content;
+
+	std::ifstream ifs(file_name.c_str(), std::ifstream::in); // open file
+	if (ifs.good())
+	{
+		content << ifs.rdbuf();
+		ifs.close();
+		raw_record = content.str();
+		return (true);
+	}
+	return (false);
+}
+
+void ft::Parser::split_next_line(std::istringstream &input_stream, std::vector<std::string> &output_vector)
+{
+	output_vector.clear();
+	std::string line;
+	std::getline(input_stream, line);
+
+	std::istringstream issline(line);
+	std::istream_iterator<std::string> last;
+	std::istream_iterator<std::string> first(issline);
+
+	std::vector<std::string> parsed(first, last);
+	output_vector = parsed;
+}
+
+int ft::Parser::_check_name(const std::string &name)
+{
+	if (name == "server_name")
+		return server_server_name;
+	if (name == "listen")
+		return server_listen;
+	if (name == "root")
+		return server_root;
+	if (name == "index")
+		return server_index;
+	if (name == "autoindex")
+		return server_autoindex;
+	if (name == "location")
+		return server_location;
+	if (name == "error_page")
+		return server_error_page;
+	if (name == "allowed_methods")
+		return server_allowed_methods;
+	return -1;
+}
+
+bool ft::Parser::_server_param_check(const std::map<std::string, std::string> &param)
+{
+	if (param.find("listen") != param.end() && param.find("server_name") != param.end())
+		return true;
+	else
+		return false;
+}
+
+void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock, int &brackets)
+{
+	if (parsed_line[0] == "}")
+	{
+		if (!_server_param_check(serverBlock.server_param))
+			throw exeption_ServerParamError;
+		AddServer(serverBlock);
+		brackets = 0;
+		return;
+	}
+	else if (_check_name(parsed_line[0]) == server_location && parsed_line.size() == 3 &&
+			 parsed_line[2] == "{")
+	{
+		brackets = 2;
+		Location one_location;
+		one_location.location_pathname = parsed_line[1];
+		while (brackets > 1)
+		{
+			split_next_line(iss, parsed_line);
+			if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
 				continue;
-			_config += buf;
-			_config += "\n";
+			if (parsed_line[0] == "}")
+			{
+				serverBlock.server_locations.push_back(one_location);
+				brackets = 1;
+				continue;
+			}
+			else
+			{
+				if (_check_name(parsed_line[0]) == -1)
+					throw exception_NameParseError;
+				if (parsed_line[parsed_line.size() - 1][parsed_line[parsed_line.size() - 1].size() - 1] == ';')
+					parsed_line[parsed_line.size() - 1].erase(parsed_line[parsed_line.size() - 1].size() - 1);
+				std::vector<std::string> args;
+				for (size_t i = 1; i < parsed_line.size(); i++)
+				{
+					if (parsed_line[i][parsed_line[i].size() - 1] == ',')
+						parsed_line[i].erase(parsed_line[i].size() - 1);
+					args.push_back(parsed_line[i]);
+				}
+				one_location.location_directives.insert(std::pair<std::string, std::vector<std::string> >(parsed_line[0], args));
+			}
 		}
-//	}
-//	catch (std::ifstream::failure e) { std::cerr << "Ifstream failure exception" << std::endl; }
-	_fd.close();
-	Parse();
-}
-
-inline std::string ft::Parser::trim( std::string line, std::string trimmer)
-{
-	line.erase(line.find_last_not_of(trimmer)+1);         //suffixing spaces
-    line.erase(0, line.find_first_not_of(trimmer));       //prefixing spaces
-    return line;
-}
-
-void ft::Parser::Parse() {
-	std::vector<std::string> token;
-	std::string tmp;
-	checkBrackets();
-	while (!_config.empty())
-	{
-		tmp = Split(_config, "SERVER");
-		if (tmp.empty() == false)
-			token.push_back(tmp);
 	}
-//	for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); it++)
-//		std::cout << *it << "\n";
-	size_t i = token.size();
-	std::cout << i << " tokens\n";
-	while (i--)
-		_configServers.push_back(new ConfigServer((parseOneServer(token[i]))));
-}
-
-ft::t_serverConf				ft::Parser::parseOneServer(std::string token)
-{
-	t_serverConf config;
-	std::string tmp;
-	config._port = "";
-	config._host = "";
-	config._serverName = "hi";
-	config._maxBodySize = 100;
-	while (!token.empty())
+	else
 	{
-		tmp = Split(token, "\n");
-		if (tmp.find("listen") != std::string::npos)
+		if (_check_name(parsed_line[0]) == -1)
+			throw exception_NameParseError;
+		if (parsed_line[1][parsed_line[1].size() - 1] == ';')
+			parsed_line[1].erase(parsed_line[1].size() - 1);
+		serverBlock.server_param.insert(std::pair<std::string, std::string>(parsed_line[0], parsed_line[1]));
+		if (parsed_line[0] == "error_page")
 		{
-			std::cout << tmp << "\n";
-			tmp = tmp.substr(7, 14);
-			std::cout << tmp << "\n";
-			config._host = tmp.substr(0, 9);
-			config._port = tmp.substr(10, 12);
-			std::cout << config._host << std::endl;
-			std::cout << config._port << std::endl;
+			if (parsed_line[2][parsed_line[2].size() - 1] == ';')
+				parsed_line[2].erase(parsed_line[2].size() - 1);
+			serverBlock.server_err_page.insert(std::pair<int, std::string>(atoi(parsed_line[1].c_str()), parsed_line[2]));
 		}
 	}
-	return config;
-}
-void ft::Parser::checkBrackets()
-{
-	std::string::iterator begin = _config.begin();
-	size_t bracket = 0;
-	while (begin != _config.end())
-	{
-		if (*begin == '{' && !bracket)
-			bracket += 1;
-	//	else if (*begin == '}' && !bracket)
-		//	throw(std::exception());//todo  make parse exception
-		else if (*begin == '}' && bracket)
-			bracket -= 1;
-		begin++;
-	}
-	//if (bracket != 0)
-	//	throw(std::exception());
 }
 
-std::string ft::Parser::Split(std::string &line, std::string delimiter)
+void ft::Parser::AddServer(serverBlockConfig_t &serverBlock)
 {
-	size_t pos = 0;
-	std::string token;
-	pos = line.find(delimiter);
-	if (pos == std::string::npos)
-	{
-		token = line;
-		line.erase();
-		return (trim(token, " \t"));
-	}
-
-    token = line.substr(0, pos);
-    line.erase(0, pos + delimiter.length());
-	return (trim(token, " \t"));
-}
-
-ft::Parser::~Parser() 
-{
-	std::vector<ConfigServer *>::iterator	it = _configServers.begin();
-
-	while (it != _configServers.end())
-	{
-		std::cout << "Virtual Server deleted\n";
-		delete *it++;
-	}
-}
-
-int	ft::Parser::getNumServers() const
-{
-	return (_configServers.size());
-}
-
-const ft::ConfigServer	*ft::Parser::getConfigServer(int index) const
-{
-	return (_configServers.at(index));
+	ConfigServer *newServer = new ConfigServer(serverBlock.server_param, serverBlock.server_err_page, serverBlock.server_locations);
+	server_group.push_back(newServer);
 }
