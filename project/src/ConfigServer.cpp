@@ -19,5 +19,6 @@ ft::ConfigServer::~ConfigServer()
 
 //getters
 const int	&ft::ConfigServer::getPort() const {	return (server_port); }
+
 const std::string	&ft::ConfigServer::getHost() const {	return (server_host); }
 

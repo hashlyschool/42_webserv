@@ -23,6 +23,8 @@ namespace ft
 		std::map<int, std::string> server_error_page_location;
 		std::vector<Location> server_locations;
 
+		ConfigServer();
+
 	public:
 		ConfigServer(std::map<std::string, std::string> param, std::map<int, std::string> err_page, std::vector<Location> loc);
 		~ConfigServer();

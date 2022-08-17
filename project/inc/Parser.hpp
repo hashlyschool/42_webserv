@@ -1,5 +1,6 @@
 
 #pragma once
+
 #include <stdexcept>
 #include <iostream>
 #include <istream>
@@ -12,10 +13,10 @@
 #include <map>
 #include "./ConfigServer.hpp"
 
+#define default_config_file "./default_localhost.conf"
+
 namespace ft
 {
-
-#define default_config_file "./default_localhost.conf"
 	class ConfigServer;
 
 	enum Server_Conf
@@ -46,22 +47,24 @@ namespace ft
 	class Parser
 	{
 	private:
+		// configuration data
+		std::string _raw_config_file;
+		std::string _pathConf;
+		std::vector<ConfigServer *> _server_group;
+
 		std::string _verify_input(int ac, char **av);
 		void _parse_server_config(const std::string &conf_file);
 		void _parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock, int &brackets);
 		int _check_name(const std::string &name);
 		bool _server_param_check(const std::map<std::string, std::string> &param);
+		void _erase_semicolon(std::vector<std::string> &parsed_line);
+		void _erase_comma(std::vector<std::string> &parsed_line, size_t &i);
+		void _addServer(serverBlockConfig_t &serverBlock);
 		Parser();
 
-	protected:
-		// configuration data
-		std::string raw_config_file;
-		std::string _pathConf;
-		std::vector<ConfigServer *> server_group;
-
-		void AddServer(serverBlockConfig_t &serverBlock);
-
 	public:
+		typedef std::pair<std::string, std::vector<std::string> > loc_type;
+
 		Parser(std::string pathConf);
 		~Parser();
 		void parse_config();
