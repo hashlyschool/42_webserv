@@ -30,11 +30,11 @@ namespace ft
 		server_allowed_methods
 	};
 
-	typedef struct Location
+	struct Location
 	{
 		std::string location_pathname;
 		std::map<std::string, std::vector<std::string> > location_directives;
-	} location_t;
+	};
 
 	typedef struct ServerBlock
 	{

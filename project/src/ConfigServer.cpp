@@ -1,6 +1,6 @@
 #include "../inc/ConfigServer.hpp"
 
-ft::ConfigServer::ConfigServer(std::map<std::string, std::string> param, std::map<int, std::string> err_page, std::vector<location_t> loc) : server_directives(param), server_error_page_location(err_page), server_locations(loc)
+ft::ConfigServer::ConfigServer(std::map<std::string, std::string> param, std::map<int, std::string> err_page, std::vector<Location> loc) : server_directives(param), server_error_page_location(err_page), server_locations(loc)
 {
 	// The standard form is "listen  127.0.0.1:8080"
 	// We assume that our servers listen on all ip address, i.e., "8080" means "0.0.0.0:8080"
