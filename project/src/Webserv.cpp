@@ -11,10 +11,10 @@ ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 	_num = 0;
 	try
 	{
-		for (size_t i = 0; i < _parser.getNumServers(); i++)
+		for (size_t i = 0; i < _parser.getConfigServers().size(); i++)
 		{
-			temp_host = _parser.getConfigServer(i)->getHost();
-			temp_port = _parser.getConfigServer(i)->getPort();
+			temp_host = _parser.getConfigServers()[i].getHost();
+			temp_port = _parser.getConfigServers()[i].getPort();
 			_sockets.push_back(new ft::Socket(temp_port, temp_host, 10));
 			FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
 			if (_sockets.at(i)->get_socket_fd() > _num)
@@ -81,7 +81,7 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	_dataResr.dataFd.insert(std::make_pair(fd, new t_dataFd));
 	_dataResr.dataFd[fd]->statusFd = ft::Nosession;
 	_dataResr.dataFd[fd]->sendBodyByte = 0;
-	_dataResr.dataFd[fd]->configServer = _parser.getConfigServer(i);
+	_dataResr.dataFd[fd]->configServer = &(_parser.getConfigServers().at(i));
 	_dataResr.dataFd[fd]->requestHead.clear();
 	_dataResr.dataFd[fd]->requestBody.clear();
 }

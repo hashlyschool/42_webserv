@@ -11,36 +11,16 @@ const ft::ParserException exception_IndexOutOfRangeError("Index is out of range!
 
 ft::Parser::Parser(std::string pathConf) : _pathConf(pathConf)
 {
-	// parse_config();
 	_parse_server_config(_pathConf);
 }
 
 ft::Parser::~Parser()
 {
-	std::vector<ConfigServer *>::iterator it = _server_group.begin();
-	while (it != _server_group.end())
-	{
-		delete *it;
-		it++;
-	}
-	_server_group.clear();
 }
 
-size_t ft::Parser::getNumServers() const
+const std::vector<ft::ConfigServer> &ft::Parser::getConfigServers() const
 {
-	return (_server_group.size());
-}
-
-ft::ConfigServer *ft::Parser::getConfigServer(int num) const
-{
-	if (static_cast<size_t>(num) > _server_group.size() || num < 0)
-		throw exception_IndexOutOfRangeError;
-	return (_server_group[num]);
-}
-
-void ft::Parser::parse_config()
-{
-	_parse_server_config(_pathConf);
+	return (_servers);
 }
 
 std::string ft::Parser::_verify_input(int ac, char **av)
@@ -56,7 +36,6 @@ std::string ft::Parser::_verify_input(int ac, char **av)
 void ft::Parser::_parse_server_config(const std::string &conf_file)
 {
 	std::vector<std::string> parsed_line;
-	serverBlockConfig_t serverBlock;
 
 	int brackets = 0;
 
@@ -73,7 +52,7 @@ void ft::Parser::_parse_server_config(const std::string &conf_file)
 		if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
 			continue;
 		// Если нашли директиву Server
-		if (parsed_line[0] == "server" && parsed_line[1] == "{")
+		if (parsed_line[0] == "server" && parsed_line[1] == "{") // обернуть в проверку начала контекста server
 		{
 			brackets = 1;
 			while (brackets > 0)
@@ -81,14 +60,12 @@ void ft::Parser::_parse_server_config(const std::string &conf_file)
 				split_next_line(iss, parsed_line);
 				if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
 					continue;
-				_parse_server_block(iss, parsed_line, serverBlock, brackets);
+				_parse_server_block(iss, parsed_line, brackets);
 			}
 		}
 	}
-	if (_server_group.size() == 0)
+	if (_servers.size() == 0)
 		throw exception_NoServerError;
-	// if (_check_server_redundancy())
-	// 	throw exception_ServerRedundancyError;
 }
 
 bool ft::Parser::read_file(const std::string &file_name, std::string &raw_record)
@@ -149,8 +126,9 @@ bool ft::Parser::_server_param_check(const std::map<std::string, std::string> &p
 		return false;
 }
 
-void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock, int &brackets)
+void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, int &brackets)
 {
+	serverBlockConfig_t serverBlock;
 	// Если конец блока
 	if (parsed_line[0] == "}")
 	{
@@ -166,7 +144,7 @@ void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::s
 	{
 		brackets = 2;
 		Location one_location;
-		one_location.location_pathname = parsed_line[1];
+		_fillLocationName(one_location, parsed_line[1]);
 		while (brackets > 1)
 		{
 			split_next_line(iss, parsed_line);
@@ -190,7 +168,7 @@ void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::s
 					_erase_comma(parsed_line, i);
 					args.push_back(parsed_line[i]);
 				}
-				one_location.location_directives.insert(loc_type(parsed_line[0], args));
+				_fillLocation(one_location, parsed_line[0], args);
 			}
 		}
 	}
@@ -201,20 +179,20 @@ void ft::Parser::_parse_server_block(std::istringstream &iss, std::vector<std::s
 			throw exception_NameParseError;
 		_erase_semicolon(parsed_line); // удалить ";" в конце строчки
 
-		serverBlock.server_param.insert(std::pair<std::string, std::string>(parsed_line[0], parsed_line[1]));
-		if (parsed_line[0] == "error_page")
-		{
-			if (parsed_line[2][parsed_line[2].size() - 1] == ';')
-				parsed_line[2].erase(parsed_line[2].size() - 1);
-			serverBlock.server_err_page.insert(std::pair<int, std::string>(atoi(parsed_line[1].c_str()), parsed_line[2]));
-		}
+		// serverBlock.server_param.insert(std::pair<std::string, std::string>(parsed_line[0], parsed_line[1]));
+		// if (parsed_line[0] == "error_page")
+		// {
+		// 	if (parsed_line[2][parsed_line[2].size() - 1] == ';')
+		// 		parsed_line[2].erase(parsed_line[2].size() - 1);
+		// 	serverBlock.server_err_page.insert(std::pair<int, std::string>(atoi(parsed_line[1].c_str()), parsed_line[2]));
+		// }
 	}
 }
 
 void ft::Parser::_addServer(serverBlockConfig_t &serverBlock)
 {
-	ConfigServer *newServer = new ConfigServer(serverBlock.server_param, serverBlock.server_err_page, serverBlock.server_locations);
-	_server_group.push_back(newServer);
+	_servers.push_back(ConfigServer());
+	_setServerInfo(_servers.size() - 1, serverBlock);
 }
 
 void ft::Parser::_erase_semicolon(std::vector<std::string> &parsed_line)
@@ -227,4 +205,30 @@ void ft::Parser::_erase_comma(std::vector<std::string> &parsed_line, size_t &i)
 {
 	if (parsed_line[i][parsed_line[i].size() - 1] == ',')
 		parsed_line[i].erase(parsed_line[i].size() - 1);
+}
+
+void ft::Parser::_setServerInfo(ssize_t index, serverBlockConfig_t &serverBlock)
+{
+	// TMP
+	serverBlock.server_param.begin();
+	_servers[index].setServerName("localhost");
+}
+
+void ft::Parser::_fillLocationName(ft::Location &obj, std::string line)
+{
+	if (!obj.getUrl().empty())
+		throw std::invalid_argument("Parser error: location error");
+
+	obj.setUrl(line);
+	if (line == "/cgi-bin/")
+		obj.setIsCgi(true);
+}
+
+void ft::Parser::_fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args)
+{
+	// TMP
+	if (key == "Index")
+	{
+		obj.setIndex(args[0]);
+	}
 }

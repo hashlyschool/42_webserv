@@ -31,11 +31,11 @@ namespace ft
 		server_allowed_methods
 	};
 
-	struct Location
-	{
-		std::string location_pathname;
-		std::map<std::string, std::vector<std::string> > location_directives;
-	};
+	// struct Location
+	// {
+	// 	std::string location_pathname;
+	// 	std::map<std::string, std::vector<std::string> > location_directives;
+	// };
 
 	typedef struct ServerBlock
 	{
@@ -50,29 +50,32 @@ namespace ft
 		// configuration data
 		std::string _raw_config_file;
 		std::string _pathConf;
-		std::vector<ConfigServer *> _server_group;
+		std::vector<ConfigServer> _servers;
 
 		std::string _verify_input(int ac, char **av);
 		void _parse_server_config(const std::string &conf_file);
-		void _parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock, int &brackets);
+		void _parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, int &brackets);
 		int _check_name(const std::string &name);
 		bool _server_param_check(const std::map<std::string, std::string> &param);
 		void _erase_semicolon(std::vector<std::string> &parsed_line);
 		void _erase_comma(std::vector<std::string> &parsed_line, size_t &i);
 		void _addServer(serverBlockConfig_t &serverBlock);
+		void _setServerInfo(ssize_t index, serverBlockConfig_t &serverBlock);
 		Parser();
+
+		void _fillLocationName(ft::Location &obj, std::string line);
+		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);
 
 	public:
 		typedef std::pair<std::string, std::vector<std::string> > loc_type;
 
 		Parser(std::string pathConf);
 		~Parser();
-		void parse_config();
 		bool read_file(const std::string &file_name, std::string &raw_record);
 		void split_next_line(std::istringstream &input_stream, std::vector<std::string> &output_vector);
 
-		size_t getNumServers() const;
-		ConfigServer *getConfigServer(int num) const;
+		// size_t getNumServers() const;
+		const std::vector<ft::ConfigServer> &getConfigServers() const;
 	};
 
 	class ParserException : public std::exception
