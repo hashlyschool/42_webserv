@@ -28,7 +28,12 @@ namespace ft
 		server_autoindex,
 		server_location,
 		server_error_page,
-		server_allowed_methods
+		server_allowed_methods,
+		server_max_body_size,
+		server_upload_path,
+		server_bin_path_py,
+		server_bin_path_sh,
+		server_redirection
 	};
 
 	// struct Location
@@ -46,28 +51,10 @@ namespace ft
 
 	class Parser
 	{
-	private:
-		// configuration data
-		std::string _raw_config_file;
-		std::string _pathConf;
-		std::vector<ConfigServer> _servers;
-
-		std::string _verify_input(int ac, char **av);
-		void _parse_server_config(const std::string &conf_file);
-		void _parse_server_block(std::istringstream &iss, std::vector<std::string> &parsed_line, int &brackets);
-		int _check_name(const std::string &name);
-		bool _server_param_check(const std::map<std::string, std::string> &param);
-		void _erase_semicolon(std::vector<std::string> &parsed_line);
-		void _erase_comma(std::vector<std::string> &parsed_line, size_t &i);
-		void _addServer(serverBlockConfig_t &serverBlock);
-		void _setServerInfo(ssize_t index, serverBlockConfig_t &serverBlock);
-		Parser();
-
-		void _fillLocationName(ft::Location &obj, std::string line);
-		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);
-
 	public:
 		typedef std::pair<std::string, std::vector<std::string> > loc_type;
+		typedef std::pair<std::string, std::string> dir_type;
+		typedef std::pair<int, std::string> err_type;
 
 		Parser(std::string pathConf);
 		~Parser();
@@ -76,6 +63,39 @@ namespace ft
 
 		// size_t getNumServers() const;
 		const std::vector<ft::ConfigServer> &getConfigServers() const;
+
+	private:
+		// configuration data
+		std::string _raw_config_file;
+		std::string _pathConf;
+		std::vector<ConfigServer> _servers;
+
+		std::string _verify_input(int ac, char **av);
+		void _parse_server_config(const std::string &conf_file);
+		void _parse_server_block(std::istringstream &iss, int &brackets);
+		int _check_name(const std::string &name);
+		bool _server_param_check(const std::map<std::string, std::string> &param);
+		void _erase_semicolon(std::vector<std::string> &parsed_line);
+		void _erase_comma(std::vector<std::string> &parsed_line, size_t &i);
+		void _checkDirective(std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock);
+		bool _validKeys(std::string &key, serverBlockConfig_t &serverBlock, size_t code);
+		int _checkPortVal(std::string str);
+		err_type _fillErrorPage(std::vector<std::string> value);
+		void _addServer(serverBlockConfig_t &serverBlock);
+		void _setServerInfo(ssize_t index, serverBlockConfig_t &serverBlock);
+		Parser();
+
+		void _fillLocationName(ft::Location &obj, std::string line);
+		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);
+		void _fillLocationMethods(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationRoot(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationRedirection(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationErrorsPages(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationIndex(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationAutoindex(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationUploadPath(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationBinPathPy(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationBinPathSh(std::string key, std::vector<std::string> args, ft::Location &location);
 	};
 
 	class ParserException : public std::exception

@@ -13,8 +13,8 @@ ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 	{
 		for (size_t i = 0; i < _parser.getConfigServers().size(); i++)
 		{
-			temp_host = _parser.getConfigServers()[i].getHost();
-			temp_port = _parser.getConfigServers()[i].getPort();
+			temp_host = _parser.getConfigServers().at(i).getHost();
+			temp_port = _parser.getConfigServers().at(i).getPort();
 			_sockets.push_back(new ft::Socket(temp_port, temp_host, 10));
 			FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
 			if (_sockets.at(i)->get_socket_fd() > _num)

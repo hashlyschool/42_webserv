@@ -86,3 +86,13 @@ const bool &ft::Location::getIsCgi() const
 {
 	return _isCgi;
 }
+
+void ft::Location::setRedirectionCode(const int &redirectionCode)
+{
+	_redirectionCode = redirectionCode;
+}
+
+const int &ft::Location::getRedirectionCode() const
+{
+	return _redirectionCode;
+}

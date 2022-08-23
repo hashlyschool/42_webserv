@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "./ALocation.hpp"
 
 namespace ft
@@ -13,6 +14,8 @@ namespace ft
 		bool _isFolder;
 		bool _isRedirect;
 		bool _isCgi;
+		int _redirectionCode;
+		std::map<int, std::string> _errorPages;
 
 	public:
 		Location();
