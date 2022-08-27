@@ -54,12 +54,12 @@ void	ft::HttpRequest::setHeaderFields(std::string line)
 	_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
 }
 
-void	ft::HttpRequest::parseHeader() 
+void	ft::HttpRequest::parseHeader()
 {
 	std::string temp;
 	size_t pos = parseRequestLine();
 	// std::getline(requestStream, temp);
-	
+
 	while ((pos = ft::Utils::getdelim(_requestStr, temp, "\r\n", pos)) != std::string::npos && !temp.empty())
 	{
 		setHeaderFields(temp);
@@ -108,8 +108,8 @@ void ft::HttpRequest::setChunked()
 
 unsigned long ft::HttpRequest::getContentLength() const
 {
-	// A user agent SHOULD NOT send a Content-Length header 
-	// field when the request message does not contain a payload body 
+	// A user agent SHOULD NOT send a Content-Length header
+	// field when the request message does not contain a payload body
 	// and the method semantics do not anticipate such a body.
 
 	return _contentLength;
@@ -117,7 +117,7 @@ unsigned long ft::HttpRequest::getContentLength() const
 
 bool ft::HttpRequest::isChunked() const
 {
-	// A sender MUST NOT send a Content-Length header field 
+	// A sender MUST NOT send a Content-Length header field
 	// in any message that contains a Transfer-Encoding header field.
 
 	return _chunked;
@@ -201,6 +201,11 @@ void ft::HttpRequest::appendHead(std::string buf)
 std::string ft::HttpRequest::getRequestStr() const
 {
 	return _requestStr;
+}
+
+std::string ft::HttpRequest::getURL() const
+{
+	return _url;
 }
 
 void ft::HttpRequest::setRequestStr(std::string source)

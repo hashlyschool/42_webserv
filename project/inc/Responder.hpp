@@ -36,6 +36,7 @@ namespace ft
 		std::string						responseBody;
 		size_t							sendBodyByte;
 		HttpRequest 					httpRequest;
+		Cgi								cgi;
 	}				t_dataFd;
 
 	typedef struct	s_dataResp
