@@ -2,22 +2,22 @@
 
 ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 {
-	int			temp_port;
-	std::string	temp_host;
+	u_short			temp_port;
+	in_addr_t		temp_host;
 
 	FD_ZERO(&_mRead);
 	FD_ZERO(&_mWrite);
 	FD_SET(STDIN_FILENO, &_mRead);
 	_num = 0;
 	for (size_t i = 0; i < _parser.getConfigServers().size(); ++i)
-  {
-    temp_host = _parser.getConfigServers().at(i).getHost();
-    temp_port = _parser.getConfigServers().at(i).getPort();
-    _sockets.push_back(new ft::Socket(temp_port, temp_host));
-    FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
-    if (_sockets.at(i)->get_socket_fd() > _num)
-      _num = _sockets.at(i)->get_socket_fd();
-  }
+	{
+		temp_host = _parser.getConfigServers().at(i).getHost();
+		temp_port = _parser.getConfigServers().at(i).getPort();
+		_sockets.push_back(new ft::Socket(temp_port, temp_host));
+		FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
+		if (_sockets.at(i)->get_socket_fd() > _num)
+			_num = _sockets.at(i)->get_socket_fd();
+	}
 }
 
 // Destructor

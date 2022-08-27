@@ -20,7 +20,7 @@ namespace ft
 			struct sockaddr_in	_address;
 
 		public:
-			Socket(int port, std::string host, int backlog = 10);
+			Socket(u_short port, in_addr_t host, int backlog = 10);
 			virtual				~Socket();
 
 			// Getters
