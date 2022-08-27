@@ -81,6 +81,6 @@ void	ft::Utils::setSignal()
 unsigned long  ft::Utils::getFileSize(std::string path)
 {
 	struct stat64 stat_buf;
-    int rc = stat64(path.c_str(), &stat_buf);
-    return stat_buf.st_size;
+	stat64(path.c_str(), &stat_buf);
+	return stat_buf.st_size;
 }
