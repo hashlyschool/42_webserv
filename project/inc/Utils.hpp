@@ -3,7 +3,8 @@
 #include <string>
 #include <cstdlib>
 #include <sys/socket.h>
-
+#include <iostream>
+#include <csignal>
 
 namespace ft
 {
@@ -14,5 +15,8 @@ namespace ft
 		static void				replaceAll(std::string &src, std::string toReplace, std::string replacement);
 		static std::string		readFromSocket(int fd, int buf_size);
 		static size_t			getdelim(std::string source, std::string &buffer, std::string delimeter, size_t pos = 0);
+		static void				signalHandler(int signal);
+		static void				checkArg(int argc, char **argv);
+		static void				setSignal();
 	};
 }

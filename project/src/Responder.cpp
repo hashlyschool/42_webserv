@@ -25,7 +25,7 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 	{
 		// trim request head so that part of the body wouldn't be there
 		// the remainder append to the body => it already contains the body from input; its fine
-		
+
 		std::string body = curRequest.getRequestStr().substr(startBody);
 		curRequest.setRequestStr(inputHeader);
 		curRequest.parseHeader();
@@ -45,17 +45,19 @@ void	ft::Responder::_readBody(int &fd, t_dataResp &data)
 
 void	ft::Responder::_send(int &fd, t_dataResp &data)
 {
-	int	status;
+	// int	status;
 
 	//create response head
-	std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
+	// std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
+	std::cout << "\nREQUEST\n\n" << data.dataFd[fd]->httpRequest.getRequestStr() << "\n\n";
+	// std::cout << "\nURL\n\n" << data.dataFd[fd]->httpRequest.getURL() << "\n\n";
 	data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\n";
 	//create response body
 	data.dataFd[fd]->responseBody = "Hello world!";
 	//send Head
 	std::string &response = data.dataFd[fd]->responseHead;
-	status = send(fd, response.c_str(), response.length(), 0);
-	std::cout << "status = " << status << std::endl;
+	send(fd, response.c_str(), response.length(), 0);
+	// std::cout << "status = " << status << std::endl;
 	//set status
 	if (data.dataFd[fd]->responseBody.length() == 0)
 		data.dataFd[fd]->statusFd = ft::Closefd;
@@ -80,7 +82,7 @@ void	ft::Responder::_sendBody(int &fd, t_dataResp &data)
 
 void	ft::Responder::_cgi(int &fd, t_dataResp &data)
 {
-	ft::Cgi	cgi;
+	ft::Cgi	&cgi = data.dataFd[fd]->cgi;
 	pid_t	pid;
 
 	cgi.parseQueryString();
@@ -96,6 +98,8 @@ void	ft::Responder::_cgi(int &fd, t_dataResp &data)
 	// data.dataFd[fd]->responseBody = cgi.getResponseBody();
 	data.dataFd[fd]->statusFd = ft::Send;
 
+	//Попробовать подождать процесс дочерний
+	//
 	//createHead
 	// data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\n";
 	//createBody
@@ -156,7 +160,12 @@ void	ft::Responder::action(int &fd, t_dataResp &data)
 void ft::Responder::_setStatusRequest(t_dataFd *data)
 {
 	if (data->httpRequest.bodyIsRead())
-		data->statusFd = ft::Send;
+	{
+		// if (isCGI())
+		// 	data->statusFd = ft::CGI;
+		// else
+			data->statusFd = ft::Send;
+	}
 	else
 		data->statusFd = ft::Readbody;
 }

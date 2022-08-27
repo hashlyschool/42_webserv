@@ -45,6 +45,14 @@ namespace ft
 			//free memory
 			void					freeMemory();
 			void					removeFdClientSocket();
+
+			// Exceptions
+			class Exception : public std::exception
+			{
+				public:
+					virtual const char* what() const throw();
+			};
+			
 		public:
 			Webserv(std::string pathConf);
 			~Webserv();
