@@ -2,9 +2,9 @@ NAME			=	webserv
 
 RM				=	rm -rf
 CC				=	g++
-OPTFLAGS		=	-g #-fsanitize=address
-FLAGS			=	-std=c++98 -Wall -Wextra -Werror -pedantic -MMD -MP
-
+OPTFLAGS		=	-g -fsanitize=address
+FLAGS			=	-std=c++98 -pedantic -MMD -MP
+# -Wall -Wextra -Werror
 #Main
 INCS_FILES		=	ALocation.hpp ConfigServer.hpp Location.hpp Parser.hpp \
 					Responder.hpp Socket.hpp Cgi.hpp HttpRequest.hpp Webserv.hpp \

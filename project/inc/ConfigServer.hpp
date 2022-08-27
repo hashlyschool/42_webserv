@@ -1,36 +1,49 @@
 #pragma once
 
-#include "./Location.hpp"
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <string>
+#include <cstdlib>
+#include "Location.hpp"
+#include "ALocation.hpp"
 #include <vector>
 
 namespace ft
 {
-	typedef struct	s_serverConf
+	struct Location;
+
+	class ConfigServer : public ft::ALocation
 	{
-		std::string				_port;
-		std::string				_host;
-		std::string				_serverName;
-		int						_maxBodySize;
-		std::vector<Location*>	_locations;
-	}				t_serverConf;
+	private:
+		// tcp communication configuration
+		u_short _port;
+		in_addr_t _host;
+		std::string _serverName;
+		int _maxBodySize;
 
-	class ConfigServer : public ALocation
-	{
-		private:
-			std::string				_port;
-			std::string				_host;
-			std::string				_serverName;
-			int						_maxBodySize;
-			std::vector<Location*>	_locations;
-		public:
-			ConfigServer(t_serverConf serverConf);
-			virtual ~ConfigServer();
+		// // data parsed from web server conf file
+		std::vector<Location> _locations;
 
-			//Getters
-			const std::string &getPort() const;
-			const std::string &getHost() const;
-			
+	public:
+		ConfigServer();
+		ConfigServer &operator=(const ConfigServer &other);
+		virtual ~ConfigServer();
 
+		void setPort(const int &port);
+		const u_short &getPort() const;
+
+		void setHost(const std::string &host);
+		const in_addr_t &getHost() const;
+
+		void setServerName(const std::string &serverName);
+		const std::string &getServerName() const;
+
+		void setMaxBodySize(const int &maxBodySize);
+		const int &getMaxBodySize() const;
+
+		void setLocations(const std::vector<Location> &locs);
+		std::vector<Location> &getLocations();
+		Location &getLocation(std::string &url);
 	};
 
 }
