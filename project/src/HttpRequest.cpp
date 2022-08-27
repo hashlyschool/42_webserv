@@ -5,6 +5,7 @@ ft::HttpRequest::HttpRequest() {
 	_chunked = false;
 	_headReady = false;
 	_bodyReady = false;
+	_close = false;
 }
 
 ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
@@ -58,7 +59,6 @@ void	ft::HttpRequest::parseHeader()
 {
 	std::string temp;
 	size_t pos = parseRequestLine();
-	// std::getline(requestStream, temp);
 
 	while ((pos = ft::Utils::getdelim(_requestStr, temp, "\r\n", pos)) != std::string::npos && !temp.empty())
 	{
@@ -68,6 +68,7 @@ void	ft::HttpRequest::parseHeader()
 		setHeaderFields(temp);
 	setContentLength();
 	setChunked();
+	setClose();
 
 	// for debug
 	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
@@ -105,21 +106,29 @@ void ft::HttpRequest::setChunked()
 	_chunked = (std::find(values.begin(), values.end(), "chunked") != values.end());
 }
 
+void ft::HttpRequest::setClose()
+{
+	if (_httpVersion == "HTTP/1.0")
+		_close = true;
+	else
+		_close = false;
+	if (_headers.find("Connection") != _headers.end())
+	{
+		std::vector<std::string> values = _headers["Connection"];
+		if (std::find(values.begin(), values.end(), "keep-alive") != values.end())
+			_close = false;
+		else if (std::find(values.begin(), values.end(), "close") != values.end())
+			_close = true;
+	}
+}
 
 unsigned long ft::HttpRequest::getContentLength() const
 {
-	// A user agent SHOULD NOT send a Content-Length header
-	// field when the request message does not contain a payload body
-	// and the method semantics do not anticipate such a body.
-
 	return _contentLength;
 }
 
 bool ft::HttpRequest::isChunked() const
 {
-	// A sender MUST NOT send a Content-Length header field
-	// in any message that contains a Transfer-Encoding header field.
-
 	return _chunked;
 }
 
@@ -193,6 +202,21 @@ bool ft::HttpRequest::bodyIsRead() const
 	return _bodyReady;
 }
 
+std::string ft::HttpRequest::getHttpVersion() const
+{
+	return _httpVersion;
+}
+
+std::string ft::HttpRequest::getMethod() const
+{
+	return _method;
+}
+
+std::string ft::HttpRequest::getUrl() const
+{
+	return _url;
+}
+
 void ft::HttpRequest::appendHead(std::string buf)
 {
 	_requestStr.append(buf);
@@ -206,6 +230,11 @@ std::string ft::HttpRequest::getRequestStr() const
 std::string ft::HttpRequest::getURL() const
 {
 	return _url;
+}
+
+bool ft::HttpRequest::getConnectionClosed() const
+{
+	return _close;
 }
 
 void ft::HttpRequest::setRequestStr(std::string source)
