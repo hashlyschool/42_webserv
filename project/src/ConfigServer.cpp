@@ -76,6 +76,11 @@ const int &ft::ConfigServer::getMaxBodySize() const
 	return _maxBodySize;
 }
 
+void ft::ConfigServer::setLocations(const std::vector<Location> &locs)
+{
+	_locations = locs;
+}
+
 std::vector<ft::Location> &ft::ConfigServer::getLocations()
 {
 	return _locations;

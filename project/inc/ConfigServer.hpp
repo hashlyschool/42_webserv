@@ -22,14 +22,11 @@ namespace ft
 		int _maxBodySize;
 
 		// // data parsed from web server conf file
-		// std::map<std::string, std::string> server_directives;
-		// std::map<int, std::string> server_error_page_location;
 		std::vector<Location> _locations;
 
 	public:
 		ConfigServer();
 		ConfigServer &operator=(const ConfigServer &other);
-		// ConfigServer(std::map<std::string, std::string> param, std::map<int, std::string> err_page, std::vector<Location> loc);
 		virtual ~ConfigServer();
 
 		void setPort(const int &port);
@@ -44,7 +41,9 @@ namespace ft
 		void setMaxBodySize(const int &maxBodySize);
 		const int &getMaxBodySize() const;
 
+		void setLocations(const std::vector<Location> &locs);
 		std::vector<Location> &getLocations();
+		Location &getLocation(std::string &url);
 	};
 
 }
