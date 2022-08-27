@@ -93,15 +93,15 @@ namespace ft
 
 		void _fillLocationName(ft::Location &obj, std::string line);
 		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);
-		void _fillLocationMethods(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationRoot(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationRedirection(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationErrorsPages(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationIndex(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationAutoindex(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationUploadPath(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationBinPathPy(std::string key, std::vector<std::string> args, ft::Location &location);
-		void _fillLocationBinPathSh(std::string key, std::vector<std::string> args, ft::Location &location);
+		void _fillLocationMethods(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationRoot(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationRedirection(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationErrorsPages(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationIndex(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationAutoindex(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationUploadPath(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationBinPathPy(std::vector<std::string> args, ft::Location &location);
+		void _fillLocationBinPathSh(std::vector<std::string> args, ft::Location &location);
 		void _fillConfig(ssize_t index, size_t key, std::vector<std::string>);
 	};
 

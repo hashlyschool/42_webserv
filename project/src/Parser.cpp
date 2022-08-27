@@ -348,31 +348,31 @@ void ft::Parser::_fillLocation(ft::Location &obj, std::string key, std::vector<s
 	switch (_check_name(key))
 	{
 	case server_allowed_methods:
-		_fillLocationMethods(key, args, obj);
+		_fillLocationMethods(args, obj);
 		break;
 	case server_root:
-		_fillLocationRoot(key, args, obj);
+		_fillLocationRoot(args, obj);
 		break;
 	case server_redirection:
-		_fillLocationRedirection(key, args, obj);
+		_fillLocationRedirection(args, obj);
 		break;
 	case server_error_page:
-		_fillLocationErrorsPages(key, args, obj);
+		_fillLocationErrorsPages(args, obj);
 		break;
 	case server_index:
-		_fillLocationIndex(key, args, obj);
+		_fillLocationIndex(args, obj);
 		break;
 	case server_autoindex:
-		_fillLocationAutoindex(key, args, obj);
+		_fillLocationAutoindex(args, obj);
 		break;
 	case server_upload_path:
-		_fillLocationUploadPath(key, args, obj);
+		_fillLocationUploadPath(args, obj);
 		break;
 	case server_bin_path_py:
-		_fillLocationBinPathPy(key, args, obj);
+		_fillLocationBinPathPy(args, obj);
 		break;
 	case server_bin_path_sh:
-		_fillLocationBinPathSh(key, args, obj);
+		_fillLocationBinPathSh(args, obj);
 		break;
 	}
 }
@@ -387,7 +387,7 @@ void ft::Parser::_fillLocationName(ft::Location &obj, std::string line)
 		obj.setIsCgi(true);
 }
 
-void ft::Parser::_fillLocationMethods(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationMethods(std::vector<std::string> args, ft::Location &location)
 {
 	for (size_t i = 0; i < args.size(); i++)
 	{
@@ -404,14 +404,14 @@ void ft::Parser::_fillLocationMethods(std::string key, std::vector<std::string> 
 	}
 }
 
-void ft::Parser::_fillLocationRoot(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationRoot(std::vector<std::string> args, ft::Location &location)
 {
 	if (!location.getRoot().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: root location error");
 	location.setRoot(args[0]);
 }
 
-void ft::Parser::_fillLocationRedirection(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationRedirection(std::vector<std::string> args, ft::Location &location)
 {
 	if (location.getIsRedirect() || args.size() != 2 || location.getIsCgi())
 		throw std::invalid_argument("Parser error: location redirection error");
@@ -423,7 +423,7 @@ void ft::Parser::_fillLocationRedirection(std::string key, std::vector<std::stri
 	location.setRedirectionCode(code);
 }
 
-void ft::Parser::_fillLocationErrorsPages(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationErrorsPages(std::vector<std::string> args, ft::Location &location)
 {
 	std::pair<int, std::string> str;
 	str.first = _fillErrorPage(args).first;
@@ -433,14 +433,14 @@ void ft::Parser::_fillLocationErrorsPages(std::string key, std::vector<std::stri
 	location.setErrorPages(str.first, str.second);
 }
 
-void ft::Parser::_fillLocationIndex(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationIndex(std::vector<std::string> args, ft::Location &location)
 {
 	if (!location.getIndex().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: wrong lcoation index page");
 	location.setIndex(args[0]);
 }
 
-void ft::Parser::_fillLocationAutoindex(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationAutoindex(std::vector<std::string> args, ft::Location &location)
 {
 	if (args.size() != 1 || (args[0] != "on" && args[0] != "off"))
 		throw std::invalid_argument("Parser error: location Autoindex error");
@@ -448,21 +448,21 @@ void ft::Parser::_fillLocationAutoindex(std::string key, std::vector<std::string
 		location.setAutoIndex(true);
 }
 
-void ft::Parser::_fillLocationUploadPath(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationUploadPath(std::vector<std::string> args, ft::Location &location)
 {
 	if (!location.getUploadPath().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: wrong location directory to upload");
 	location.setUploadPath(args[0]);
 }
 
-void ft::Parser::_fillLocationBinPathPy(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationBinPathPy(std::vector<std::string> args, ft::Location &location)
 {
 	if (!location.getBinPathPy().empty() || args.size() != 1 || !location.getIsCgi())
 		throw std::invalid_argument("Parser error: wrong location bin path");
 	location.setBinPathPy(args[0]);
 }
 
-void ft::Parser::_fillLocationBinPathSh(std::string key, std::vector<std::string> args, ft::Location &location)
+void ft::Parser::_fillLocationBinPathSh(std::vector<std::string> args, ft::Location &location)
 {
 	if (!location.getBinPathSh().empty() || args.size() != 1 || !location.getIsCgi())
 		throw std::invalid_argument("Parser error: wrong location bin path");
