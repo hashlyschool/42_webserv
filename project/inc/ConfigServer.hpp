@@ -29,6 +29,7 @@ namespace ft
 			//Getters
 			const std::string &getPort() const;
 			const std::string &getHost() const;
+			
 
 	};
 

@@ -6,10 +6,9 @@ ft::Socket::Socket(int port, std::string host, int backlog)
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int opt = 1;
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("error setsockopt");
 	if (_socket_fd < 0)
 		throw std::runtime_error("invalid socket");
-	// fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(port);
