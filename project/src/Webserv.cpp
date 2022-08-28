@@ -2,29 +2,21 @@
 
 ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 {
-	int			temp_port;
-	std::string	temp_host;
+	u_short			temp_port;
+	in_addr_t		temp_host;
 
 	FD_ZERO(&_mRead);
 	FD_ZERO(&_mWrite);
-	FD_SET(0, &_mRead);
+	FD_SET(STDIN_FILENO, &_mRead);
 	_num = 0;
-	try
+	for (size_t i = 0; i < _parser.getConfigServers().size(); ++i)
 	{
-		for (int i = 0; i < _parser.getNumServers(); i++)
-		{
-			temp_host = _parser.getConfigServer(i)->getHost();
-			temp_port = std::atoi(_parser.getConfigServer(i)->getPort().c_str());
-			_sockets.push_back(new ft::Socket(temp_port, temp_host, 10));
-			FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
-			if (_sockets.at(i)->get_socket_fd() > _num)
-				_num = _sockets.at(i)->get_socket_fd();
-		}
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << e.what() << std::endl;
-		exit(EXIT_FAILURE);
+		temp_host = _parser.getConfigServers().at(i).getHost();
+		temp_port = _parser.getConfigServers().at(i).getPort();
+		_sockets.push_back(new ft::Socket(temp_port, temp_host));
+		FD_SET(_sockets.at(i)->get_socket_fd(), &_mRead);
+		if (_sockets.at(i)->get_socket_fd() > _num)
+			_num = _sockets.at(i)->get_socket_fd();
 	}
 }
 
@@ -67,21 +59,17 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 
 	int fd = accept(socket->get_socket_fd(), &address, &addressLen);
 	if (fd < 0)
-	{
-		perror("accept");
-		return ;
-	}
+		throw std::runtime_error("error accept");
 	std::cout << "new accept fd = " << fd << std::endl;
 	if (fd > _num)
 		_num = fd;
 
 	FD_SET(fd, &_mRead);
-	// FD_SET(fd, &_tRead);
 	_clientSocket.push_back(fd);
 	_dataResr.dataFd.insert(std::make_pair(fd, new t_dataFd));
 	_dataResr.dataFd[fd]->statusFd = ft::Nosession;
 	_dataResr.dataFd[fd]->sendBodyByte = 0;
-	_dataResr.dataFd[fd]->configServer = _parser.getConfigServer(i);
+	_dataResr.dataFd[fd]->configServer = &(_parser.getConfigServers().at(i));
 	_dataResr.dataFd[fd]->requestHead.clear();
 	_dataResr.dataFd[fd]->requestBody.clear();
 }
@@ -93,9 +81,7 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 	_dataResr.dataFd[fd]->statusFd == ft::Sendbody)
 	{
 		FD_CLR(fd, &_mRead);
-		// FD_CLR(fd, &_tRead);
 		FD_SET(fd, &_mWrite);
-		// FD_SET(fd, &_tWrite);
 	}
 }
 
@@ -116,10 +102,7 @@ void	ft::Webserv::freeMemory()
 {
 	_dataResr.dataFd.size();
 	for(std::map<int,t_dataFd *>::iterator iter = _dataResr.dataFd.begin(); iter != _dataResr.dataFd.end(); ++iter)
-	{
 		delete iter->second;
-		// int fd =  iter->first;
-	}
 }
 
 void	ft::Webserv::removeFdClientSocket()
@@ -159,4 +142,10 @@ void	ft::Webserv::serverRun()
 			processStdInput();
 	}
 	freeMemory();
+}
+
+// Exceptions
+const char *ft::Webserv::Exception::what() const throw()
+{
+	return ("Webserv exception");
 }

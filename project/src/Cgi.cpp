@@ -1,6 +1,12 @@
 #include "../inc/Cgi.hpp"
 
-ft::Cgi::Cgi() {}
+ft::Cgi::Cgi()
+{
+	_outFd = -1;
+	_inFd = -1;
+	_cmd[0] = NULL;
+	_cmd[1] = NULL;
+}
 
 ft::Cgi::~Cgi()
 {

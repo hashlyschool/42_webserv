@@ -2,7 +2,7 @@ NAME			=	webserv
 
 RM				=	rm -rf
 CC				=	g++
-OPTFLAGS		=	-g #-fsanitize=address
+OPTFLAGS		=	-g -fsanitize=address
 FLAGS			=	-std=c++98 -Wall -Wextra -Werror -pedantic -MMD -MP
 
 #Main
