@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <csignal>
+#include <sstream>
+#include <sys/stat.h>
 
 namespace ft
 {
@@ -18,5 +20,14 @@ namespace ft
 		static void				signalHandler(int signal);
 		static void				checkArg(int argc, char **argv);
 		static void				setSignal();
+		static unsigned long	getFileSize(std::string path);
+
+		template <typename T>
+		static std::string		to_string(T elem)
+		{
+			std::stringstream sstream;
+			sstream << elem;
+			return sstream.str();
+		}
 	};
 }
