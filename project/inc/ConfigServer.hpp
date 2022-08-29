@@ -43,7 +43,8 @@ namespace ft
 
 		void setLocations(const std::vector<Location> &locs);
 		std::vector<Location> &getLocations();
-		Location &getLocation(std::string &url);
+
+		Location *getLocation(std::string &url);
 	};
 
 }

@@ -577,20 +577,20 @@ std::vector<std::string> ft::Parser::_getHostPort(std::string host)
 			i++;
 		else if (host[i] == '.')
 		{
-			if (j > 3)
-				throw std::invalid_argument("Parser error: wrong format");
+			if (j > 3 || dot == 3 || j < 1 || !(atoi(host.substr(i - j, i).c_str()) >= 0 && atoi(host.substr(i - j, i).c_str()) <= 255))
+				throw std::invalid_argument("Parser error: wrong host format: " + host);
 			j = -1;
 			dot++;
 			i++;
 		}
-		else if (host[i] == ':' && i)
+		else if (host[i] == ':' && i && j > 0)
 		{
 			hostPort.push_back(host.substr(0, i));
 			hostPort.push_back(host.substr(i + 1, host.size()));
 			return hostPort;
 		}
 		else
-			throw std::invalid_argument("Parser error: wrong number");
+			throw std::invalid_argument("Parser error: wrong number: " + host);
 		j++;
 	}
 	if (!hostPort.size())
