@@ -64,7 +64,7 @@ void ft::Parser::_parse_server_config(const std::string &conf_file)
 		if (parsed_line.size() == 0 || parsed_line[0][0] == '#')
 			continue;
 		// Если нашли директиву Server
-		if (parsed_line[0] == "server" && parsed_line[1] == "{") // обернуть в проверку начала контекста server
+		if (parsed_line[0] == "server" && parsed_line[1] == "{" && parsed_line.size() == 2) // обернуть в проверку начала контекста server
 		{
 			brackets = 1;
 			_parse_server_block(iss, brackets);
