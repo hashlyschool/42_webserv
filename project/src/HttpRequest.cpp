@@ -72,8 +72,7 @@ int	ft::HttpRequest::parseHeader()
 	if (!temp.empty())
 		setHeaderFields(temp);
 	setClose();
-	if (setContentLength() < 0 || setChunked() < 0 ||
-											(!_chunked && !hasContentLength))
+	if (setContentLength() < 0 || setChunked() < 0 || (!_chunked && !hasContentLength()))
 	{
 		_bodyReady = true;
 		_close = true;
@@ -94,6 +93,7 @@ int	ft::HttpRequest::parseHeader()
 	// }
 
 	// std::cout << "---------------Request header end--------------------" << std::endl;
+	return 1;
 }
 
 int ft::HttpRequest::setContentLength()
@@ -103,7 +103,7 @@ int ft::HttpRequest::setContentLength()
 		if (_headers["Content-Length"].size() > 1)
 			return (-1);
 		std::string sizeStr = _headers["Content-Length"].front();
-		for (int i = 0; i < sizeStr.length(); i++)
+		for (size_t i = 0; i < sizeStr.length(); i++)
 		{
 			if (!std::isdigit(sizeStr[i]))
 				return -1;
@@ -198,7 +198,7 @@ int ft::HttpRequest::readBody(std::string current)
 	if (_method == "DELETE" || _method == "GET")
 	{
 		_bodyReady = true;
-		return;
+		return 1;
 	}
 	if (isChunked())
 	{
@@ -211,6 +211,7 @@ int ft::HttpRequest::readBody(std::string current)
 		if (_body.length() == getContentLength())
 			_bodyReady = true;
 	}
+		return 0;
 }
 
 std::string ft::HttpRequest::getBody() const

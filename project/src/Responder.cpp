@@ -57,7 +57,12 @@ void	ft::Responder::_send(int &fd, t_dataResp &data)
 	send(fd, response.c_str(), response.length(), 0);
 	//set status
 	if (data.dataFd[fd]->responseBody.length() == 0)
-		data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		if (data.dataFd[fd]->httpRequest.getConnectionClosed())
+			data.dataFd[fd]->statusFd = ft::Closefd;
+		else
+			data.dataFd[fd]->statusFd = ft::Nosession;
+	}
 	else
 		data.dataFd[fd]->statusFd = ft::Sendbody;
 }
@@ -72,7 +77,12 @@ void	ft::Responder::_sendBody(int &fd, t_dataResp &data)
 	//trim body
 	sendByteNow += response.length();
 	if (data.dataFd[fd]->responseBody.length() == sendByteNow)
-		data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		if (data.dataFd[fd]->httpRequest.getConnectionClosed())
+			data.dataFd[fd]->statusFd = ft::Closefd;
+		else
+			data.dataFd[fd]->statusFd = ft::Nosession;
+	}
 }
 
 void	ft::Responder::_cgi(int &fd, t_dataResp &data)
@@ -116,8 +126,6 @@ void	ft::Responder::_closeFd(int &fd, t_dataResp &data)
 	data.dataFd.erase(fd);
 	//if connection close or time -> makesession
 	//else close
-	if (fd || data.dataFd[fd]->statusFd)
-		fd = fd;
 }
 
 void	ft::Responder::_autoIndex(int &fd, t_dataResp &data)
