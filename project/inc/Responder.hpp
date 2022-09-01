@@ -5,6 +5,8 @@
 #include <map>
 #include <sys/socket.h>
 #include <cstdlib>
+#include <sys/time.h>
+
 #include "./ConfigServer.hpp"
 #include "./HttpRequest.hpp"
 #include "./Cgi.hpp"
@@ -37,6 +39,7 @@ namespace ft
 		size_t							sendBodyByte;
 		HttpRequest 					httpRequest;
 		Cgi								cgi;
+		struct timeval					timeLastAction;
 	}				t_dataFd;
 
 	typedef struct	s_dataResp

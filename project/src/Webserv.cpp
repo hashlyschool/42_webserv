@@ -9,6 +9,7 @@ ft::Webserv::Webserv(std::string pathConf) : _parser(pathConf), _responder()
 	FD_ZERO(&_mWrite);
 	FD_SET(STDIN_FILENO, &_mRead);
 	_num = 0;
+	fillTimeout();
 	for (size_t i = 0; i < _parser.getConfigServers().size(); ++i)
 	{
 		temp_host = _parser.getConfigServers().at(i).getHost();
@@ -25,6 +26,9 @@ ft::Webserv::~Webserv()
 {
 	for (size_t i = 0; i < _sockets.size(); i++)
 		delete (_sockets.at(i));
+	_dataResr.dataFd.size();
+	for(std::map<int,t_dataFd *>::iterator iter = _dataResr.dataFd.begin(); iter != _dataResr.dataFd.end(); ++iter)
+		delete iter->second;
 }
 
 void	ft::Webserv::printHelp() const
@@ -60,10 +64,9 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	int fd = accept(socket->get_socket_fd(), &address, &addressLen);
 	if (fd < 0)
 		throw std::runtime_error("error accept");
-	std::cout << "new accept fd = " << fd << std::endl;
+	std::cout << "[INFO] new accept fd = " << fd << std::endl;
 	if (fd > _num)
 		_num = fd;
-
 	FD_SET(fd, &_mRead);
 	_clientSocket.push_back(fd);
 	_dataResr.dataFd.insert(std::make_pair(fd, new t_dataFd));
@@ -72,6 +75,7 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	_dataResr.dataFd[fd]->configServer = &(_parser.getConfigServers().at(i));
 	_dataResr.dataFd[fd]->requestHead.clear();
 	_dataResr.dataFd[fd]->requestBody.clear();
+	gettimeofday(&_dataResr.dataFd[fd]->timeLastAction, NULL);
 }
 
 void	ft::Webserv::readFromClientSocket(int &fd)
@@ -90,30 +94,48 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 	_responder.action(fd, _dataResr);
 	if (_dataResr.dataFd[fd]->statusFd == ft::Closefd)
 	{
-		close(fd);
+		_responder.action(fd, _dataResr);
 		_fdForDelete.push_back(fd);
 		FD_CLR(fd, &_mWrite);
-		delete _dataResr.dataFd[fd];
-		_dataResr.dataFd.erase(fd);
 	}
 }
 
-void	ft::Webserv::freeMemory()
+void	ft::Webserv::checkTimeConnection(int &fd)
 {
-	_dataResr.dataFd.size();
-	for(std::map<int,t_dataFd *>::iterator iter = _dataResr.dataFd.begin(); iter != _dataResr.dataFd.end(); ++iter)
-		delete iter->second;
+	struct timeval time;
+
+	gettimeofday(&time, NULL);
+	//keep-alive
+	if (time.tv_sec - _dataResr.dataFd[fd]->timeLastAction.tv_sec >= MAX_TIME_CONNECTION)
+	{
+		_dataResr.dataFd[fd]->statusFd = Closefd;
+		_responder.action(fd, _dataResr);
+		_fdForDelete.push_back(fd);
+		if (FD_ISSET(fd, &_mWrite))
+			FD_CLR(fd, &_mWrite);
+		if (FD_ISSET(fd, &_mRead))
+			FD_CLR(fd, &_mRead);
+	}
 }
 
 void	ft::Webserv::removeFdClientSocket()
 {
+	_fdForDelete.sort();
+	_fdForDelete.unique();
 	for (std::list<int>::iterator it = _fdForDelete.begin(); it != _fdForDelete.end(); ++it)
 	{
 		_clientSocket.remove(*it);
 		if (*it == _num)
 			_num--;
 	}
+
 	_fdForDelete.clear();
+}
+
+void	ft::Webserv::fillTimeout()
+{
+	_timeout.tv_sec = MAX_TIME_CONNECTION / 2;
+	_timeout.tv_usec = 0;
 }
 
 void	ft::Webserv::serverRun()
@@ -123,8 +145,13 @@ void	ft::Webserv::serverRun()
 		_tRead = _mRead;
 		_tWrite = _mWrite;
 
-		if (select(_num + 1, &_tRead, &_tWrite, 0, 0) <= 0)
-			continue ;
+		if (select(_num + 1, &_tRead, &_tWrite, 0, &_timeout) <= 0)
+		{
+			fillTimeout();
+			if (_clientSocket.size() == 0)
+				continue ;
+		}
+		fillTimeout();
 		for (size_t i = 0; i < _sockets.size(); ++i)
 		{
 			if (FD_ISSET(_sockets.at(i)->get_socket_fd(), &_tRead))
@@ -132,6 +159,7 @@ void	ft::Webserv::serverRun()
 		}
 		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)
 		{
+			checkTimeConnection(*it);
 			if (FD_ISSET(*it, &_tRead))
 				readFromClientSocket(*it);
 			else if (FD_ISSET(*it, &_tWrite))
@@ -141,7 +169,6 @@ void	ft::Webserv::serverRun()
 		if (FD_ISSET(0, &_tRead))
 			processStdInput();
 	}
-	freeMemory();
 }
 
 // Exceptions
