@@ -84,3 +84,17 @@ unsigned long  ft::Utils::getFileSize(std::string path)
 	stat64(path.c_str(), &stat_buf);
 	return stat_buf.st_size;
 }
+
+
+int	ft::Utils::findMaxElem(std::list<int> list)
+{
+	int	max;
+
+	max = list.front();
+	for (std::list<int>::iterator it = list.begin(); it != list.end(); ++it)
+	{
+		if (*it > max)
+			max = *it;
+	}
+	return max;
+}

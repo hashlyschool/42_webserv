@@ -65,10 +65,9 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	if (fd < 0)
 		throw std::runtime_error("error accept");
 	std::cout << "[INFO] new accept fd = " << fd << std::endl;
-	if (fd > _num)
-		_num = fd;
 	FD_SET(fd, &_mRead);
 	_clientSocket.push_back(fd);
+	_num = ft::Utils::findMaxElem(_clientSocket) + 1;
 	_dataResr.dataFd.insert(std::make_pair(fd, new t_dataFd));
 	_dataResr.dataFd[fd]->statusFd = ft::Nosession;
 	_dataResr.dataFd[fd]->sendBodyByte = 0;
@@ -98,6 +97,14 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 		_fdForDelete.push_back(fd);
 		FD_CLR(fd, &_mWrite);
 	}
+}
+
+void	ft::Webserv::sendErrorToClientSocket(int &fd)
+{
+	if (!fd)
+		return ;
+	// // send code 500? and close connection
+	// _dataResr.dataFd[fd]->httpRespone.sendErrr(500, "Max connection");
 }
 
 void	ft::Webserv::checkTimeConnection(int &fd)
@@ -134,7 +141,7 @@ void	ft::Webserv::removeFdClientSocket()
 
 void	ft::Webserv::fillTimeout()
 {
-	_timeout.tv_sec = MAX_TIME_CONNECTION / 2;
+	_timeout.tv_sec = 1; //maybe MaxConnection
 	_timeout.tv_usec = 0;
 }
 
@@ -155,7 +162,11 @@ void	ft::Webserv::serverRun()
 		for (size_t i = 0; i < _sockets.size(); ++i)
 		{
 			if (FD_ISSET(_sockets.at(i)->get_socket_fd(), &_tRead))
+			{
 				createClientSocket(_sockets.at(i), i);
+				if (_clientSocket.size() > MAX_CONNECTION)
+					sendErrorToClientSocket(_clientSocket.back());
+			}
 		}
 		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)
 		{
