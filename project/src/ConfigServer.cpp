@@ -1,17 +1,5 @@
 #include "../inc/ConfigServer.hpp"
 
-// ft::ConfigServer::ConfigServer(std::map<std::string, std::string> param, std::map<int, std::string> err_page, std::vector<Location> loc) : server_directives(param), server_error_page_location(err_page), server_locations(loc)
-// {
-// 	// The standard form is "listen  127.0.0.1:8080"
-// 	// We assume that our servers listen on all ip address, i.e., "8080" means "0.0.0.0:8080"
-// 	std::string listen_param = param.find("listen")->second;
-// 	size_t seperator_pos = listen_param.find(':');
-// 	std::string ipPart = listen_param.substr(0, seperator_pos);
-// 	std::string portPart = listen_param.substr(seperator_pos + 1);
-// 	_host = (seperator_pos != std::string::npos) ? ipPart : "0.0.0.0";
-// 	_port = (seperator_pos != std::string::npos) ? atoi(portPart.c_str()) : atoi(listen_param.c_str());
-// }
-
 ft::ConfigServer::ConfigServer()
 {
 	_port = 0;
@@ -33,7 +21,6 @@ ft::ConfigServer &ft::ConfigServer::operator=(const ConfigServer &other)
 
 ft::ConfigServer::~ConfigServer()
 {
-	//Нужно очистить выделенную память для _location's
 }
 
 void ft::ConfigServer::setPort(const int &port)
@@ -84,4 +71,18 @@ void ft::ConfigServer::setLocations(const std::vector<Location> &locs)
 std::vector<ft::Location> &ft::ConfigServer::getLocations()
 {
 	return _locations;
+}
+
+ft::Location *ft::ConfigServer::getLocation(std::string &url)
+{
+	std::vector<Location>::iterator v_loc = getLocations().begin();
+	while (v_loc != getLocations().end())
+	{
+		if ((url.find(v_loc->getUrl()) == 0) || (url + "/").find(v_loc->getUrl()) == 0)
+			break;
+		v_loc++;
+	}
+	if (v_loc != getLocations().end())
+		return &(*v_loc);
+	return NULL;
 }

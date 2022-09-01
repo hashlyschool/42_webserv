@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+#include "./Responder.hpp"
+
 namespace ft
 {
 	enum HTTPStatus {
@@ -82,7 +84,8 @@ namespace ft
 
 
 		public:
-		static const std::string getHttpFileType(std::string file);
-		static const std::string getHttpReason(unsigned int statusCode);
+		static const std::string	getHttpFileType(std::string file);
+		static const std::string	getHttpReason(unsigned int statusCode);
+		static size_t				checkHttpRequest(t_dataFd & data);
 	};
 }

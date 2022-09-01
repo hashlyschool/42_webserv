@@ -7,6 +7,7 @@
 #include <csignal>
 #include <sstream>
 #include <sys/stat.h>
+#include <list>
 
 namespace ft
 {
@@ -21,6 +22,7 @@ namespace ft
 		static void				checkArg(int argc, char **argv);
 		static void				setSignal();
 		static unsigned long	getFileSize(std::string path);
+		static int				findMaxElem(std::list<int> list);
 
 		template <typename T>
 		static std::string		to_string(T elem)

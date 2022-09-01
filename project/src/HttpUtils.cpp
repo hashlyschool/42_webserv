@@ -173,4 +173,24 @@ const std::string ft::HttpUtils::getHttpReason(unsigned int statusCode)
 
 		default: return "";
 	}
+
+}
+
+size_t ft::HttpUtils::checkHttpRequest(t_dataFd & data)
+{
+	HttpRequest req = data.httpRequest;
+	std::string method = req.getMethod();
+	// ALocation * location = data.config.getLocation(req.getUrl());
+
+	if (req.getHttpVersion() != "HTTP/1.1" && req.getHttpVersion() != "HTTP/1.0")
+		return HTTP_VERSION_NOT_SUPPORTED;
+	if (method != "GET" && method != "POST" && method != "DELETE") // maybe add head
+		return HTTP_BAD_REQUEST;
+	// if (!location)
+	// 	return HTTP_NOT_FOUND;
+	// else
+	// 	_loc = *location;
+	// if (!location.methodIsAllowed(method))
+	// return HTTP_METHOD_NOT_ALLOWED
+	return HTTP_OK;
 }

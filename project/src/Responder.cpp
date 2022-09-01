@@ -45,11 +45,9 @@ void	ft::Responder::_readBody(int &fd, t_dataResp &data)
 
 void	ft::Responder::_send(int &fd, t_dataResp &data)
 {
-	// int	status;
-
 	//create response head
 	// std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
-	std::cout << "\nREQUEST\n\n" << data.dataFd[fd]->httpRequest.getRequestStr() << "\n\n";
+	// std::cout << "\nREQUEST\n\n" << data.dataFd[fd]->httpRequest.getRequestStr() << "\n\n";
 	// std::cout << "\nURL\n\n" << data.dataFd[fd]->httpRequest.getURL() << "\n\n";
 	data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\n";
 	//create response body
@@ -57,27 +55,34 @@ void	ft::Responder::_send(int &fd, t_dataResp &data)
 	//send Head
 	std::string &response = data.dataFd[fd]->responseHead;
 	send(fd, response.c_str(), response.length(), 0);
-	// std::cout << "status = " << status << std::endl;
 	//set status
 	if (data.dataFd[fd]->responseBody.length() == 0)
-		data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		if (data.dataFd[fd]->httpRequest.getConnectionClosed())
+			data.dataFd[fd]->statusFd = ft::Closefd;
+		else
+			data.dataFd[fd]->statusFd = ft::Nosession;
+	}
 	else
 		data.dataFd[fd]->statusFd = ft::Sendbody;
 }
 
 void	ft::Responder::_sendBody(int &fd, t_dataResp &data)
 {
-	int		status;
 	size_t		&sendByteNow = data.dataFd[fd]->sendBodyByte;
 
 	//send Body
 	std::string	response = data.dataFd[fd]->responseBody.substr(sendByteNow, sendByteNow + BUF_SIZE);
-	status = send(fd, response.c_str(), response.length(), 0);
-	std::cout << "status = " << status << std::endl;
+	send(fd, response.c_str(), response.length(), 0);
 	//trim body
 	sendByteNow += response.length();
 	if (data.dataFd[fd]->responseBody.length() == sendByteNow)
-		data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		if (data.dataFd[fd]->httpRequest.getConnectionClosed())
+			data.dataFd[fd]->statusFd = ft::Closefd;
+		else
+			data.dataFd[fd]->statusFd = ft::Nosession;
+	}
 }
 
 void	ft::Responder::_cgi(int &fd, t_dataResp &data)
@@ -115,8 +120,12 @@ void	ft::Responder::_cgi(int &fd, t_dataResp &data)
 
 void	ft::Responder::_closeFd(int &fd, t_dataResp &data)
 {
-	if (fd || data.dataFd[fd]->statusFd)
-		fd = fd;
+	std::cout << "[INFO] Close fd = " << fd << "\n";
+	close(fd);
+	delete data.dataFd[fd];
+	data.dataFd.erase(fd);
+	//if connection close or time -> makesession
+	//else close
 }
 
 void	ft::Responder::_autoIndex(int &fd, t_dataResp &data)
@@ -129,6 +138,7 @@ void	ft::Responder::action(int &fd, t_dataResp &data)
 {
 	int	status = data.dataFd[fd]->statusFd;
 
+	gettimeofday(&data.dataFd[fd]->timeLastAction, NULL);
 	switch (status)
 	{
 		case ft::Nosession:

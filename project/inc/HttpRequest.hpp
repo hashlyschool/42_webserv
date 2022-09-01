@@ -12,6 +12,15 @@
 
 namespace ft
 {
+	/*
+	errors that should be caught while parsing HttpRequest:
+	- bad http version -> we might not know how to parse it
+	- bad http request -> in case of syntaxys errors? maybe security reasons but i'm not sure
+	- header too long - in request for security reasons
+	- transfer_enc && !chunked final - in request beacuse we don't know how to read this
+	- multiple different content-length or invalid content-length - in request beacuse we don't know how to read this
+	- limit size of chunks -> if the size of a chunk exceeds it -> error - in request because it is a reading body error
+*/
 
 	class HttpRequest
 	{
@@ -51,16 +60,15 @@ namespace ft
 
 			Chunk				_currentChunk;
 
-			void				setContentLength();
-			void				setChunked();
+			int					setContentLength();
+			int					setChunked();
 			void				setClose();
 
 			bool				hasContentLength() const;
 
 			size_t				parseRequestLine();
-			void				setHeaderFields(std::string line);
+			int					setHeaderFields(std::string line);
 			void				readBodyByChunks(std::string buffer);
-
 
 		public:
 			HttpRequest();
@@ -85,8 +93,8 @@ namespace ft
 
 			/*request proccessing*/
 
-			void			parseHeader();
-			void			readBody(std::string current); // to do
+			int				parseHeader();
+			int				readBody(std::string current);
 			void			appendHead(std::string buf);
 	};
 }
