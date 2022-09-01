@@ -27,7 +27,6 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 
 size_t	ft::HttpRequest::parseRequestLine()
 {
-	//todo error handling
 	size_t pos = 0;
 	pos = ft::Utils::getdelim(_requestStr, _method, " ", pos);
 	pos = ft::Utils::getdelim(_requestStr, _url, " ", pos);
@@ -41,34 +40,45 @@ size_t	ft::HttpRequest::parseRequestLine()
 	return pos;
 }
 
-void	ft::HttpRequest::setHeaderFields(std::string line)
+int	ft::HttpRequest::setHeaderFields(std::string line)
 {
 	std::string key;
 	std::string value;
 	size_t pos = 0;
 
 	pos = ft::Utils::getdelim(line, key, ": ");
+	if (pos == std::string::npos)
+		return -1;
 	while ((pos = ft::Utils::getdelim(line, value, ",", pos)) != std::string::npos)
 	{
 		_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
 	}
 	_headers[key].push_back(value.substr(value.find_first_not_of(' ')));
+	return 0;
 }
 
-void	ft::HttpRequest::parseHeader()
+int	ft::HttpRequest::parseHeader()
 {
 	std::string temp;
 	size_t pos = parseRequestLine();
 
 	while ((pos = ft::Utils::getdelim(_requestStr, temp, "\r\n", pos)) != std::string::npos && !temp.empty())
 	{
-		setHeaderFields(temp);
+		if (setHeaderFields(temp) < 0)
+		{
+			return -1;
+		}
 	}
 	if (!temp.empty())
 		setHeaderFields(temp);
-	setContentLength();
-	setChunked();
 	setClose();
+	if (setContentLength() < 0 || setChunked() < 0 ||
+											(!_chunked && !hasContentLength))
+	{
+		_bodyReady = true;
+		_close = true;
+		return -1;
+	}
 
 	// for debug
 	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
@@ -86,24 +96,35 @@ void	ft::HttpRequest::parseHeader()
 	// std::cout << "---------------Request header end--------------------" << std::endl;
 }
 
-void ft::HttpRequest::setContentLength()
+int ft::HttpRequest::setContentLength()
 {
 	if (hasContentLength())
 	{
+		if (_headers["Content-Length"].size() > 1)
+			return (-1);
 		std::string sizeStr = _headers["Content-Length"].front();
+		for (int i = 0; i < sizeStr.length(); i++)
+		{
+			if (!std::isdigit(sizeStr[i]))
+				return -1;
+		}
 		_contentLength = ft::Utils::strtoul(sizeStr, 10);
 	}
+	return 0;
 }
 
-void ft::HttpRequest::setChunked()
+int ft::HttpRequest::setChunked()
 {
 	if (_headers.find("Transfer-Encoding") == _headers.end())
 	{
 		_chunked = false;
-		return;
+		return 0;
 	}
 	std::vector<std::string> values = _headers["Transfer-Encoding"];
-	_chunked = (std::find(values.begin(), values.end(), "chunked") != values.end());
+	if (std::find(values.begin(), values.end(), "chunked") == values.end())
+		return -1;
+	_chunked = true;
+	return 0;
 }
 
 void ft::HttpRequest::setClose()
@@ -172,7 +193,7 @@ void ft::HttpRequest::readBodyByChunks(std::string buffer)
 	}
 }
 
-void ft::HttpRequest::readBody(std::string current)
+int ft::HttpRequest::readBody(std::string current)
 {
 	if (_method == "DELETE" || _method == "GET")
 	{
