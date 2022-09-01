@@ -101,10 +101,9 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 
 void	ft::Webserv::sendErrorToClientSocket(int &fd)
 {
-	if (!fd)
-		return ;
 	// // send code 500? and close connection
-	// _dataResr.dataFd[fd]->httpRespone.sendErrr(500, "Max connection");
+	// _dataResr.dataFd[fd]->httpRespone.sendError(500, "Max connection");
+	_dataResr.dataFd[fd]->statusFd = ft::Closefd;
 }
 
 void	ft::Webserv::checkTimeConnection(int &fd)
