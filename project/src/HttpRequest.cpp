@@ -70,9 +70,12 @@ int	ft::HttpRequest::parseHeader()
 		}
 	}
 	if (!temp.empty())
-		setHeaderFields(temp);
+	{
+		if (setHeaderFields(temp) < 0)
+			return -1;
+	}
 	setClose();
-	if (setContentLength() < 0 || setChunked() < 0 || (!_chunked && !hasContentLength()))
+	if (setContentLength() < 0 || setChunked() < 0)
 	{
 		_bodyReady = true;
 		_close = true;
@@ -80,19 +83,19 @@ int	ft::HttpRequest::parseHeader()
 	}
 
 	// for debug
-	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
-	// 											it != _headers.end(); it++)
-	// {
-	// 	std::cout << it->first << ": " << std::endl;
-	// 	std::vector<std::string> curV = it->second;
-	// 	for (size_t i = 0; i < curV.size(); i++)
-	// 	{
-	// 		std::cout << curV[i];
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
+												it != _headers.end(); it++)
+	{
+		std::cout << it->first << ": " << std::endl;
+		std::vector<std::string> curV = it->second;
+		for (size_t i = 0; i < curV.size(); i++)
+		{
+			std::cout << curV[i];
+		}
+		std::cout << std::endl;
+	}
 
-	// std::cout << "---------------Request header end--------------------" << std::endl;
+	std::cout << "---------------Request header end--------------------" << std::endl;
 	return 1;
 }
 
