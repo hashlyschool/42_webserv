@@ -70,10 +70,12 @@ int	ft::HttpRequest::parseHeader()
 		}
 	}
 	if (!temp.empty())
-		setHeaderFields(temp);
+	{
+		if (setHeaderFields(temp) < 0)
+			return -1;
+	}
 	setClose();
-	if (setContentLength() < 0 || setChunked() < 0 ||
-											(!_chunked && !hasContentLength))
+	if (setContentLength() < 0 || setChunked() < 0)
 	{
 		_bodyReady = true;
 		_close = true;
@@ -81,19 +83,20 @@ int	ft::HttpRequest::parseHeader()
 	}
 
 	// for debug
-	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
-	// 											it != _headers.end(); it++)
-	// {
-	// 	std::cout << it->first << ": " << std::endl;
-	// 	std::vector<std::string> curV = it->second;
-	// 	for (size_t i = 0; i < curV.size(); i++)
-	// 	{
-	// 		std::cout << curV[i];
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
+												it != _headers.end(); it++)
+	{
+		std::cout << it->first << ": " << std::endl;
+		std::vector<std::string> curV = it->second;
+		for (size_t i = 0; i < curV.size(); i++)
+		{
+			std::cout << curV[i];
+		}
+		std::cout << std::endl;
+	}
 
-	// std::cout << "---------------Request header end--------------------" << std::endl;
+	std::cout << "---------------Request header end--------------------" << std::endl;
+	return 1;
 }
 
 int ft::HttpRequest::setContentLength()
@@ -103,7 +106,7 @@ int ft::HttpRequest::setContentLength()
 		if (_headers["Content-Length"].size() > 1)
 			return (-1);
 		std::string sizeStr = _headers["Content-Length"].front();
-		for (int i = 0; i < sizeStr.length(); i++)
+		for (size_t i = 0; i < sizeStr.length(); i++)
 		{
 			if (!std::isdigit(sizeStr[i]))
 				return -1;
@@ -198,7 +201,7 @@ int ft::HttpRequest::readBody(std::string current)
 	if (_method == "DELETE" || _method == "GET")
 	{
 		_bodyReady = true;
-		return;
+		return 1;
 	}
 	if (isChunked())
 	{
@@ -211,6 +214,7 @@ int ft::HttpRequest::readBody(std::string current)
 		if (_body.length() == getContentLength())
 			_bodyReady = true;
 	}
+		return 0;
 }
 
 std::string ft::HttpRequest::getBody() const
