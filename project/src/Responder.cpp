@@ -9,6 +9,7 @@ void	ft::Responder::_makeSession(int &fd, t_dataResp &data)
 	std::string	input;
 	std::string inputHeader;
 	size_t		startBody;
+	data.dataFd[fd]->httpRequest = HttpRequest();
 	HttpRequest &curRequest = data.dataFd[fd]->httpRequest;
 
 	input = ft::Utils::readFromSocket(fd, BUF_SIZE);

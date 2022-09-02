@@ -9,6 +9,7 @@ ft::HttpRequest::HttpRequest() {
 }
 
 ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
+	this->_requestStr = rhs._requestStr;
 	this->_method = rhs._method;
 	this->_url = rhs._url;
 	this->_httpVersion = rhs._httpVersion;
@@ -19,6 +20,9 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	{
 		this->_headers[it->first] = it->second;
 	}
+	this->_contentLength = rhs._contentLength;
+	this->_close = rhs._close;
+	this->_chunked = rhs._chunked;
 	this->_headReady = rhs._headReady;
 	this->_bodyReady = rhs._bodyReady;
 	this->_currentChunk = rhs._currentChunk;
@@ -250,11 +254,6 @@ void ft::HttpRequest::appendHead(std::string buf)
 std::string ft::HttpRequest::getRequestStr() const
 {
 	return _requestStr;
-}
-
-std::string ft::HttpRequest::getURL() const
-{
-	return _url;
 }
 
 bool ft::HttpRequest::getConnectionClosed() const
