@@ -14,7 +14,7 @@
 namespace ft
 {
 
-	#define MAX_TIME_CONNECTION 15
+	#define MAX_TIME_CONNECTION 4
 	#define MAX_CONNECTION 10
 
 	class Webserv
@@ -26,7 +26,7 @@ namespace ft
 
 			//Responder
 			Responder	_responder;
-			t_dataResp	_dataResr;
+			MapDataFd	_dataResr;
 
 			//Select
 			int				_num;

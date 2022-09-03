@@ -2,19 +2,19 @@ NAME			=	webserv
 
 RM				=	rm -rf
 CC				=	g++
-OPTFLAGS		=	-g -fsanitize=address
+OPTFLAGS		=	-g #-fsanitize=address
 FLAGS			=	-std=c++98 -Wall -Wextra -Werror -pedantic -MMD -MP
 
 #Main
 INCS_FILES		=	ALocation.hpp ConfigServer.hpp Location.hpp Parser.hpp \
 					Responder.hpp Socket.hpp Cgi.hpp HttpRequest.hpp \
 					Webserv.hpp HttpResponse.hpp HttpUtils.hpp \
-					Utils.hpp
+					Utils.hpp DataFd.hpp
 
 SOURCE_FILES	=	ALocation.cpp ConfigServer.cpp Location.cpp Parser.cpp \
 					Responder.cpp Socket.cpp Webserv.cpp Cgi.cpp \
 					HttpRequest.cpp  HttpResponse.cpp HttpUtils.cpp\
-					main.cpp Utils.cpp
+					main.cpp Utils.cpp DataFd.cpp
 
 #Finish include
 INC_PATH		=	./inc/

@@ -15,6 +15,8 @@
 /* Orthodox form */
 ft::HttpResponse::HttpResponse() {}
 
+ft::HttpResponse::~HttpResponse() {}
+
 ft::HttpResponse & ft::HttpResponse::operator=(const ft::HttpResponse &rhs)
 {
 	this->_code = rhs._code;
@@ -28,15 +30,16 @@ ft::HttpResponse & ft::HttpResponse::operator=(const ft::HttpResponse &rhs)
 	this->_bodyRead = rhs._bodyRead;
 	this->_bytesRead = rhs._bytesRead;
 	this->_noBody = rhs._noBody;
+	return *this;
 }
 
 /* Request is taken as a valid one*/
-ft::HttpResponse::HttpResponse(ft::t_dataFd & data)
+ft::HttpResponse::HttpResponse(DataFd & data)
 {
 	_code = data.statusFd;
-	_method = data.httpRequest.getMethod();
-	_httpVersion = data.httpRequest.getHttpVersion();
-	_connectionClosed = data.httpRequest.getConnectionClosed();
+	_method = data.httpRequest->getMethod();
+	_httpVersion = data.httpRequest->getHttpVersion();
+	_connectionClosed = data.httpRequest->getConnectionClosed();
 	// _url = data.configServer->getLocation().getUrl();
 	_noBody = (_method == "HEAD" || _code < 200 || _code == HTTP_NO_CONTENT);
 	if (!_noBody && _method == "GET") //or cgi; to do later
@@ -70,7 +73,7 @@ std::string ft::HttpResponse::getResponseBodyPart()
 			return "Hello from HttpResponse! " + HttpUtils::getHttpReason(_code);
 		return "";
 	}
-	std::ifstream file(this->_url);
+	std::ifstream file(this->_url.c_str());
 	char buf[BUF_SIZE + 1];
 	if (file.is_open() && file.good())
 	{
@@ -134,4 +137,9 @@ bool ft::HttpResponse::noBody() const
 unsigned long ft::HttpResponse::getBodySize() const
 {
 	return _bodySize;
+}
+
+bool	ft::HttpResponse::connectionIsClosed() const
+{
+	return false;
 }

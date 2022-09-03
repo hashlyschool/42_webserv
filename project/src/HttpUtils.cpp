@@ -176,9 +176,9 @@ const std::string ft::HttpUtils::getHttpReason(unsigned int statusCode)
 
 }
 
-size_t ft::HttpUtils::checkHttpRequest(t_dataFd & data)
+size_t ft::HttpUtils::checkHttpRequest(DataFd & data)
 {
-	HttpRequest req = data.httpRequest;
+	HttpRequest &req = *data.httpRequest;
 	std::string method = req.getMethod();
 	// ALocation * location = data.config.getLocation(req.getUrl());
 
