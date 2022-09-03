@@ -194,3 +194,9 @@ size_t ft::HttpUtils::checkHttpRequest(t_dataFd & data)
 	// return HTTP_METHOD_NOT_ALLOWED
 	return HTTP_OK;
 }
+
+bool ft::HttpUtils::isSuccessful(size_t code)
+{
+	return (code >= HTTP_OK && code <= HTTP_IM_USED);
+}
+

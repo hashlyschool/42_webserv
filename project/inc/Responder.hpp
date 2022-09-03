@@ -9,6 +9,7 @@
 
 #include "./ConfigServer.hpp"
 #include "./HttpRequest.hpp"
+#include "./HttpResponse.hpp"
 #include "./Cgi.hpp"
 #include "./Utils.hpp"
 
@@ -21,7 +22,8 @@ namespace ft
 	{
 		Nosession,	//только создан, прочитать head, обработать
 		Readbody,	//идет чтение body request
-		Send,		//Чтение закончено, нужно обработать запрос и сформировать строку ответа
+		Execute,	// исполнение запроса
+		SendHead,		//Чтение закончено, нужно обработать запрос и сформировать строку ответа
 		Sendbody,	//Запрос обработан, идет отправка ответа
 		CGI,		//Это cgi, нужно обработать по другому
 		Closefd,	//Нужно закрыть fd, удалить из соответвтвующих мест
@@ -30,14 +32,12 @@ namespace ft
 
 	typedef	struct	s_dataFd
 	{
+		size_t							code;
+		std::string						finalUrl;
 		e_statusSession					statusFd;
 		const ConfigServer				*configServer;
-		std::string						requestHead;
-		std::string						requestBody;
-		std::string						responseHead;
-		std::string						responseBody;
-		size_t							sendBodyByte;
 		HttpRequest 					httpRequest;
+		HttpResponse					httpResponse;
 		Cgi								cgi;
 		struct timeval					timeLastAction;
 	}				t_dataFd;
@@ -53,13 +53,17 @@ namespace ft
 
 			void	_makeSession(int &fd, t_dataResp &data);
 			void	_readBody(int &fd, t_dataResp &data);
-			void	_send(int &fd, t_dataResp &data);
+			void	_execute(int &fd, t_dataResp &data);
+			void	_sendHead(int &fd, t_dataResp &data);
 			void	_sendBody(int &fd, t_dataResp &data);
 			void	_cgi(int &fd, t_dataResp &data);
 			void	_closeFd(int &fd, t_dataResp &data);
 			void	_autoIndex(int &fd, t_dataResp &data);
 			void	_setStatusRequest(t_dataFd *data);
 
+			void	_get(t_dataFd *data);
+			void	_post(t_dataFd *data);
+			void	_delete(t_dataFd *data);
 		public:
 			Responder();
 			virtual	~Responder();

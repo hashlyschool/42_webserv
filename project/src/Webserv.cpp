@@ -80,7 +80,7 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 void	ft::Webserv::readFromClientSocket(int &fd)
 {
 	_responder.action(fd, _dataResr);
-	if (_dataResr.dataFd[fd]->statusFd == ft::Send ||
+	if (_dataResr.dataFd[fd]->statusFd == ft::SendHead ||
 	_dataResr.dataFd[fd]->statusFd == ft::Sendbody)
 	{
 		FD_CLR(fd, &_mRead);

@@ -40,6 +40,7 @@ namespace ft
 
 			// ALocation	_loc;
 
+			std::string		_bodyStr;
 			unsigned long	_bodySize;
 			std::string		_bodyType;
 			bool			_bodyRead;

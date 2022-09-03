@@ -77,7 +77,6 @@ namespace ft
 			/*getters*/
 
 			std::string		getRequestStr() const;
-			std::string		getURL() const;
 			unsigned long	getContentLength() const;
 			bool			isChunked() const;
 			bool			bodyIsRead() const;

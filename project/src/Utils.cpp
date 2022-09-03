@@ -85,7 +85,6 @@ unsigned long  ft::Utils::getFileSize(std::string path)
 	return stat_buf.st_size;
 }
 
-
 int	ft::Utils::findMaxElem(std::list<int> list)
 {
 	int	max;
@@ -98,3 +97,47 @@ int	ft::Utils::findMaxElem(std::list<int> list)
 	}
 	return max;
 }
+
+/*
+std::string ft::Utils::normalizeUri(std::string s)
+{
+    std::list<std::string>                   tokens;
+    std::list<std::string>::reverse_iterator tmp1;
+    std::list<std::string>::reverse_iterator it = tokens.rbegin();
+    int                                      i  = 0;
+
+    if (s[0] != '/') {
+        s.clear();
+        return (s);
+    }
+
+    tokens = strTokenizer(s, '/');
+    for (; it != tokens.rend(); ++it) {
+        tmp1 = it;
+        if (*it == "..")
+            i += 4;
+        if (i > 0) {
+            --tmp1;
+            tokens.erase(--(it.base()));
+            it = tmp1;
+            --i;
+        }
+    }
+    if (i != 0) {
+        s.clear();
+        return (s);
+    }
+    s.clear();
+    for (std::list<std::string>::iterator rit = tokens.begin(); rit != tokens.end(); ++rit) {
+        if (*rit == "/") {
+            if (++rit != tokens.end() && *(rit) == "/") {
+                s.clear();
+                return (s);
+            } else
+                --rit;
+        }
+        s.append(*rit);
+    }
+    return (s);
+}
+*/

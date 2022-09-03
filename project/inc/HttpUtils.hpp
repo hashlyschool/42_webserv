@@ -87,5 +87,6 @@ namespace ft
 		static const std::string	getHttpFileType(std::string file);
 		static const std::string	getHttpReason(unsigned int statusCode);
 		static size_t				checkHttpRequest(t_dataFd & data);
+		static bool					isSuccessful(size_t code);
 	};
 }
