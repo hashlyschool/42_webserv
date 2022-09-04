@@ -208,9 +208,9 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 		if (HttpUtils::isSuccessful(data->code))
 		{
 		// if (isCGI())
-		// 	data->statusFd = ft::Execute;
+			// data->statusFd = ft::CGI;
 		// else
-			data->statusFd = ft::CGI;
+			data->statusFd = ft::Execute;
 		}
 		else
 			data->statusFd = ft::SendHead;
