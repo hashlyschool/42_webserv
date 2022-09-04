@@ -7,6 +7,7 @@
 #include "Location.hpp"
 #include "ALocation.hpp"
 #include <vector>
+#include <algorithm>
 
 namespace ft
 {
@@ -47,4 +48,5 @@ namespace ft
 		Location *getLocation(std::string &url);
 	};
 
+	bool comp_loc_url(ft::Location *loc1, ft::Location *loc2);
 }
