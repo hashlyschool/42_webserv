@@ -43,10 +43,10 @@ namespace ft
 		const int &getMaxBodySize() const;
 
 		void setLocations(const std::vector<Location> &locs);
-		std::vector<Location> &getLocations();
+		const std::vector<Location> &getLocations() const;
 
-		Location *getLocation(std::string &url);
+		const Location *getLocation(std::string &url) const;
 	};
 
-	bool comp_loc_url(ft::Location *loc1, ft::Location *loc2);
+	bool comp_loc_url(const ft::Location *loc1, const ft::Location *loc2);
 }
