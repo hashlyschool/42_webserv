@@ -1,17 +1,23 @@
-#pragma once
+     #pragma once
 
 #include <string>
 #include <sstream>
 #include <fstream>
 
-#include "./HttpRequest.hpp"
-#include "./ConfigServer.hpp"
-#include "./Responder.hpp"
+// #include "./HttpRequest.hpp"
+// #include "./ConfigServer.hpp"
+// #include "./Responder.hpp"
 #include "./Utils.hpp"
 #include "./HttpUtils.hpp"
 
 namespace ft
 {
+	#define DELIMITER	"\r\n\r\n"
+	#define HEADERS_DELIMITER "\r\n"
+	#define BUF_SIZE	2048
+
+	class DataFd;
+	
 	class HttpResponse
 	{
 		/*
@@ -28,7 +34,6 @@ namespace ft
 		if no host -> case invalid
 		*/
 
-		#define HEADERS_DELIMITER "\r\n"
 
 		private:
 			unsigned int	_code;
@@ -40,6 +45,7 @@ namespace ft
 
 			// ALocation	_loc;
 
+			std::string		_bodyStr;
 			unsigned long	_bodySize;
 			std::string		_bodyType;
 			bool			_bodyRead;
@@ -60,7 +66,7 @@ namespace ft
 				2. valid request
 			*/
 
-			HttpResponse(t_dataFd & data); // ошибок еще нет и мы будем их проверять и записывать в t_dataFd
+			HttpResponse(DataFd & data); // ошибок еще нет и мы будем их проверять и записывать в t_dataFd
 
 			void		setBodyUrl(std::string url);
 			// void		appendBodyFromFile(std::string path);

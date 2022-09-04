@@ -9,6 +9,7 @@ ft::HttpRequest::HttpRequest() {
 }
 
 ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
+	this->_requestStr = rhs._requestStr;
 	this->_method = rhs._method;
 	this->_url = rhs._url;
 	this->_httpVersion = rhs._httpVersion;
@@ -19,8 +20,12 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	{
 		this->_headers[it->first] = it->second;
 	}
+	this->_contentLength = rhs._contentLength;
+	this->_close = rhs._close;
+	this->_chunked = rhs._chunked;
 	this->_headReady = rhs._headReady;
 	this->_bodyReady = rhs._bodyReady;
+	this->_currentChunk = rhs._currentChunk;
 	this->_currentChunk = rhs._currentChunk;
 	return *this;
 }
@@ -70,9 +75,12 @@ int	ft::HttpRequest::parseHeader()
 		}
 	}
 	if (!temp.empty())
-		setHeaderFields(temp);
+	{
+		if (setHeaderFields(temp) < 0)
+			return -1;
+	}
 	setClose();
-	if (setContentLength() < 0 || setChunked() < 0 || (!_chunked && !hasContentLength()))
+	if (setContentLength() < 0 || setChunked() < 0)
 	{
 		_bodyReady = true;
 		_close = true;
@@ -80,19 +88,19 @@ int	ft::HttpRequest::parseHeader()
 	}
 
 	// for debug
-	// for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
-	// 											it != _headers.end(); it++)
-	// {
-	// 	std::cout << it->first << ": " << std::endl;
-	// 	std::vector<std::string> curV = it->second;
-	// 	for (size_t i = 0; i < curV.size(); i++)
-	// 	{
-	// 		std::cout << curV[i];
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
+												it != _headers.end(); it++)
+	{
+		std::cout << it->first << ": " << std::endl;
+		std::vector<std::string> curV = it->second;
+		for (size_t i = 0; i < curV.size(); i++)
+		{
+			std::cout << curV[i];
+		}
+		std::cout << std::endl;
+	}
 
-	// std::cout << "---------------Request header end--------------------" << std::endl;
+	std::cout << "---------------Request header end--------------------" << std::endl;
 	return 1;
 }
 
@@ -247,11 +255,6 @@ void ft::HttpRequest::appendHead(std::string buf)
 std::string ft::HttpRequest::getRequestStr() const
 {
 	return _requestStr;
-}
-
-std::string ft::HttpRequest::getURL() const
-{
-	return _url;
 }
 
 bool ft::HttpRequest::getConnectionClosed() const

@@ -3,10 +3,13 @@
 #include <map>
 #include <string>
 
-#include "./Responder.hpp"
+// #include "./Responder.hpp"
+#include "./DataFd.hpp"
 
 namespace ft
 {
+	class DataFd;
+	
 	enum HTTPStatus {
 		HTTP_CONTINUE                        = 100,
 		HTTP_SWITCHING_PROTOCOLS             = 101,
@@ -86,6 +89,7 @@ namespace ft
 		public:
 		static const std::string	getHttpFileType(std::string file);
 		static const std::string	getHttpReason(unsigned int statusCode);
-		static size_t				checkHttpRequest(t_dataFd & data);
+		static size_t				checkHttpRequest(DataFd & data);
+		static bool					isSuccessful(size_t code);
 	};
 }
