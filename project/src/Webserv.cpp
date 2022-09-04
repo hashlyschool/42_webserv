@@ -67,21 +67,18 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	std::cout << "[INFO] new accept fd = " << fd << std::endl;
 	FD_SET(fd, &_mRead);
 	_clientSocket.push_back(fd);
-	_num = ft::Utils::findMaxElem(_clientSocket) + 1;
+
+	setNum();
 	_dataResr.insert(std::make_pair(fd, new DataFd));
-	_dataResr[fd]->statusFd = ft::Nosession;
-	// _dataResr[fd]->sendBodyByte = 0;
 	_dataResr[fd]->configServer = &(_parser.getConfigServers().at(i));
-	// _dataResr[fd]->requestHead.clear();
-	// _dataResr[fd]->requestBody.clear();
-	gettimeofday(&_dataResr[fd]->timeLastAction, NULL);
 }
 
 void	ft::Webserv::readFromClientSocket(int &fd)
 {
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::SendHead ||
-	_dataResr[fd]->statusFd == ft::Sendbody || _dataResr[fd]->statusFd == ft::Execute)
+	_dataResr[fd]->statusFd == ft::Sendbody ||
+	_dataResr[fd]->statusFd == ft::Execute)
 	{
 		FD_CLR(fd, &_mRead);
 		FD_SET(fd, &_mWrite);
@@ -121,6 +118,21 @@ void	ft::Webserv::checkTimeConnection(int &fd)
 			FD_CLR(fd, &_mWrite);
 		if (FD_ISSET(fd, &_mRead))
 			FD_CLR(fd, &_mRead);
+	}
+}
+
+void	ft::Webserv::setNum()
+{
+	if (_clientSocket.size() != 0)
+		_num = ft::Utils::findMaxElem(_clientSocket) + 1;
+	else
+	{
+		_num = _sockets.at(0)->get_socket_fd() + 1;
+		for (size_t i = 1; i < _sockets.size(); ++i)
+		{
+			if (_sockets.at(i)->get_socket_fd() > _num)
+				_num = _sockets.at(1)->get_socket_fd() + 1;
+		}
 	}
 }
 

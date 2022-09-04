@@ -221,6 +221,7 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 void ft::Responder::_get(DataFd *data)
 {
 	std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
+	data->finalUrl = "/home/ilya/School/git/MyWebServ/project/www/server_test_cgi/test.py";
 	// 1. if a file check for reading rights ? HTTP_OK : HTTP_FORBIDDEN
 	// 2. if a directory -> check for index; if no index and no autoindex -> HTTP_FORBIDDEN
 	// 3. if autoindex and no reading rights; -> HTTP_FORBIDDEN

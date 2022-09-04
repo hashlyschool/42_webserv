@@ -2,8 +2,10 @@
 
 ft::DataFd::DataFd()
 {
+	this->statusFd = ft::Nosession;
 	this->httpRequest = new HttpRequest();
 	this->httpResponse = new HttpResponse();
+	gettimeofday(&this->timeLastAction, NULL);
 }
 
 ft::DataFd::~DataFd()
