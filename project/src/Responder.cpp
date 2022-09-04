@@ -10,6 +10,7 @@ void	ft::Responder::_makeSession(int &fd, DataFd &data)
 	std::string inputHeader;
 	size_t		startBody;
 
+	*data.httpRequest = HttpRequest();
 	HttpRequest &curRequest = *data.httpRequest;
 
 	input = ft::Utils::readFromSocket(fd, BUF_SIZE);
@@ -100,7 +101,7 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 
 	std::string responseBody = data.httpResponse->getResponseBodyPart();
 	size_t status = send(fd, responseBody.c_str(), responseBody.length(), 0);
-	std::cout << "status = " << status << std::endl;
+	std::cout << "SendBody status = " << status << std::endl;
 	// appendbody again
 	if (data.httpResponse->bodyIsRead())
 	{

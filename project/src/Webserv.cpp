@@ -88,7 +88,12 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 void	ft::Webserv::sendToClientSocket(int &fd)
 {
 	_responder.action(fd, _dataResr);
-	if (_dataResr[fd]->statusFd == ft::Closefd)
+	if (_dataResr[fd]->statusFd == ft::Nosession)
+	{
+		FD_CLR(fd, &_mWrite);
+		FD_SET(fd, &_mRead);
+	}
+	else if (_dataResr[fd]->statusFd == ft::Closefd)
 	{
 		_responder.action(fd, _dataResr);
 		_fdForDelete.push_back(fd);
