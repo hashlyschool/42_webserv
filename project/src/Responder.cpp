@@ -205,12 +205,14 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 {
 	if (data->httpRequest->bodyIsRead())
 	{
-		// if (isCGI())
-		// 	data->statusFd = ft::CGI;
-		// else
 		data->code = HttpUtils::checkHttpRequest(*data);
 		if (HttpUtils::isSuccessful(data->code))
-			data->statusFd = ft::Execute;
+		{
+		// if (isCGI())
+		// 	data->statusFd = ft::Execute;
+		// else
+			data->statusFd = ft::CGI;
+		}
 		else
 			data->statusFd = ft::SendHead;
 	}
