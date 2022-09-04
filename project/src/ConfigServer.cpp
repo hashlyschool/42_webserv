@@ -75,14 +75,26 @@ std::vector<ft::Location> &ft::ConfigServer::getLocations()
 
 ft::Location *ft::ConfigServer::getLocation(std::string &url)
 {
-	std::vector<Location>::iterator v_loc = getLocations().begin();
-	while (v_loc != getLocations().end())
+	std::vector<Location>::iterator loc_itr = getLocations().begin();
+	std::vector<ft::Location *> v_loc;
+
+	while (loc_itr != getLocations().end())
 	{
-		if ((url.find(v_loc->getUrl()) == 0) || (url + "/").find(v_loc->getUrl()) == 0)
-			break;
-		v_loc++;
+		if ((url.find(loc_itr->getUrl()) == 0) || (url + "/").find(loc_itr->getUrl()) == 0)
+			v_loc.push_back(&(*loc_itr));
+		loc_itr++;
 	}
-	if (v_loc != getLocations().end())
-		return &(*v_loc);
+	if (v_loc.size() == 1)
+		return (v_loc[1]);
+	if (v_loc.size() > 1)
+	{
+		sort(v_loc.begin(), v_loc.end(), comp_loc_url);
+		return (v_loc[0]);
+	}
 	return NULL;
+}
+
+bool ft::comp_loc_url(ft::Location *loc1, ft::Location *loc2)
+{
+	return (loc1->getUrl() < loc2->getUrl());
 }
