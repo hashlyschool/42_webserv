@@ -36,7 +36,7 @@ ft::HttpResponse & ft::HttpResponse::operator=(const ft::HttpResponse &rhs)
 /* Request is taken as a valid one*/
 ft::HttpResponse::HttpResponse(DataFd & data)
 {
-	_code = data.statusFd;
+	_code = data.code;
 	_method = data.httpRequest->getMethod();
 	_httpVersion = data.httpRequest->getHttpVersion();
 	_connectionClosed = data.httpRequest->getConnectionClosed();
