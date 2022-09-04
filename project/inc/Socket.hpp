@@ -12,7 +12,6 @@
 
 namespace ft
 {
-
 	class Socket
 	{
 		private:

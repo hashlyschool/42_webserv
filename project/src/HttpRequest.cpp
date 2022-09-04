@@ -26,6 +26,7 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	this->_headReady = rhs._headReady;
 	this->_bodyReady = rhs._bodyReady;
 	this->_currentChunk = rhs._currentChunk;
+	this->_currentChunk = rhs._currentChunk;
 	return *this;
 }
 

@@ -14,7 +14,7 @@
 namespace ft
 {
 
-	#define MAX_TIME_CONNECTION 15
+	#define MAX_TIME_CONNECTION 600
 	#define MAX_CONNECTION 10
 
 	class Webserv
@@ -26,7 +26,7 @@ namespace ft
 
 			//Responder
 			Responder	_responder;
-			t_dataResp	_dataResr;
+			MapDataFd	_dataResr;
 
 			//Select
 			int				_num;
@@ -51,6 +51,8 @@ namespace ft
 			std::vector<Socket *>	_sockets;
 			std::list<int>			_clientSocket;
 			std::list<int>			_fdForDelete;
+
+			void					setNum();
 			//free memory
 			void					freeMemory();
 			void					removeFdClientSocket();
