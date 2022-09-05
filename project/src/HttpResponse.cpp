@@ -65,6 +65,17 @@ std::string ft::HttpResponse::_formStatusLine() const
 			HttpUtils::getHttpReason(_code) + HEADERS_DELIMITER);
 }
 
+bool	ft::HttpResponse::isCGI()
+{
+	// bool	ret = false;
+
+	// if (this.)
+
+	return false;
+}
+
+/* getters */
+
 std::string ft::HttpResponse::getResponseBodyPart()
 {
 	if (this->_url == "")
@@ -89,26 +100,7 @@ std::string ft::HttpResponse::getResponseBodyPart()
 	return std::string(buf);
 }
 
-void ft::HttpResponse::setBodyUrl(std::string url)
-{
-	if (_noBody)
-		return;
-	this->_url = url;
-	if (!url.empty())
-	{
-		_bodySize = Utils::getFileSize(url);
-		_bodyType = HttpUtils::getHttpFileType(url);
-	}
-	else
-	{
-		_bodyStr = "OH NO IT IS NOT GOOD\n" + Utils::to_string(_code) + " " + HttpUtils::getHttpReason(_code);
-		_bodySize = _bodyStr.length();
-		_bodyType = "text/plain";
-	}
-}
-
 /* getters */
-
 std::string ft::HttpResponse::getResponseHead() const
 {
 	std::stringstream headStream;
@@ -144,4 +136,29 @@ unsigned long ft::HttpResponse::getBodySize() const
 bool	ft::HttpResponse::connectionIsClosed() const
 {
 	return false;
+}
+
+/* setters */
+
+void ft::HttpResponse::setBodyUrl(std::string url)
+{
+	if (_noBody)
+		return;
+	this->_url = url;
+	if (!url.empty())
+	{
+		_bodySize = Utils::getFileSize(url);
+		_bodyType = HttpUtils::getHttpFileType(url);
+	}
+	else
+	{
+		_bodyStr = "OH NO IT IS NOT GOOD\n" + Utils::to_string(_code) + " " + HttpUtils::getHttpReason(_code);
+		_bodySize = _bodyStr.length();
+		_bodyType = "text/plain";
+	}
+}
+
+void	ft::HttpResponse::setBodyType(const std::string bodyType)
+{
+	this->_bodyType = bodyType;
 }

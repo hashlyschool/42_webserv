@@ -181,7 +181,6 @@ size_t ft::HttpUtils::checkHttpRequest(DataFd & data)
 	HttpRequest &req = *data.httpRequest;
 	std::string url = req.getUrl();
 	std::string method = req.getMethod();
-
 	const Location *location = data.configServer->getLocation(url);
 
 	if (req.getHttpVersion() != "HTTP/1.1" && req.getHttpVersion() != "HTTP/1.0")

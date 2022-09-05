@@ -17,7 +17,7 @@ namespace ft
 	#define BUF_SIZE	2048
 
 	class DataFd;
-	
+
 	class HttpResponse
 	{
 		/*
@@ -58,25 +58,29 @@ namespace ft
 		public:
 			/* Orthodox form */
 			HttpResponse();
-			HttpResponse &operator=(const HttpResponse &rhs);
+			HttpResponse(DataFd & data); // ошибок еще нет и мы будем их проверять и записывать в t_dataFd
+
 			~HttpResponse();
+
+			HttpResponse &operator=(const HttpResponse &rhs);
 
 			/* Constructors from:
 				1. error -> in case of errors in the request or timeout
 				2. valid request
 			*/
-
-			HttpResponse(DataFd & data); // ошибок еще нет и мы будем их проверять и записывать в t_dataFd
-
-			void		setBodyUrl(std::string url);
 			// void		appendBodyFromFile(std::string path);
+			bool			isCGI();
 
 			/* getters */
-			std::string		getResponseHead() const;
 			std::string		getResponseBodyPart();
-			bool			connectionIsClosed() const;
+			std::string		getResponseHead() const;
 			bool			bodyIsRead() const;
 			bool			noBody() const;
 			unsigned long	getBodySize() const;
+			bool			connectionIsClosed() const;
+
+			/* setters */
+			void			setBodyUrl(std::string url);
+			void			setBodyType(const std::string bodyType);
 	};
 }
