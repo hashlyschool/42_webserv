@@ -2,6 +2,8 @@
 
 ft::DataFd::DataFd()
 {
+	this->code = 200;
+	this->finalUrl = "";
 	this->statusFd = ft::Nosession;
 	this->httpRequest = new HttpRequest();
 	this->httpResponse = new HttpResponse();

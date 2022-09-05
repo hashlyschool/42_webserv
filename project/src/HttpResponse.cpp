@@ -80,9 +80,10 @@ std::string ft::HttpResponse::getResponseBodyPart()
 {
 	if (this->_url == "")
 	{
-		if (_code < 200 || _code > 299)
+		_bodyRead = true;
+		if (_code >= 200 && _code <= 299)
 			return "Hello from HttpResponse! " + HttpUtils::getHttpReason(_code);
-		return "";
+		return _bodyStr;
 	}
 	std::ifstream file(this->_url.c_str());
 	char buf[BUF_SIZE + 1];
@@ -99,6 +100,7 @@ std::string ft::HttpResponse::getResponseBodyPart()
 	return std::string(buf);
 }
 
+/* getters */
 std::string ft::HttpResponse::getResponseHead() const
 {
 	std::stringstream headStream;
@@ -150,8 +152,9 @@ void ft::HttpResponse::setBodyUrl(std::string url)
 	}
 	else
 	{
-		_bodyStr = HttpUtils::getHttpReason(_code);
+		_bodyStr = "OH NO IT IS NOT GOOD\n" + Utils::to_string(_code) + " " + HttpUtils::getHttpReason(_code);
 		_bodySize = _bodyStr.length();
+		_bodyType = "text/plain";
 	}
 }
 

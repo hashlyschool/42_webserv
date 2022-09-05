@@ -68,21 +68,24 @@ void ft::ConfigServer::setLocations(const std::vector<Location> &locs)
 	_locations = locs;
 }
 
-std::vector<ft::Location> &ft::ConfigServer::getLocations()
+const std::vector<ft::Location> &ft::ConfigServer::getLocations() const
 {
 	return _locations;
 }
 
-ft::Location *ft::ConfigServer::getLocation(std::string &url)
+const ft::Location *ft::ConfigServer::getLocation(std::string &url) const
 {
-	std::vector<Location>::iterator loc_itr = getLocations().begin();
-	std::vector<ft::Location *> v_loc;
+	// std::vector<const Location>::const_iterator loc_itr = getLocations().begin();
+	std::vector<const ft::Location *> v_loc;
 
-	while (loc_itr != getLocations().end())
+	// while (loc_itr != getLocations().end())
+	for (size_t i = 0; i < getLocations().size(); i++)
 	{
-		if ((url.find(loc_itr->getUrl()) == 0) || (url + "/").find(loc_itr->getUrl()) == 0)
-			v_loc.push_back(&(*loc_itr));
-		loc_itr++;
+		// if ((url.find(loc_itr->getUrl()) == 0) || (url + "/").find(loc_itr->getUrl()) == 0)
+		const ft::Location &current = getLocations().at(i);
+		if ((url.find(current.getUrl()) == 0) || (url + "/").find(current.getUrl()) == 0)
+			v_loc.push_back(&current);
+		// loc_itr++;
 	}
 	if (v_loc.size() == 1)
 		return (v_loc[1]);
@@ -94,7 +97,7 @@ ft::Location *ft::ConfigServer::getLocation(std::string &url)
 	return NULL;
 }
 
-bool ft::comp_loc_url(ft::Location *loc1, ft::Location *loc2)
+bool ft::comp_loc_url(const ft::Location *loc1, const ft::Location *loc2)
 {
 	return (loc1->getUrl() < loc2->getUrl());
 }
