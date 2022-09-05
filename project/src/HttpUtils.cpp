@@ -180,7 +180,7 @@ size_t ft::HttpUtils::checkHttpRequest(DataFd & data)
 {
 	HttpRequest &req = *data.httpRequest;
 	std::string method = req.getMethod();
-	// ALocation * location = data.config.getLocation(req.getUrl());
+	// Location * location = data.configServer->getLocation(req.getUrl());
 
 	if (req.getHttpVersion() != "HTTP/1.1" && req.getHttpVersion() != "HTTP/1.0")
 		return HTTP_VERSION_NOT_SUPPORTED;

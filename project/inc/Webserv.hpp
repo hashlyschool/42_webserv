@@ -44,7 +44,7 @@ namespace ft
 			void					createClientSocket(Socket *socket, int i);
 			void					readFromClientSocket(int &fd);
 			void					sendToClientSocket(int &fd);
-			void					sendErrorToClientSocket(int &fd);
+			void					sendErrorToClientSocket(int &fd, HTTPStatus status);
 			void					fillTimeout();
 			void					checkTimeConnection(int &fd);
 
