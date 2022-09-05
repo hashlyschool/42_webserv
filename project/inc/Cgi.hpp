@@ -26,6 +26,10 @@ namespace ft
 			std::string	_pathInfo;
 			std::string	_outName;
 			std::string	_inName;
+
+			pid_t		_pid;
+			bool		_hasChildProcess;
+
 			int			_outFd;
 			int			_inFd;
 			char		*_cmd[2];
@@ -34,13 +38,18 @@ namespace ft
 			Cgi();
 			~Cgi();
 
-			void			parseQueryString();
-			void			preparseExecveData();
-			void			childProcess();
-			void			ParentProcess(pid_t &pid);
-			void			error();
-			std::string		getResponseHead();
-			std::string		getResponseBody();
+			void	waitChildProcess();
+			void	runChildProcess();
+
+			void	parseQueryString();
+			void	preparseExecveData();
+			void	childProcess();
+			void	parentProcess(pid_t &pid);
+
+			bool	isCGI();
+
+			/* getters */
+			bool	hasChildProcess() const;
 	};
 
 }
