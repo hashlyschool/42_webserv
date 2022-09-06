@@ -15,6 +15,8 @@
 //ifstream
 #include <fstream>
 
+#include "./DataFd.hpp"
+
 namespace ft
 {
 
@@ -22,31 +24,36 @@ namespace ft
 	{
 		private:
 			std::string	_pathtranslated; //absolute Path to scripts
-			std::string	_rootPath;
+			std::string	_rootPath; //?
+			 // /cgi-bin/script.py[PATH_INFO][QUERY_STRING]
 			std::string	_pathInfo;
+			std::string	_query_string;
+
+			bool		_hasChildProcess;
+
+			pid_t		_pid;
 			std::string	_outName;
 			std::string	_inName;
 
-			pid_t		_pid;
-			bool		_hasChildProcess;
-
 			int			_outFd;
 			int			_inFd;
+
 			char		*_cmd[2];
 
+			void	parseUrl();
 		public:
 			Cgi();
 			~Cgi();
 
-			void	waitChildProcess();
-			void	runChildProcess();
+			bool	isCGI(DataFd &data) const;
 
-			void	parseQueryString();
-			void	preparseExecveData();
+
+			void	runChildProcess();
+			void	waitChildProcess();
+
 			void	childProcess();
 			void	parentProcess(pid_t &pid);
 
-			bool	isCGI();
 
 			/* getters */
 			bool	hasChildProcess() const;

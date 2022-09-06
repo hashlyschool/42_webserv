@@ -14,6 +14,14 @@ ft::Cgi::~Cgi()
 	//free cmd
 	for (size_t i = 0; _cmd[i] != NULL; ++i)
 		free(_cmd[i]);
+	//need kill fork
+
+	//delete create file: _outName, _inName
+}
+
+void	ft::Cgi::parseUrl()
+{
+
 }
 
 void	ft::Cgi::waitChildProcess()
@@ -21,10 +29,10 @@ void	ft::Cgi::waitChildProcess()
 	return ;
 }
 
-void	ft::runChildProcess()
+void	ft::Cgi::runChildProcess()
 {
-	data.cgi.parseQueryString();
-	data.cgi.preparseExecveData();
+	// data.cgi.parseQueryString();
+	// data.cgi.preparseExecveData();
 	_pid = fork();
 	if (fork() < 0)
 		cgi.error();
@@ -84,6 +92,18 @@ void	ft::Cgi::childProcess()
 void	ft::Cgi::parentProcess(pid_t &pid)
 {
 	waitpid(pid, NULL, WNOHANG);
+}
+
+bool	ft::Cgi::isCGI(DataFd &data) const
+{
+	std::string url = data.httpRequest->getUrl();
+
+	url.find(data.loc->getUrl(), url.begin());
+	for (size_t i = 0; i < count; i++)
+	{
+		/* code */
+	}
+
 }
 
 bool	ft::Cgi::hasChildProcess() const { return (_hasChildProcess); }

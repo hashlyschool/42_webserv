@@ -7,7 +7,7 @@ ft::DataFd::DataFd()
 	this->statusFd = ft::Nosession;
 	this->httpRequest = new HttpRequest();
 	this->httpResponse = new HttpResponse();
-	gettimeofday(&this->timeLastAction, NULL);
+	gettimeofday(&this->_timeLastAction, NULL);
 }
 
 ft::DataFd::~DataFd()
@@ -22,5 +22,5 @@ void	ft::DataFd::updateTime()
 {
 	if (cgi.hasChildProcess())
 		return ;
-	gettimeofday(&timeLastAction, NULL);
+	gettimeofday(&_timeLastAction, NULL);
 }

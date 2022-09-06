@@ -29,7 +29,7 @@ namespace ft
 	class	DataFd
 	{
 		private:
-			struct timeval		timeLastAction;
+			struct timeval		_timeLastAction;
 
 		public:
 			DataFd();
@@ -43,7 +43,12 @@ namespace ft
 			HttpRequest 		*httpRequest;
 			HttpResponse		*httpResponse;
 			Cgi					cgi;
+
+			/* methods */
 			void				updateTime();
+
+			/* getters */
+			struct timeval		getTimeLastAct();
 	};
 
 	typedef std::map<int, DataFd *>			MapDataFd;
