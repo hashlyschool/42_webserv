@@ -73,31 +73,87 @@ const std::vector<ft::Location> &ft::ConfigServer::getLocations() const
 	return _locations;
 }
 
-const ft::Location *ft::ConfigServer::getLocation(std::string &url) const
+const ft::ALocation *ft::ConfigServer::getLocation(std::string &url) const
 {
-	// std::vector<const Location>::const_iterator loc_itr = getLocations().begin();
 	std::vector<const ft::Location *> v_loc;
 
-	// while (loc_itr != getLocations().end())
 	for (size_t i = 0; i < getLocations().size(); i++)
 	{
-		// if ((url.find(loc_itr->getUrl()) == 0) || (url + "/").find(loc_itr->getUrl()) == 0)
 		const ft::Location &current = getLocations().at(i);
 		if ((url.find(current.getUrl()) == 0) || (url + "/").find(current.getUrl()) == 0)
 			v_loc.push_back(&current);
-		// loc_itr++;
 	}
 	if (v_loc.size() == 1)
-		return (v_loc[1]);
+		return (v_loc[0]);
 	if (v_loc.size() > 1)
 	{
 		sort(v_loc.begin(), v_loc.end(), comp_loc_url);
 		return (v_loc[0]);
 	}
-	return NULL;
+	return this;
 }
 
 bool ft::comp_loc_url(const ft::Location *loc1, const ft::Location *loc2)
 {
-	return (loc1->getUrl() < loc2->getUrl());
+	return (loc1->getUrl() > loc2->getUrl());
+}
+
+std::string ft::ConfigServer::getFilename(std::string _url, const ft::ALocation &loc) const
+{
+	std::string filename;
+
+	if (_url == "/")
+	{
+		if (getIndex() != "")
+			filename = "./www/" + getServerName() + "/" + this->getRoot() + "/" + getIndex();
+		else if (getAutoIndex())
+		{
+			filename = "./www/" + getServerName() + "/" + this->getRoot() + "/";
+		}
+		else
+			filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ??
+	}
+	else
+	{
+		if (loc.getRoot() != "")
+		{
+			filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getRoot();
+			if (loc.getIndex() != "")
+			{
+				if ((_url == loc.getUrl()) || ((_url + "/") == loc.getUrl()))
+				{
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getUrl() + loc.getIndex();
+				}
+				else
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ?
+			}
+			else
+			{
+				if (this->getAutoIndex())
+				{
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url + "/";
+				}
+			}
+		}
+		else // Location without root
+		{
+			if (loc.getIndex() != "") // Index is found
+			{
+				if ((_url == loc.getUrl()) || ((_url + "/") == loc.getUrl()))
+				{
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getUrl() + loc.getIndex();
+				}
+				else
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ?
+			}
+			else // Location without index page
+			{
+				if (this->getAutoIndex())
+				{
+					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url + "/";
+				}
+			}
+		}
+	}
+	return filename;
 }

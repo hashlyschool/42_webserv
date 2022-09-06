@@ -19,6 +19,7 @@ namespace ft
 		std::string _root;
 		std::string _index;
 		std::string _uploadPath;
+		std::string _url;
 		bool _isGet;
 		bool _isPost;
 		bool _isDelete;
@@ -48,6 +49,9 @@ namespace ft
 
 		void setAutoIndex(const bool &autoIndex);
 		const bool &getAutoIndex() const;
+
+		void setUrl(const std::string &url);
+		const std::string &getUrl() const;
 
 		void setErrorPages(const int &code, const std::string &path);
 		std::map<int, std::string> &getErrorPages();

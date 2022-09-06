@@ -27,16 +27,6 @@ ft::Location &ft::Location::operator=(const Location &other)
 	return *this;
 }
 
-void ft::Location::setUrl(const std::string &url)
-{
-	_url = url;
-}
-
-const std::string &ft::Location::getUrl() const
-{
-	return _url;
-}
-
 void ft::Location::setBinPathPy(const std::string &path)
 {
 	_binPathPy = path;

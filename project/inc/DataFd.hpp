@@ -36,7 +36,7 @@ namespace ft
 			std::string						finalUrl;
 			e_statusSession					statusFd;
 			const ConfigServer				*configServer;
-			const Location					*loc;
+			const ALocation					*loc;
 			HttpRequest 					*httpRequest;
 			HttpResponse					*httpResponse;
 			Cgi								cgi;

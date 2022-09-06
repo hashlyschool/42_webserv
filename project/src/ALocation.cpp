@@ -98,6 +98,16 @@ const bool &ft::ALocation::getAutoIndex() const
 	return _autoIndex;
 }
 
+void ft::ALocation::setUrl(const std::string &url)
+{
+	_url = url;
+}
+
+const std::string &ft::ALocation::getUrl() const
+{
+	return _url;
+}
+
 void ft::ALocation::setErrorPages(const int &code, const std::string &path)
 {
 	_errorPages[code] = path;

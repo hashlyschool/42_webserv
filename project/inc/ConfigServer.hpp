@@ -17,10 +17,11 @@ namespace ft
 	{
 	private:
 		// tcp communication configuration
-		u_short _port;
-		in_addr_t _host;
-		std::string _serverName;
-		int _maxBodySize;
+		u_short		_port;
+		in_addr_t	_host;
+		std::string	_serverName;
+		int			_maxBodySize;
+		std::string	_pathServer;
 
 		// // data parsed from web server conf file
 		std::vector<Location> _locations;
@@ -45,7 +46,8 @@ namespace ft
 		void setLocations(const std::vector<Location> &locs);
 		const std::vector<Location> &getLocations() const;
 
-		const Location *getLocation(std::string &url) const;
+		const ALocation *getLocation(std::string &url) const;
+		std::string getFilename(std::string _url, const ft::ALocation &loc) const;
 	};
 
 	bool comp_loc_url(const ft::Location *loc1, const ft::Location *loc2);
