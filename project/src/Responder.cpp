@@ -119,35 +119,15 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 
 void	ft::Responder::_cgi(DataFd &data)
 {
-	ft::Cgi	&cgi = data.cgi;
-	pid_t	pid;
-
-	cgi.parseQueryString();
-	cgi.preparseExecveData();
-	pid = fork();
-	if (fork() < 0)
-		cgi.error();
-	if (pid == 0)
-		cgi.childProcess();
+	if (data.cgi.hasChildProcess())
+		data.cgi.waitChildProcess();
 	else
-		cgi.ParentProcess(pid);
-	// data.dataFd[fd]->responseHead = cgi.getResponseHead();
-	// data.dataFd[fd]->responseBody = cgi.getResponseBody();
-	data.statusFd = ft::SendHead;
-
-	//Попробовать подождать процесс дочерний
-	//
-	//createHead
-	// data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\n";
-	//createBody
-	// char	buf[2048];
-	// bzero(buf, 2048);
-	// read()
-	// data.dataFd[fd]->responseBody = read
-	// if (connection == keepAlive && time < MaxTime && Qrequests < max)
-	// 	data.dataFd[fd]->statusFd = ft::Nosession;
-	// else //close
-	// 	data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		if (data.cgi.isCGI())
+			data.cgi.runChildProcess();
+		else
+			data.statusFd = ft::Execute;
+	}
 }
 
 void	ft::Responder::_closeFd(int &fd, MapDataFd &data)
@@ -171,7 +151,7 @@ void	ft::Responder::action(int &fd, MapDataFd &data)
 	DataFd	&dataFd = *data[fd];
 	int		status = dataFd.statusFd;
 
-	gettimeofday(&dataFd.timeLastAction, NULL);
+	dataFd.updateTime();
 	switch (status)
 	{
 		case ft::Nosession:
@@ -208,10 +188,10 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 		data->code = HttpUtils::checkHttpRequest(*data);
 		if (HttpUtils::isSuccessful(data->code))
 		{
-		// if (isCGI())
-			// data->statusFd = ft::CGI;
-		// else
-			data->statusFd = ft::Execute;
+			if (data->loc->getIsCgi())
+				data->statusFd = ft::CGI;
+			else
+				data->statusFd = ft::Execute;
 		}
 		else
 			data->statusFd = ft::SendHead;

@@ -101,11 +101,22 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 	}
 }
 
-void	ft::Webserv::sendErrorToClientSocket(int &fd)
+void	ft::Webserv::sendErrorToClientSocket(int &fd, HTTPStatus status)
 {
-	// // send code 500? and close connection
-	// _dataResr[fd]->httpRespone.sendError(500, "Max connection");
-	_dataResr[fd]->statusFd = ft::Closefd;
+	//set status
+	_dataResr[fd]->code = status;
+	//send head
+	_dataResr[fd]->statusFd = ft::SendHead;
+	_responder.action(fd, _dataResr);
+	//close fd
+	_dataResr[fd]->statusFd = Closefd;
+	_responder.action(fd, _dataResr);
+	//remove fd
+	_fdForDelete.push_back(fd);
+	if (FD_ISSET(fd, &_mWrite))
+		FD_CLR(fd, &_mWrite);
+	if (FD_ISSET(fd, &_mRead))
+		FD_CLR(fd, &_mRead);
 }
 
 void	ft::Webserv::checkTimeConnection(int &fd)
@@ -115,15 +126,7 @@ void	ft::Webserv::checkTimeConnection(int &fd)
 	gettimeofday(&time, NULL);
 	//keep-alive
 	if (time.tv_sec - _dataResr[fd]->timeLastAction.tv_sec >= MAX_TIME_CONNECTION)
-	{
-		_dataResr[fd]->statusFd = Closefd;
-		_responder.action(fd, _dataResr);
-		_fdForDelete.push_back(fd);
-		if (FD_ISSET(fd, &_mWrite))
-			FD_CLR(fd, &_mWrite);
-		if (FD_ISSET(fd, &_mRead))
-			FD_CLR(fd, &_mRead);
-	}
+		sendErrorToClientSocket(fd, HTTP_REQUEST_TIMEOUT);
 }
 
 void	ft::Webserv::setNum()
@@ -181,7 +184,7 @@ void	ft::Webserv::serverRun()
 			{
 				createClientSocket(_sockets.at(i), i);
 				if (_clientSocket.size() > MAX_CONNECTION)
-					sendErrorToClientSocket(_clientSocket.back());
+					sendErrorToClientSocket(_clientSocket.back(), HTTP_SERVICE_UNAVAILABLE);
 			}
 		}
 		for (std::list<int>::iterator it = _clientSocket.begin(); it != _clientSocket.end(); ++it)

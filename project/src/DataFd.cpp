@@ -2,10 +2,12 @@
 
 ft::DataFd::DataFd()
 {
+	this->code = 200;
+	this->finalUrl = "";
 	this->statusFd = ft::Nosession;
 	this->httpRequest = new HttpRequest();
 	this->httpResponse = new HttpResponse();
-	gettimeofday(&this->timeLastAction, NULL);
+	gettimeofday(&this->_timeLastAction, NULL);
 }
 
 ft::DataFd::~DataFd()
@@ -14,4 +16,11 @@ ft::DataFd::~DataFd()
 		delete this->httpRequest;
 	if (this->httpResponse)
 		delete this->httpResponse;
+}
+
+void	ft::DataFd::updateTime()
+{
+	if (cgi.hasChildProcess())
+		return ;
+	gettimeofday(&_timeLastAction, NULL);
 }

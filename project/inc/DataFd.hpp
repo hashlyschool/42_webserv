@@ -28,18 +28,27 @@ namespace ft
 
 	class	DataFd
 	{
+		private:
+			struct timeval		_timeLastAction;
+
 		public:
 			DataFd();
 			~DataFd();
 
-			size_t							code;
-			std::string						finalUrl;
-			e_statusSession					statusFd;
-			const ConfigServer				*configServer;
-			HttpRequest 					*httpRequest;
-			HttpResponse					*httpResponse;
-			Cgi								cgi;
-			struct timeval					timeLastAction;
+			size_t				code;
+			std::string			finalUrl;
+			e_statusSession		statusFd;
+			const ConfigServer	*configServer;
+			const Location		*loc;
+			HttpRequest 		*httpRequest;
+			HttpResponse		*httpResponse;
+			Cgi					cgi;
+
+			/* methods */
+			void				updateTime();
+
+			/* getters */
+			struct timeval		getTimeLastAct();
 	};
 
 	typedef std::map<int, DataFd *>			MapDataFd;
