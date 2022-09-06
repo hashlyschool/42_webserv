@@ -6,6 +6,7 @@ ft::ALocation::ALocation()
 	_index = "";
 	_uploadPath = "";
 	_isGet = false;
+	_isCgi = false;
 	_isPost = false;
 	_isDelete = false;
 	_autoIndex = false;
@@ -106,4 +107,45 @@ void ft::ALocation::setErrorPages(const int &code, const std::string &path)
 std::map<int, std::string> &ft::ALocation::getErrorPages()
 {
 	return _errorPages;
+}
+
+void ft::ALocation::setIsCgi(const bool &status)
+{
+	_isCgi = status;
+}
+
+const bool &ft::ALocation::getIsCgi() const
+{
+	return _isCgi;
+}
+
+void ft::ALocation::setIsRedirect(const bool &status)
+{
+	_isRedirect = status;
+}
+
+const bool &ft::ALocation::getIsRedirect() const
+{
+	return _isRedirect;
+}
+
+void ft::ALocation::setRedirectionCode(const int &redirectionCode)
+{
+	_redirectionCode = redirectionCode;
+}
+
+const int &ft::ALocation::getRedirectionCode() const
+{
+	return _redirectionCode;
+}
+
+
+void ft::ALocation::setUrl(const std::string &url)
+{
+	_url = url;
+}
+
+const std::string &ft::ALocation::getUrl() const
+{
+	return _url;
 }

@@ -13,6 +13,7 @@ namespace ft
 {
 	class HttpResponse;
 	class HttpRequest;
+	class Cgi;
 
 	enum e_statusSession
 	{
@@ -32,23 +33,24 @@ namespace ft
 			struct timeval		_timeLastAction;
 
 		public:
-			DataFd();
+			DataFd(int fd);
 			~DataFd();
 
+			int					fd;
 			size_t				code;
 			std::string			finalUrl;
 			e_statusSession		statusFd;
 			const ConfigServer	*configServer;
-			const Location		*loc;
+			const ALocation		*loc;
 			HttpRequest 		*httpRequest;
 			HttpResponse		*httpResponse;
-			Cgi					cgi;
+			Cgi					*cgi;
 
 			/* methods */
 			void				updateTime();
 
 			/* getters */
-			struct timeval		getTimeLastAct();
+			struct timeval		getTimeLastAct() const;
 	};
 
 	typedef std::map<int, DataFd *>			MapDataFd;

@@ -3,10 +3,10 @@
 ft::Cgi::Cgi()
 {
 	_hasChildProcess = false;
+	_isSh = false;
+	_isPy = false;
 	_outFd = -1;
 	_inFd = -1;
-	_cmd[0] = NULL;
-	_cmd[1] = NULL;
 }
 
 ft::Cgi::~Cgi()
@@ -17,93 +17,130 @@ ft::Cgi::~Cgi()
 	//need kill fork
 
 	//delete create file: _outName, _inName
-}
-
-void	ft::Cgi::parseUrl()
-{
 
 }
 
-void	ft::Cgi::waitChildProcess()
+char	ft::Cgi::parseURL(DataFd &data)
 {
-	return ;
+	std::string	fullURL;
+	char		buf[2048];
+	size_t		posStart;
+	size_t		posEnd;
+
+	fullURL = data.httpRequest->getUrl();
+	_rootPath = data.loc->getRoot();
+	getcwd(buf, 2048);
+	_pathTranslated = std::string(buf) + "/www" + data.configServer->getRoot() + _rootPath;
+	_outName = _pathTranslated + "/outCgi" + ft::Utils::to_string(data.fd);
+	_inName = _pathTranslated + "/inCgi" + ft::Utils::to_string(data.fd);
+
+	posStart = fullURL.find(data.loc->getUrl());
+	if (posStart == std::string::npos)
+		return (-1);
+	posStart += data.loc->getUrl().length();
+	posStart--;
+	posEnd = fullURL.find('/', posStart + 1);
+	if (posEnd == std::string::npos)
+		_scriptName = fullURL.substr(posStart, fullURL.length() - posStart);
+	else
+		_scriptName = fullURL.substr(posStart, posEnd - posStart);
+	_pathTranslated += _scriptName;
+	if (posEnd == std::string::npos)
+		return (0);
+	posStart = posEnd;
+	posEnd = fullURL.rfind('?');
+	if (posEnd == std::string::npos)
+	{
+		_pathInfo = fullURL.substr(posStart, fullURL.length() - posStart);
+		return (0);
+	}
+	else
+		_pathInfo = fullURL.substr(posStart, posEnd - posStart);
+	_queryString = fullURL.substr(posEnd + 1);
+	return (0);
 }
 
-void	ft::Cgi::runChildProcess()
+char	ft::Cgi::isCGI(DataFd &data)
 {
-	// data.cgi.parseQueryString();
-	// data.cgi.preparseExecveData();
+	size_t		point;
+	std::string	end;
+	size_t		lenght;
+
+	if (parseURL(data) < 0)
+		return (0);
+	point = _scriptName.rfind('.');
+	lenght = _scriptName.length();
+	if (point == std::string::npos || lenght <= 3)
+		return (0);
+	end = _scriptName.substr(point, _scriptName.length());
+	if (end == ".py")
+		_isPy = true;
+	else if (end == ".sh")
+		_isSh = true;
+	else
+	{
+		data.code = ft::HTTP_PRECONDITION_FAILED;
+		return (-1);
+	}
+	if (data.httpRequest->getMethod() != "POST" && \
+	data.httpRequest->getMethod() != "GET" && \
+	data.httpRequest->getMethod() != "HEAD")
+	{
+		data.code = ft::HTTP_METHOD_NOT_ALLOWED;
+		return (-1);
+	}
+	return (1);
+}
+
+void	ft::Cgi::runChildProcess(DataFd &data)
+{
 	_pid = fork();
 	if (fork() < 0)
-		cgi.error();
-	if (pid == 0)
-		cgi.childProcess();
-	else
-		cgi.parentProcess(pid);
-
-
-	// data.dataFd[fd]->responseHead = cgi.getResponseHead();
-	// data.dataFd[fd]->responseBody = cgi.getResponseBody();
-	data.statusFd = ft::SendHead;
-
-	//Попробовать подождать процесс дочерний
-	//
-	//createHead
-	// data.dataFd[fd]->responseHead = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\n";
-	//createBody
-	// char	buf[2048];
-	// bzero(buf, 2048);
-	// read()
-	// data.dataFd[fd]->responseBody = read
-	// if (connection == keepAlive && time < MaxTime && Qrequests < max)
-	// 	data.dataFd[fd]->statusFd = ft::Nosession;
-	// else //close
-	// 	data.dataFd[fd]->statusFd = ft::Closefd;
+	{
+		data.code = ft::HTTP_INTERNAL_SERVER_ERROR;
+		data.statusFd = ft::SendHead;
+		return ;
+	}
+	if (_pid == 0)
+		childProcess(data);
+	_hasChildProcess = true;
 }
 
-void	ft::Cgi::parseQueryString()
+void	ft::Cgi::formExecveData()
 {
-	// std::cout << "Parse query string" << std::endl;l
-	_pathInfo = "test.py";
-	_rootPath = "project/";
-	_pathtranslated = "/home/ilya/School/git/MyWebServ";
-	_outName = _pathtranslated + "/outCgi_test"; // + fd
-	_pathtranslated += "/" + _rootPath + _pathInfo;
+	_cmd[0] = strdup(_pathTranslated.c_str());
+	_cmd[1] = strdup((std::string("PATH_TRANSLATED=") + _pathTranslated).c_str());
+	_cmd[2] = strdup((std::string("PATH_INFO=") + _pathInfo).c_str());
+	_cmd[3] = strdup((std::string("QUERY_STRING=") + _queryString).c_str());
+	_cmd[4] = NULL;
 }
 
-void	ft::Cgi::preparseExecveData()
+void	ft::Cgi::childProcess(DataFd &data)
 {
-	_cmd[0] = strdup(_pathtranslated.c_str());
-	_cmd[1] = NULL;
-}
-
-void	ft::Cgi::childProcess()
-{
-	int	_outFd	= open(_outName.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
-
+	if (data.httpRequest->getMethod() == "POST")
+	{
+		int	_inFd = open(_inName.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+		dup2(_inFd, STDIN_FILENO);
+		close(_inFd);
+	}
+	int	_outFd = open(_outName.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
 	dup2(_outFd, STDOUT_FILENO);
 	close(_outFd);
+
+	formExecveData();
 	if (execve(_cmd[0], _cmd, NULL) == -1) {
 		// perror("execve");
 		exit(EXIT_FAILURE);
 	}
+	exit(0);
 }
 
-void	ft::Cgi::parentProcess(pid_t &pid)
+void	ft::Cgi::waitChildProcess()
 {
-	waitpid(pid, NULL, WNOHANG);
-}
-
-bool	ft::Cgi::isCGI(DataFd &data) const
-{
-	std::string url = data.httpRequest->getUrl();
-
-	url.find(data.loc->getUrl(), url.begin());
-	for (size_t i = 0; i < count; i++)
-	{
-		/* code */
-	}
-
+	//waitpid(pid, NULL, WNOHANG);
+	//if Script complete
+		// data.statusFd = ft::SendHead;
+	return ;
 }
 
 bool	ft::Cgi::hasChildProcess() const { return (_hasChildProcess); }

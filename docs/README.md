@@ -208,6 +208,7 @@ Usage tester:
 |                                        [RFC 3875](https://datatracker.ietf.org/doc/html/rfc3875)                                        | описание работы `cgi`                                                                |
 |                                              [Postman](https://www.postman.com/downloads/)                                              | Download Postman. For generate URI message                                           |
 |                        [Header 'connection'](https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Connection)                         | Нужно посмотреть `close` `keep-alive` и их реализовать                               |
+|                  [Использование CGI при создании интерактивных интерфейсов](http://citforum.ru/database/cnit/4.shtml)                 | информация про использование CGI, описана разница между методами GET и POST          |
 |                                                                **video**                                                                |
 |                         [webserv](https://www.youtube.com/watch?v=86sxYbUkJGk&t=451s&ab_channel=Edu_events_mow)                         | разбор проекта от edebi                                                              |
 | [Устройство WEB-сервера](https://www.youtube.com/watch?v=4zS6Db7xMuU&ab_channel=%D0%9D%D0%9E%D0%A3%D0%98%D0%9D%D0%A2%D0%A3%D0%98%D0%A2) | Хорошая лекция про общее устройства сервера                                          |

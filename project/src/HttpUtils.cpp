@@ -181,14 +181,14 @@ size_t ft::HttpUtils::checkHttpRequest(DataFd & data)
 	HttpRequest &req = *data.httpRequest;
 	std::string url = req.getUrl();
 	std::string method = req.getMethod();
-	const Location *location = data.configServer->getLocation(url);
+	const ALocation *location = data.configServer->getLocation(url);
 
 	if (req.getHttpVersion() != "HTTP/1.1" && req.getHttpVersion() != "HTTP/1.0")
 		return HTTP_VERSION_NOT_SUPPORTED;
 	if (method != "GET" && method != "POST" && method != "DELETE") // maybe add head
 		return HTTP_BAD_REQUEST;
-	if (!location)
-		return HTTP_NOT_FOUND;
+	// if (!location)
+	// 		return HTTP_NOT_FOUND;
 	// if (!(location->methodIsAllowed(method)))
 	// 	return HTTP_METHOD_NOT_ALLOWED;
 	data.loc = location;
