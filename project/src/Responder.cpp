@@ -119,14 +119,19 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 
 void	ft::Responder::_cgi(DataFd &data)
 {
-	if (data.cgi.hasChildProcess())
-		data.cgi.waitChildProcess();
+	int	status;
+
+	if (data.cgi->hasChildProcess())
+		data.cgi->waitChildProcess();
 	else
 	{
-		if (data.cgi.isCGI())
-			data.cgi.runChildProcess();
-		else
+		status = data.cgi->isCGI(data);
+		if (status == 0)
 			data.statusFd = ft::Execute;
+		else if (status > 0)
+			data.cgi->runChildProcess(data);
+		else
+			data.statusFd = ft::SendHead;
 	}
 }
 

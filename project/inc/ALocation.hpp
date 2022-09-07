@@ -16,14 +16,22 @@ namespace ft
 		ALocation();
 		ALocation &operator=(const ALocation &other);
 
-		std::string _root;
-		std::string _index;
-		std::string _uploadPath;
-		bool _isGet;
-		bool _isPost;
-		bool _isDelete;
-		bool _autoIndex;
-		std::map<int, std::string> _errorPages;
+		std::string					_root;
+		std::string					_index;
+		std::string					_uploadPath;
+		std::string					_url;
+
+		bool						_isGet;
+		bool						_isPost;
+		bool						_isDelete;
+		bool						_isCgi;
+		bool						_isRedirect;
+		bool						_autoIndex;
+
+		int							_redirectionCode;
+		std::string					_redirectonUri;
+
+		std::map<int, std::string>	_errorPages;
 
 	public:
 		virtual ~ALocation();
@@ -46,8 +54,20 @@ namespace ft
 		void setIsDelete(const bool &status);
 		const bool &getIsDelete() const;
 
+		void setIsCgi(const bool &status);
+		const bool &getIsCgi() const;
+
 		void setAutoIndex(const bool &autoIndex);
 		const bool &getAutoIndex() const;
+
+		void setUrl(const std::string &url);
+		const std::string &getUrl() const;
+
+		void setIsRedirect(const bool &status);
+		const bool &getIsRedirect() const;
+
+		void setRedirectionCode(const int &redirectionCode);
+		const int &getRedirectionCode() const;
 
 		void setErrorPages(const int &code, const std::string &path);
 		std::map<int, std::string> &getErrorPages();

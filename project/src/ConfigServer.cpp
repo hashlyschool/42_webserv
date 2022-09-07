@@ -88,7 +88,7 @@ const ft::Location *ft::ConfigServer::getLocation(std::string &url) const
 		// loc_itr++;
 	}
 	if (v_loc.size() == 1)
-		return (v_loc[1]);
+		return (v_loc[0]);
 	if (v_loc.size() > 1)
 	{
 		sort(v_loc.begin(), v_loc.end(), comp_loc_url);
