@@ -139,7 +139,6 @@ const int &ft::ALocation::getRedirectionCode() const
 	return _redirectionCode;
 }
 
-
 void ft::ALocation::setUrl(const std::string &url)
 {
 	_url = url;
