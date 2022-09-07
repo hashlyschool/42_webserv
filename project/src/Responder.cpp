@@ -122,7 +122,7 @@ void	ft::Responder::_cgi(DataFd &data)
 	int	status;
 
 	if (data.cgi->hasChildProcess())
-		data.cgi->waitChildProcess();
+		data.cgi->waitChildProcess(data);
 	else
 	{
 		status = data.cgi->isCGI(data);
