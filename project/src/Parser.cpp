@@ -25,21 +25,30 @@ ft::Parser::Parser(std::string pathConf) : _pathConf(pathConf)
 	}
 
 	std::cout << "\n\nStart test searching of locations:" << std::endl;
-	ConfigServer serv = getConfigServers().at(0);
-
-	std::string url = "/images/about";
-	std::cout << "Test case: url = " + url << std::endl;
+	// ConfigServer serv = getConfigServers().at(0);
+	// std::string url = "/images/about";
+	// std::cout << "Test case: url = " + url << std::endl;
+	// const ft::ALocation *loc = serv.getLocation(url);
+	// if (loc == NULL)
+	// {
+	// 	std::cout << "Location is not found!" << std::endl;
+	// }
+	// else if (loc->getUrl() == url || loc->getUrl() == (url+"/"))
+	// 	std::cout << "Test - OK!" << std::endl;
+	// else
+	// 	std::cout << "Test - Fail!" << std::endl;
+	// std::cout << "found - " + loc->getUrl() << std::endl;
+	ConfigServer serv = getConfigServers().at(2);
+	std::cout << serv.getServerName() << std::endl;
+	std::string url = "/indexGeek.html";
 	const ft::ALocation *loc = serv.getLocation(url);
 	if (loc == NULL)
-	{
 		std::cout << "Location is not found!" << std::endl;
-	}
-	else if (loc->getUrl() == url || loc->getUrl() == (url+"/"))
-		std::cout << "Test - OK!" << std::endl;
 	else
-		std::cout << "Test - Fail!" << std::endl;
-	std::cout << "found - " + loc->getUrl() << std::endl;
-
+	{
+		std::string filename = serv.getFilename(url, *loc);
+		std::cout << "found - " + filename << std::endl;
+	}
 }
 
 ft::Parser::~Parser()
