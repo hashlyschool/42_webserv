@@ -15,32 +15,49 @@
 //ifstream
 #include <fstream>
 
+#include "./DataFd.hpp"
+#include "./Utils.hpp"
+
 namespace ft
 {
-
+	class DataFd;
 	class Cgi
 	{
 		private:
-			std::string	_pathtranslated; //absolute Path to scripts
-			std::string	_rootPath;
-			std::string	_pathInfo;
-			std::string	_outName;
-			std::string	_inName;
+			std::string	_rootPath; //+
+			std::string	_scriptName; //+
+			std::string	_pathInfo; //+
+			std::string	_queryString; //-
+			std::string	_pathTranslated; //+
+			// URL = /cgi-bin/script.py/tempFolser/pass?and=1&or=2
+			// URL = [requestURL][ScriptName][PATH_INFO][QUERY_STRING]
+			bool		_isPy; //+
+			bool		_isSh; //+
+			bool		_hasChildProcess;
+
+			pid_t		_pid;
+			std::string	_outName; //+
+			std::string	_inName; //+
+
 			int			_outFd;
 			int			_inFd;
-			char		*_cmd[2];
 
+			char		*_cmd[5];
+
+			char		parseURL(DataFd &data);
+			void		formExecveData();
+			void		childProcess(DataFd &data);
 		public:
 			Cgi();
 			~Cgi();
 
-			void			parseQueryString();
-			void			preparseExecveData();
-			void			childProcess();
-			void			ParentProcess(pid_t &pid);
-			void			error();
-			std::string		getResponseHead();
-			std::string		getResponseBody();
+			char	isCGI(DataFd &data);
+
+			void	runChildProcess(DataFd &data);
+			void	waitChildProcess();
+
+			/* getters */
+			bool	hasChildProcess() const;
 	};
 
 }

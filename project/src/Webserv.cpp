@@ -69,7 +69,7 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	_clientSocket.push_back(fd);
 
 	setNum();
-	_dataResr.insert(std::make_pair(fd, new DataFd));
+	_dataResr.insert(std::make_pair(fd, new DataFd(fd)));
 	_dataResr[fd]->configServer = &(_parser.getConfigServers().at(i));
 }
 
@@ -78,7 +78,8 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::SendHead ||
 	_dataResr[fd]->statusFd == ft::Sendbody ||
-	_dataResr[fd]->statusFd == ft::Execute)
+	_dataResr[fd]->statusFd == ft::Execute ||
+	_dataResr[fd]->statusFd == ft::CGI)
 	{
 		FD_CLR(fd, &_mRead);
 		FD_SET(fd, &_mWrite);
@@ -125,7 +126,7 @@ void	ft::Webserv::checkTimeConnection(int &fd)
 
 	gettimeofday(&time, NULL);
 	//keep-alive
-	if (time.tv_sec - _dataResr[fd]->timeLastAction.tv_sec >= MAX_TIME_CONNECTION)
+	if (time.tv_sec - _dataResr[fd]->getTimeLastAct().tv_sec >= MAX_TIME_CONNECTION)
 		sendErrorToClientSocket(fd, HTTP_REQUEST_TIMEOUT);
 }
 
