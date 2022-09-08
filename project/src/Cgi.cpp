@@ -8,6 +8,8 @@ ft::Cgi::Cgi()
 	_outFd = -1;
 	_inFd = -1;
 	_pid = -1;
+	for (size_t i = 0; i < 5; ++i)
+		_cmd[i] = NULL;
 }
 
 ft::Cgi::~Cgi()
