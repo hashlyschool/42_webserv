@@ -102,10 +102,9 @@ std::string ft::ConfigServer::getFilename(std::string _url, const ft::ALocation 
 {
 	std::string filename;
 
-
 	if (_url == "/")
 	{
-		filename = "./www";
+		// filename = "./www";
 		if (getIndex() != "")
 			filename += this->getRoot() + "/" + getIndex();
 		else if (getAutoIndex())
@@ -115,7 +114,7 @@ std::string ft::ConfigServer::getFilename(std::string _url, const ft::ALocation 
 	}
 	else
 	{
-		filename = "./www";
+		// filename = "./www";
 		if (loc.getRoot() != "") // Location with root
 			filename += loc.getRoot();
 		else // Location without root

@@ -31,7 +31,6 @@ namespace ft
 		server_allowed_methods,
 		server_max_body_size,
 		server_upload_path,
-		server_server_path,
 		server_bin_path_py,
 		server_bin_path_sh,
 		server_redirection
@@ -76,6 +75,7 @@ namespace ft
 		bool _validKeys(std::string &key, serverBlockConfig_t &serverBlock, size_t code);
 		int _checkPortVal(std::string str);
 		bool _isHost(std::string value);
+		std::string &_checkSyntaxPath(std::string &_path);
 		std::vector<std::string> _getHostPort(std::string host);
 		err_type _fillErrorPage(std::vector<std::string> value);
 		void _addServer(serverBlockConfig_t &serverBlock);
@@ -91,7 +91,6 @@ namespace ft
 		void _fillRootMaxBodySize(std::vector<std::string>, ssize_t index);
 		void _fillRootErrorPages(err_type value, ssize_t index);
 		void _fillUploadPath(std::vector<std::string>, ssize_t index);
-		void _fillServerPath(std::vector<std::string>, ssize_t index);
 
 		void _fillLocationName(ft::Location &obj, std::string line);
 		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);
