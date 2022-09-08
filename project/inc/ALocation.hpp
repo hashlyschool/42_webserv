@@ -19,6 +19,7 @@ namespace ft
 		std::string					_root;
 		std::string					_index;
 		std::string					_uploadPath;
+		std::string					_serverPath;
 		std::string					_url;
 
 		bool						_isGet;
@@ -44,6 +45,9 @@ namespace ft
 
 		void setUploadPath(const std::string &path);
 		const std::string &getUploadPath() const;
+
+		void setServerPath(const std::string &path);
+		const std::string &getServerPath() const;
 
 		void setIsGet(const bool &status);
 		const bool &getIsGet() const;

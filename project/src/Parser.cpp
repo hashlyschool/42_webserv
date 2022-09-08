@@ -145,6 +145,8 @@ int ft::Parser::_check_name(const std::string &name)
 		return server_server_name;
 	if (name == "listen")
 		return server_listen;
+	if (name == "server_path")
+		return server_server_path;
 	if (name == "root")
 		return server_root;
 	if (name == "index")
@@ -346,6 +348,9 @@ void ft::Parser::_fillConfig(ssize_t index, size_t key, std::vector<std::string>
 		break;
 	case server_server_name:
 		_fillServerName(value, index);
+		break;
+	case server_server_path:
+		_fillServerPath(value, index);
 		break;
 	case server_autoindex:
 		_fillAutoindex(value, index);
@@ -580,6 +585,13 @@ void ft::Parser::_fillUploadPath(std::vector<std::string> value, ssize_t index)
 	if (!_servers[index].getUploadPath().empty() || value.size() != 1)
 		throw std::invalid_argument("Parser error: root directory to upload error");
 	_servers[index].setUploadPath(value[0]);
+}
+
+void ft::Parser::_fillServerPath(std::vector<std::string> value, ssize_t index)
+{
+	if (!_servers[index].getServerPath().empty() || value.size() != 1)
+		throw std::invalid_argument("Parser error: root directory to upload error");
+	_servers[index].setServerPath(value[0]);
 }
 
 void ft::Parser::_fillRootErrorPages(err_type value, ssize_t index)

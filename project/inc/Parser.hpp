@@ -31,6 +31,7 @@ namespace ft
 		server_allowed_methods,
 		server_max_body_size,
 		server_upload_path,
+		server_server_path,
 		server_bin_path_py,
 		server_bin_path_sh,
 		server_redirection
@@ -90,6 +91,7 @@ namespace ft
 		void _fillRootMaxBodySize(std::vector<std::string>, ssize_t index);
 		void _fillRootErrorPages(err_type value, ssize_t index);
 		void _fillUploadPath(std::vector<std::string>, ssize_t index);
+		void _fillServerPath(std::vector<std::string>, ssize_t index);
 
 		void _fillLocationName(ft::Location &obj, std::string line);
 		void _fillLocation(ft::Location &obj, std::string key, std::vector<std::string> args);

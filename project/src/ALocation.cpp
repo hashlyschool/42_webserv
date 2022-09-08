@@ -59,6 +59,16 @@ const std::string &ft::ALocation::getUploadPath() const
 	return _uploadPath;
 }
 
+void ft::ALocation::setServerPath(const std::string &path)
+{
+	_serverPath = path;
+}
+
+const std::string &ft::ALocation::getServerPath() const
+{
+	return _serverPath;
+}
+
 void ft::ALocation::setIsGet(const bool &status)
 {
 	_isGet = status;
