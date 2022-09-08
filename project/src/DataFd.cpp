@@ -22,6 +22,14 @@ ft::DataFd::~DataFd()
 		delete this->cgi;
 }
 
+void	ft::DataFd::clear()
+{
+	this->code = 200;
+	this->finalUrl = "";
+	*(this->httpRequest) = HttpRequest();
+	*(this->httpResponse) = HttpResponse();
+}
+
 void	ft::DataFd::updateTime()
 {
 	if (cgi->hasChildProcess())

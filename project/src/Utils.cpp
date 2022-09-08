@@ -98,6 +98,35 @@ int	ft::Utils::findMaxElem(std::list<int> list)
 	return max;
 }
 
+bool ft::Utils::fileExists(std::string url)
+{
+	struct stat stat_buf;
+	int res = stat(url.c_str(), &stat_buf);
+	return (res == 0);
+}
+
+
+bool ft::Utils::fileIsReadable(std::string url)
+{
+	struct stat stat_buf;
+	stat(url.c_str(), &stat_buf);
+	return (stat_buf.st_mode & S_IREAD);
+}
+
+bool ft::Utils::fileIsWritable(std::string url)
+{
+	struct stat stat_buf;
+	stat(url.c_str(), &stat_buf);
+	return (stat_buf.st_mode & S_IWRITE);
+}
+
+bool ft::Utils::isDirectory(std::string url)
+{
+	struct stat stat_buf;
+	stat(url.c_str(), &stat_buf);
+	return (stat_buf.st_mode & S_IFDIR);
+}
+
 /*
 std::string ft::Utils::normalizeUri(std::string s)
 {

@@ -10,7 +10,7 @@ void	ft::Responder::_makeSession(int &fd, DataFd &data)
 	std::string inputHeader;
 	size_t		startBody;
 
-	*data.httpRequest = HttpRequest();
+	data.clear();
 	HttpRequest &curRequest = *data.httpRequest;
 
 	input = ft::Utils::readFromSocket(fd, BUF_SIZE);
@@ -99,8 +99,8 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 	// size_t		&sendByteNow = data.dataFd[fd]->sendBodyByte;
 	// std::string responseBody = data.dataFd[fd]->httpResponse.getResponseBody();
 
-	std::string responseBody = data.httpResponse->getResponseBodyPart();
-	size_t status = send(fd, responseBody.c_str(), responseBody.length(), 0);
+	const char *responseBody = data.httpResponse->getResponseBodyPart();
+	size_t status = send(fd, responseBody, data.httpResponse->getSizeOfBuf(), 0);
 	std::cout << "SendBody status = " << status << std::endl;
 	// appendbody again
 	if (data.httpResponse->bodyIsRead())
@@ -208,11 +208,43 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 void ft::Responder::_get(DataFd *data)
 {
 	std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
-	data->finalUrl = "./www/server_test_cgi/indexGeek.html";
-	// 1. if a file check for reading rights ? HTTP_OK : HTTP_FORBIDDEN
-	// 2. if a directory -> check for index; if no index and no autoindex -> HTTP_FORBIDDEN
-	// 3. if autoindex and no reading rights; -> HTTP_FORBIDDEN
-	// 4. write fd of hte file in t_dataFd;
+	const ALocation * loc = data->loc;
+	if (!loc->getIsGet())
+	{
+		data->code = HTTP_METHOD_NOT_ALLOWED;
+		return;
+	}
+	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
+	if (!Utils::fileExists(url))
+	{
+		data->code = HTTP_NOT_FOUND;
+		return;
+	}
+	if (!Utils::fileIsReadable(url))
+	{
+		data->code = HTTP_FORBIDDEN;
+		return;
+	}
+	if (Utils::isDirectory(url))
+	{
+		if (data->configServer->getFilename((url + loc->getIndex()), *loc).empty())
+		{
+			if (!loc->getAutoIndex())
+			{
+				data->code = HTTP_FORBIDDEN;
+				return;
+			}
+			else
+			{
+				std::cout << "It will be autoindex once it is ready" << std::endl;
+			}
+		}
+		else
+		{
+			url += loc->getIndex();
+		}
+	}
+	data->finalUrl = url;
 }
 
 void ft::Responder::_post(DataFd *data)
