@@ -99,8 +99,8 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 	// size_t		&sendByteNow = data.dataFd[fd]->sendBodyByte;
 	// std::string responseBody = data.dataFd[fd]->httpResponse.getResponseBody();
 
-	std::string responseBody = data.httpResponse->getResponseBodyPart();
-	size_t status = send(fd, responseBody.c_str(), responseBody.length(), 0);
+	const char *responseBody = data.httpResponse->getResponseBodyPart();
+	size_t status = send(fd, responseBody, data.httpResponse->getSizeOfBuf(), 0);
 	std::cout << "SendBody status = " << status << std::endl;
 	// appendbody again
 	if (data.httpResponse->bodyIsRead())
