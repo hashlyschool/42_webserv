@@ -21,6 +21,7 @@
 namespace ft
 {
 	class DataFd;
+
 	class Cgi
 	{
 		private:
@@ -45,7 +46,7 @@ namespace ft
 			char		*_cmd[5];
 
 			char		parseURL(DataFd &data);
-			void		formExecveData();
+			void		formExecveData(DataFd &data);
 			void		childProcess(DataFd &data);
 		public:
 			Cgi();
@@ -54,7 +55,7 @@ namespace ft
 			char	isCGI(DataFd &data);
 
 			void	runChildProcess(DataFd &data);
-			void	waitChildProcess();
+			void	waitChildProcess(DataFd &data);
 
 			/* getters */
 			bool	hasChildProcess() const;

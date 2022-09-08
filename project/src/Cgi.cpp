@@ -7,6 +7,9 @@ ft::Cgi::Cgi()
 	_isPy = false;
 	_outFd = -1;
 	_inFd = -1;
+	_pid = -1;
+	for (size_t i = 0; i < 5; ++i)
+		_cmd[i] = NULL;
 }
 
 ft::Cgi::~Cgi()
@@ -15,9 +18,13 @@ ft::Cgi::~Cgi()
 	for (size_t i = 0; _cmd[i] != NULL; ++i)
 		free(_cmd[i]);
 	//need kill fork
-
+	if (_pid > 0)
+		kill(_pid, SIGTERM);
 	//delete create file: _outName, _inName
-
+	if (_outFd > 0)
+		close(_outFd);
+	if (_inFd > 0)
+		close(_inFd);
 }
 
 char	ft::Cgi::parseURL(DataFd &data)
@@ -106,12 +113,12 @@ void	ft::Cgi::runChildProcess(DataFd &data)
 	_hasChildProcess = true;
 }
 
-void	ft::Cgi::formExecveData()
+void	ft::Cgi::formExecveData(DataFd &data)
 {
-	_cmd[0] = strdup(_pathTranslated.c_str());
-	_cmd[1] = strdup((std::string("PATH_TRANSLATED=") + _pathTranslated).c_str());
-	_cmd[2] = strdup((std::string("PATH_INFO=") + _pathInfo).c_str());
-	_cmd[3] = strdup((std::string("QUERY_STRING=") + _queryString).c_str());
+	_cmd[0] = strdup((std::string("PATH_TRANSLATED=") + _pathTranslated).c_str());
+	_cmd[1] = strdup((std::string("PATH_INFO=") + _pathInfo).c_str());
+	_cmd[2] = strdup((std::string("QUERY_STRING=") + _queryString).c_str());
+	_cmd[3] = strdup((std::string("REQUEST_METHOD=") + data.httpRequest->getMethod()).c_str());
 	_cmd[4] = NULL;
 }
 
@@ -119,27 +126,32 @@ void	ft::Cgi::childProcess(DataFd &data)
 {
 	if (data.httpRequest->getMethod() == "POST")
 	{
-		int	_inFd = open(_inName.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+		int	_inFd = open(_inName.c_str(), O_RDONLY | O_CREAT | O_TRUNC, 0666);
 		dup2(_inFd, STDIN_FILENO);
 		close(_inFd);
 	}
-	int	_outFd = open(_outName.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+	int	_outFd = open(_outName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	dup2(_outFd, STDOUT_FILENO);
 	close(_outFd);
 
-	formExecveData();
-	if (execve(_cmd[0], _cmd, NULL) == -1) {
+	formExecveData(data);
+	if (execve(_pathTranslated.c_str(), _cmd, NULL) == -1) {
 		// perror("execve");
 		exit(EXIT_FAILURE);
 	}
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
-void	ft::Cgi::waitChildProcess()
+void	ft::Cgi::waitChildProcess(DataFd &data)
 {
-	//waitpid(pid, NULL, WNOHANG);
+	if (waitpid(_pid, NULL, WNOHANG) != 0)
+	{
+		_pid = -1;
+		data.httpResponse->setBodyUrl(_outName);
+		// data.httpResponse->setBodyType
+		data.statusFd = ft::SendHead;
+	}
 	//if Script complete
-		// data.statusFd = ft::SendHead;
 	return ;
 }
 
