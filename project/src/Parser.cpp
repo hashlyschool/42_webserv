@@ -22,24 +22,34 @@ ft::Parser::Parser(std::string pathConf) : _pathConf(pathConf)
 		std::cout << "Host - " << inet_ntoa(paddr) << std::endl;
 		std::cout << "Port - " << ntohs(getConfigServers().at(i).getPort()) << std::endl;
 		std::cout << "ServerName - " << getConfigServers().at(i).getServerName() << std::endl;
+		std::cout << "Root - " << getConfigServers().at(i).getRoot() << std::endl;
 	}
 
 	std::cout << "\n\nStart test searching of locations:" << std::endl;
-	ConfigServer serv = getConfigServers().at(0);
-
-	std::string url = "/images/about";
-	std::cout << "Test case: url = " + url << std::endl;
+	// ConfigServer serv = getConfigServers().at(0);
+	// std::string url = "/images/about";
+	// std::cout << "Test case: url = " + url << std::endl;
+	// const ft::ALocation *loc = serv.getLocation(url);
+	// if (loc == NULL)
+	// {
+	// 	std::cout << "Location is not found!" << std::endl;
+	// }
+	// else if (loc->getUrl() == url || loc->getUrl() == (url+"/"))
+	// 	std::cout << "Test - OK!" << std::endl;
+	// else
+	// 	std::cout << "Test - Fail!" << std::endl;
+	// std::cout << "found - " + loc->getUrl() << std::endl;
+	ConfigServer serv = getConfigServers().at(2);
+	std::cout << serv.getServerName() << std::endl;
+	std::string url = "/indexGeek.html";
 	const ft::ALocation *loc = serv.getLocation(url);
 	if (loc == NULL)
-	{
 		std::cout << "Location is not found!" << std::endl;
-	}
-	else if (loc->getUrl() == url || loc->getUrl() == (url+"/"))
-		std::cout << "Test - OK!" << std::endl;
 	else
-		std::cout << "Test - Fail!" << std::endl;
-	std::cout << "found - " + loc->getUrl() << std::endl;
-
+	{
+		std::string filename = serv.getFilename(url, *loc);
+		std::cout << "found - " + filename << std::endl;
+	}
 }
 
 ft::Parser::~Parser()
@@ -424,6 +434,7 @@ void ft::Parser::_fillLocationRoot(std::vector<std::string> args, ft::Location &
 {
 	if (!location.getRoot().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: root location error");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setRoot(args[0]);
 }
 
@@ -468,6 +479,7 @@ void ft::Parser::_fillLocationUploadPath(std::vector<std::string> args, ft::Loca
 {
 	if (!location.getUploadPath().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: wrong location directory to upload");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setUploadPath(args[0]);
 }
 
@@ -475,6 +487,7 @@ void ft::Parser::_fillLocationBinPathPy(std::vector<std::string> args, ft::Locat
 {
 	if (!location.getBinPathPy().empty() || args.size() != 1 || !location.getIsCgi())
 		throw std::invalid_argument("Parser error: wrong location bin path");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setBinPathPy(args[0]);
 }
 
@@ -482,6 +495,7 @@ void ft::Parser::_fillLocationBinPathSh(std::vector<std::string> args, ft::Locat
 {
 	if (!location.getBinPathSh().empty() || args.size() != 1 || !location.getIsCgi())
 		throw std::invalid_argument("Parser error: wrong location bin path");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setBinPathSh(args[0]);
 }
 
@@ -525,6 +539,7 @@ void ft::Parser::_fillServerRoot(std::vector<std::string> value, ssize_t index)
 {
 	if (!_servers[index].getRoot().empty() || value.size() != 1)
 		throw std::invalid_argument("Parser error: root error");
+	value[0] = _checkSyntaxPath(value[0]);
 	_servers[index].setRoot(value[0]);
 }
 
@@ -570,6 +585,7 @@ void ft::Parser::_fillUploadPath(std::vector<std::string> value, ssize_t index)
 {
 	if (!_servers[index].getUploadPath().empty() || value.size() != 1)
 		throw std::invalid_argument("Parser error: root directory to upload error");
+	value[0] = _checkSyntaxPath(value[0]);
 	_servers[index].setUploadPath(value[0]);
 }
 
@@ -623,4 +639,16 @@ bool ft::Parser::_isHost(std::string value)
 	if (pos != std::string::npos)
 		return true;
 	return false;
+}
+
+std::string &ft::Parser::_checkSyntaxPath(std::string &_path)
+{
+	if (!_path.empty())
+	{
+		if (_path[0] != '/')
+			_path = "/" + _path;
+		if (_path[_path.size() - 1] == '/')
+			_path.erase(_path.size() - 1, 1);
+	}
+	return (_path);
 }

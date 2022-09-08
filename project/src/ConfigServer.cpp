@@ -104,55 +104,35 @@ std::string ft::ConfigServer::getFilename(std::string _url, const ft::ALocation 
 
 	if (_url == "/")
 	{
+		// filename = "./www";
 		if (getIndex() != "")
-			filename = "./www/" + getServerName() + "/" + this->getRoot() + "/" + getIndex();
+			filename += this->getRoot() + "/" + getIndex();
 		else if (getAutoIndex())
-		{
-			filename = "./www/" + getServerName() + "/" + this->getRoot() + "/";
-		}
+			filename += this->getRoot() + "/";
 		else
-			filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ??
+			filename += this->getRoot() + _url; // ??
 	}
 	else
 	{
-		if (loc.getRoot() != "")
-		{
-			filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getRoot();
-			if (loc.getIndex() != "")
-			{
-				if ((_url == loc.getUrl()) || ((_url + "/") == loc.getUrl()))
-				{
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getUrl() + loc.getIndex();
-				}
-				else
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ?
-			}
-			else
-			{
-				if (this->getAutoIndex())
-				{
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url + "/";
-				}
-			}
-		}
+		// filename = "./www";
+		if (loc.getRoot() != "") // Location with root
+			filename += loc.getRoot();
 		else // Location without root
+			filename += this->getRoot();
+
+		if (loc.getIndex() != "") // Index is found
 		{
-			if (loc.getIndex() != "") // Index is found
-			{
-				if ((_url == loc.getUrl()) || ((_url + "/") == loc.getUrl()))
-				{
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + loc.getUrl() + loc.getIndex();
-				}
-				else
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url; // ?
-			}
-			else // Location without index page
-			{
-				if (this->getAutoIndex())
-				{
-					filename = "./www/" + getServerName() + "/" + this->getRoot() + _url + "/";
-				}
-			}
+			if ((_url[_url.size() - 1] == '/') && (_url == loc.getUrl() || (_url + "/") == loc.getUrl()))
+				filename += loc.getUrl() + loc.getIndex();
+			else
+				filename += _url;
+		}
+		else // Location without index page
+		{
+			if (this->getAutoIndex())
+				filename += _url + "/";
+			else
+				filename += _url;
 		}
 	}
 	return filename;
