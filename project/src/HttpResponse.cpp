@@ -40,7 +40,7 @@ ft::HttpResponse::HttpResponse(DataFd & data)
 	_method = data.httpRequest->getMethod();
 	_httpVersion = data.httpRequest->getHttpVersion();
 	_connectionClosed = data.httpRequest->getConnectionClosed();
-	// _url = data.configServer->getLocation().getUrl();
+	_url = data.finalUrl;
 	_noBody = (_method == "HEAD" || _code < 200 || _code == HTTP_NO_CONTENT);
 	if (!_noBody && _method == "GET") //or cgi; to do later
 	{
@@ -76,31 +76,44 @@ bool	ft::HttpResponse::isCGI()
 
 /* getters */
 
-std::string ft::HttpResponse::getResponseBodyPart()
+const char *ft::HttpResponse::getResponseBodyPart()
 {
 	if (this->_url == "")
 	{
 		_bodyRead = true;
 		if (_code >= 200 && _code <= 299)
-			return "Hello from HttpResponse! " + HttpUtils::getHttpReason(_code);
-		return _bodyStr;
+		{
+			_bodyStr = "Hello from HttpResponse!" +
+			HttpUtils::getHttpReason(_code);
+		}
+		_sizeOfBuf = _bodyStr.length();
+		return _bodyStr.c_str();
 	}
-	std::ifstream file(this->_url.c_str());
-	char buf[BUF_SIZE + 1];
+	std::ifstream file(this->_url.c_str(), std::ifstream::in | std::ifstream::binary);
 	if (file.is_open() && file.good())
 	{
 		file.seekg(_bytesRead);
-		size_t read = file.readsome(buf, BUF_SIZE);
+		size_t read = file.readsome(_buf, BUF_SIZE);
+		_sizeOfBuf = read;
 		_bytesRead += read;
-		buf[read] = '\0';
-		if (_bytesRead == _bodySize)
+		_buf[read] = '\0';
+		std::cout << "read = " << read << std::endl;
+		if (_bytesRead >= _bodySize)
+		{
 			_bodyRead = true;
+		}
 		file.close();
 	}
-	return std::string(buf);
+	return _buf;
 }
 
 /* getters */
+
+size_t ft::HttpResponse::getSizeOfBuf() const
+{
+	return _sizeOfBuf;
+}
+
 std::string ft::HttpResponse::getResponseHead() const
 {
 	std::stringstream headStream;

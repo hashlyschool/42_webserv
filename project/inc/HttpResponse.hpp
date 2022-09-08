@@ -1,4 +1,4 @@
-     #pragma once
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -14,7 +14,7 @@ namespace ft
 {
 	#define DELIMITER	"\r\n\r\n"
 	#define HEADERS_DELIMITER "\r\n"
-	#define BUF_SIZE	2048
+	#define BUF_SIZE 2048
 
 	class DataFd;
 
@@ -45,12 +45,14 @@ namespace ft
 
 			// ALocation	_loc;
 
-			std::string		_bodyStr;
-			unsigned long	_bodySize;
-			std::string		_bodyType;
-			bool			_bodyRead;
-			size_t			_bytesRead; // stays
-			bool			_noBody;
+			std::string				_bodyStr;
+			char					_buf[BUF_SIZE + 1];
+			size_t					_sizeOfBuf;
+			unsigned long			_bodySize;
+			std::string				_bodyType;
+			bool					_bodyRead;
+			size_t					_bytesRead; // stays
+			bool					_noBody;
 
 			std::string	_formStatusLine() const;
 			void		_formPlainBody(std::string body);
@@ -72,7 +74,8 @@ namespace ft
 			bool			isCGI();
 
 			/* getters */
-			std::string		getResponseBodyPart();
+			const char		*getResponseBodyPart();
+			size_t			getSizeOfBuf() const;
 			std::string		getResponseHead() const;
 			bool			bodyIsRead() const;
 			bool			noBody() const;
