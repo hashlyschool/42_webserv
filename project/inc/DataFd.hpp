@@ -48,6 +48,7 @@ namespace ft
 
 			/* methods */
 			void				updateTime();
+			void				clear();
 
 			/* getters */
 			struct timeval		getTimeLastAct() const;
