@@ -8,6 +8,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <list>
+#include <dirent.h>
 #include <unistd.h>
 
 namespace ft
@@ -37,5 +38,6 @@ namespace ft
 		static bool				fileIsReadable(std::string url);
 		static bool				fileIsWritable(std::string url);
 		static bool				isDirectory(std::string url);
+		static bool				isNotEmptyDirectory(std::string url);
 	};
 }
