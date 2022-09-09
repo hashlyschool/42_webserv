@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <string.h>
 #include <unistd.h>
 //open
 #include <sys/types.h>
@@ -20,6 +19,9 @@
 
 namespace ft
 {
+	#define SIZE_ENV 22
+	#define SIZE_ARGV 3
+
 	class DataFd;
 
 	class Cgi
@@ -34,6 +36,7 @@ namespace ft
 			// URL = [requestURL][ScriptName][PATH_INFO][QUERY_STRING]
 			bool		_isPy; //+
 			bool		_isSh; //+
+			const char	*_pathInterpreter;
 			bool		_hasChildProcess;
 
 			pid_t		_pid;
@@ -43,11 +46,16 @@ namespace ft
 			int			_outFd;
 			int			_inFd;
 
-			char		*_cmd[5];
+			char		*_argv[SIZE_ARGV];
+			char		*_env[SIZE_ENV];
+			void		setPathInterpreter(DataFd &data);
+			void		fillArgv();
+			void		fillEnv(DataFd &data);
+			void		createInOutFile(DataFd &data);
 
 			char		parseURL(DataFd &data);
 			void		formExecveData(DataFd &data);
-			void		childProcess(DataFd &data);
+			void		childProcess();
 		public:
 			Cgi();
 			~Cgi();
