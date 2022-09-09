@@ -75,6 +75,7 @@ namespace ft
 		bool _validKeys(std::string &key, serverBlockConfig_t &serverBlock, size_t code);
 		int _checkPortVal(std::string str);
 		bool _isHost(std::string value);
+		std::string &_checkSyntaxPath(std::string &_path);
 		std::vector<std::string> _getHostPort(std::string host);
 		err_type _fillErrorPage(std::vector<std::string> value);
 		void _addServer(serverBlockConfig_t &serverBlock);
