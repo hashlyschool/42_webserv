@@ -127,6 +127,24 @@ bool ft::Utils::isDirectory(std::string url)
 	return (stat_buf.st_mode & S_IFDIR);
 }
 
+bool ft::Utils::isNotEmptyDirectory(std::string url) {
+  int n = 0;
+  struct dirent *d;
+  DIR *dir = opendir(url.c_str());
+  if (dir == NULL) //Not a directory or doesn't exist
+    return false;
+  while ((d = readdir(dir)) != NULL) {
+	n += 1;
+	if (n > 2)
+		break;
+  }
+  closedir(dir);
+  if (n <= 2) //Directory Empty
+    return false;
+  else
+    return true;
+}
+
 /*
 std::string ft::Utils::normalizeUri(std::string s)
 {

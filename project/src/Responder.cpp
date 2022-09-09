@@ -215,6 +215,7 @@ void ft::Responder::_get(DataFd *data)
 		return;
 	}
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
+	std::cout << "found url: " << url << std::endl;
 	if (!Utils::fileExists(url))
 	{
 		data->code = HTTP_NOT_FOUND;
@@ -257,7 +258,19 @@ void ft::Responder::_post(DataFd *data)
 void ft::Responder::_delete(DataFd *data)
 {
 	std::cout << "in delete for " << data->httpRequest->getUrl() << std::endl;
+	const ALocation * loc = data->loc;
+	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
 
-	// check location if it allowed to write if not -> HTTP_FORBIDDEN
-	// Utils::delete()
+	if (!loc->getIsDelete())
+		data->code = HTTP_METHOD_NOT_ALLOWED;
+	else if (Utils::isNotEmptyDirectory(url))
+		data->code = HTTP_CONFLICT;
+	else if (!Utils::fileExists(url))
+		data->code = HTTP_NOT_FOUND;
+	else if (!Utils::fileIsWritable(url))
+		data->code = HTTP_FORBIDDEN;
+	else if (std::remove(url.c_str()) != 0)
+		data->code = HTTP_INTERNAL_SERVER_ERROR;
+	else
+		data->code = HTTP_NO_CONTENT;
 }
