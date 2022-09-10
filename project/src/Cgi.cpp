@@ -27,24 +27,26 @@ ft::Cgi::~Cgi()
 		kill(_pid, SIGTERM);
 	//delete create file: _outName, _inName
 	if (_outFd > 0)
+	{
 		remove(_outName.c_str());
-	// close(_outFd);
+		close(_outFd);
+	}
 	if (_inFd > 0)
+	{
+		close(_inFd);
 		remove(_inName.c_str());
-	// close(_inFd);
+	}
 }
 
 char	ft::Cgi::parseURL(DataFd &data)
 {
 	std::string	fullURL;
-	// char		buf[2048];
 	size_t		posStart;
 	size_t		posEnd;
 
 	fullURL = data.httpRequest->getUrl();
 	_rootPath = data.loc->getRoot();
-	// getcwd(buf, 2048);
-	_pathTranslated = data.configServer->getRoot() + fullURL;
+	_pathTranslated = data.configServer->getFilename(fullURL, *data.loc);
 	_outName = _rootPath + "/outCgi" + ft::Utils::to_string(data.fd);
 	_inName = _rootPath + "/inCgi" + ft::Utils::to_string(data.fd);
 
@@ -169,7 +171,7 @@ void	ft::Cgi::runChildProcess(DataFd &data)
 {
 	data.cgi->formExecveData(data);
 	_pid = fork();
-	if (fork() < 0)
+	if (_pid < 0)
 	{
 		data.code = ft::HTTP_INTERNAL_SERVER_ERROR;
 		data.statusFd = ft::SendHead;
@@ -182,7 +184,8 @@ void	ft::Cgi::runChildProcess(DataFd &data)
 
 void	ft::Cgi::childProcess()
 {
-	dup2(_inFd, STDIN_FILENO);
+	if (_inFd > 0)
+		dup2(_inFd, STDIN_FILENO);
 	dup2(_outFd, STDOUT_FILENO);
 	dup2(_outFd, STDERR_FILENO);
 	if (execve(_pathInterpreter, _argv, _env) == -1) {
@@ -194,7 +197,7 @@ void	ft::Cgi::childProcess()
 
 void	ft::Cgi::waitChildProcess(DataFd &data)
 {
-	if (waitpid(_pid, NULL, WNOHANG) > 0)
+	if (waitpid(_pid, NULL, WNOHANG) == _pid)
 	{
 		_pid = -1;
 		data.finalUrl = _outName;

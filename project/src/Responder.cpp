@@ -141,8 +141,6 @@ void	ft::Responder::_closeFd(int &fd, MapDataFd &data)
 	close(fd);
 	delete data[fd];
 	data.erase(fd);
-	//if connection close or time -> makesession
-	//else close
 }
 
 void	ft::Responder::_autoIndex(int &fd, MapDataFd &data)
