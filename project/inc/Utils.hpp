@@ -35,9 +35,12 @@ namespace ft
 		}
 
 		static bool				fileExists(std::string url);
+		static bool				pathToFileExists(std::string url);
 		static bool				fileIsReadable(std::string url);
 		static bool				fileIsWritable(std::string url);
 		static bool				isDirectory(std::string url);
 		static bool				isNotEmptyDirectory(std::string url);
+		static bool				pathToFileIsWritable(std::string url);
+
 	};
 }

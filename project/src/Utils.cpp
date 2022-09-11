@@ -105,6 +105,26 @@ bool ft::Utils::fileExists(std::string url)
 	return (res == 0);
 }
 
+bool ft::Utils::pathToFileExists(std::string url)
+{
+	size_t pos = url.find_last_of('/');
+	if (pos == std::string::npos) // not sure if it ever happens but just in case
+		return false;
+	std::string pathToDir = url.substr(0, pos);
+	if (pathToDir.empty()) // not sure if it ever happens but just in case
+		return false;
+	if (isDirectory(pathToDir))
+		return true;
+	return false;
+}
+
+bool ft::Utils::pathToFileIsWritable(std::string url)
+{
+	std::string pathToDir = url.substr(0, url.find_last_of('/'));
+	if (fileIsWritable(pathToDir))
+		return true;
+	return false;
+}
 
 bool ft::Utils::fileIsReadable(std::string url)
 {
