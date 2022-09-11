@@ -72,7 +72,7 @@ namespace ft
 		void _erase_semicolon(std::vector<std::string> &parsed_line);
 		void _erase_comma(std::vector<std::string> &parsed_line, size_t &i);
 		void _checkDirective(std::vector<std::string> &parsed_line, serverBlockConfig_t &serverBlock);
-		bool _validKeys(std::string &key, serverBlockConfig_t &serverBlock, size_t code);
+		bool _validKeys(std::string &key, serverBlockConfig_t &serverBlock, bool isError);
 		int _checkPortVal(std::string str);
 		bool _isHost(std::string value);
 		std::string &_checkSyntaxPath(std::string &_path);
