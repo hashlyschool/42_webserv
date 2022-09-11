@@ -408,9 +408,9 @@ void ft::Parser::_fillLocationName(ft::Location &obj, std::string line)
 {
 	if (!obj.getUrl().empty())
 		throw std::invalid_argument("Parser error: location error");
-
+	line = _checkSyntaxPath(line);
 	obj.setUrl(line);
-	if (line == "/cgi-bin/")
+	if (line == "/cgi-bin")
 		obj.setIsCgi(true);
 }
 
@@ -465,6 +465,7 @@ void ft::Parser::_fillLocationIndex(std::vector<std::string> args, ft::Location 
 {
 	if (!location.getIndex().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: wrong lcoation index page");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setIndex(args[0]);
 }
 
@@ -548,6 +549,7 @@ void ft::Parser::_fillIndex(std::vector<std::string> value, ssize_t index)
 {
 	if (!_servers[index].getIndex().empty() || value.size() != 1)
 		throw std::invalid_argument("Parser error: root index page error");
+	value[0] = _checkSyntaxPath(value[0]);
 	_servers[index].setIndex(value[0]);
 }
 
