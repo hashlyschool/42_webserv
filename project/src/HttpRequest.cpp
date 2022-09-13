@@ -1,6 +1,9 @@
 #include "../inc/HttpRequest.hpp"
 
 ft::HttpRequest::HttpRequest() {
+	_buffer = Buffer();
+	_totalBytesRead = 0;
+	_bytesToRead = 0;
 	_contentLength = 0;
 	_chunked = false;
 	_headReady = false;
@@ -13,7 +16,6 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	this->_method = rhs._method;
 	this->_url = rhs._url;
 	this->_httpVersion = rhs._httpVersion;
-	this->_body = rhs._body;
 	this->_headers.clear();
 	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
 												it != _headers.end(); it++)
@@ -166,42 +168,54 @@ bool ft::HttpRequest::hasContentLength() const
 	return (_headers.find("Content-Length") != _headers.end());
 }
 
-void ft::HttpRequest::readBodyByChunks(std::string buffer)
+void ft::HttpRequest::readBodyByChunks(char *current, size_t sizeBuf)
 {
-	std::string lengthLine;
-	size_t pos = 0;
+	std::string lengthLine; // "delimiter for a chunk == its size in 0x"
+	size_t pos = 0; // start of body of the chunk
 
 	if (_currentChunk.isEmpty())
-		pos = ft::Utils::getdelim(buffer, lengthLine, "\r\n");
+	{
+		pos = ft::Utils::getdelim(current, lengthLine, "\r\n");
+		if (pos == std::string::npos) // we didn't get the whole lengthString in buf
+		{
+			_currentChunk.setLengthLineTmp(lengthLine);
+			return;
+		}
+
+	}
 	while (lengthLine != "0")
 	{
 		if (_currentChunk.isEmpty())
 		{
-			_currentChunk.setBytesToRead(ft::Utils::strtoul(lengthLine, 16));
+			_currentChunk.setBytesToRead(lengthLine);
 		}
-		std::string chunkBuf = buffer.substr(pos, _currentChunk.getBytesToRead());
-		size_t bytesRead = chunkBuf.length();
-		pos += bytesRead;
+		// bytesToRead = number of characters to read from input buffer
+		// but the buffer can be smaller than the current size of chunk
+		size_t bytesToRead = (sizeBuf - pos > _currentChunk.getBytesToRead()) ?
+		_currentChunk.getBytesToRead() : sizeBuf - pos;
+		Buffer chunkBuf(current + pos, bytesToRead);
+		// std::string chunkBuf = current.substr(pos, _currentChunk.getBytesToRead());
+		pos += bytesToRead;
 
-		_currentChunk.setBytesToRead(_currentChunk.getBytesToRead() - bytesRead);
+		_currentChunk.setBytesToRead(_currentChunk.getBytesToRead() - bytesToRead);
 		_currentChunk.append(chunkBuf);
-		if (pos == buffer.length())
-			break;
+		if (pos == sizeBuf) // we've read everything from the buffer
+			return;
 		if (_currentChunk.isRead())
 		{
-			_body.append(_currentChunk.getChunk());
+			_buffer.append(_currentChunk.getChunk());
 			_currentChunk.clear();
-			if ((pos = ft::Utils::getdelim(buffer, lengthLine, "\r\n", pos)) == std::string::npos)
-				break;
+			if ((pos = ft::Utils::getdelim(current, lengthLine, "\r\n", pos)) == std::string::npos)
+			{
+				_currentChunk.setLengthLineTmp(lengthLine);
+				return;
+			}
 		}
 	}
-	if (lengthLine == "0")
-	{
-		_bodyReady = true;
-	}
+	_bodyReady = true;
 }
 
-int ft::HttpRequest::readBody(std::string current)
+int ft::HttpRequest::readBody(char *current, size_t sizeBuf)
 {
 	if (_method == "DELETE" || _method == "GET")
 	{
@@ -210,21 +224,31 @@ int ft::HttpRequest::readBody(std::string current)
 	}
 	if (isChunked())
 	{
-		readBodyByChunks(current);
+		readBodyByChunks(current, sizeBuf);
 	}
 	else
 	{
-		size_t bytesToRead = getContentLength() - _body.length();
-		_body.append(current.substr(0, bytesToRead));
-		if (_body.length() == getContentLength())
+		_buffer = Buffer(current, sizeBuf);
+		_totalBytesRead += sizeBuf;
+		std::cout << "read " << _totalBytesRead
+				<< " length " << _contentLength << "\n";
+		if (_totalBytesRead >= _contentLength)
+		{
+			std::cout << "I decided that the body is done\n";
 			_bodyReady = true;
+		}
 	}
 		return 0;
 }
 
-std::string ft::HttpRequest::getBody() const
+const char *ft::HttpRequest::getBody() const
 {
-	return _body;
+	return _buffer.getBuffer();
+}
+
+size_t ft::HttpRequest::getBodySize() const
+{
+	return _buffer.size();
 }
 
 bool ft::HttpRequest::bodyIsRead() const
@@ -247,7 +271,7 @@ std::string ft::HttpRequest::getUrl() const
 	return _url;
 }
 
-void ft::HttpRequest::appendHead(std::string buf)
+void ft::HttpRequest::setHead(std::string buf)
 {
 	_requestStr.append(buf);
 }
@@ -269,20 +293,31 @@ void ft::HttpRequest::setRequestStr(std::string source)
 
 /* Chunk class definition */
 
-ft::HttpRequest::Chunk::Chunk(): empty(true) {}
+ft::HttpRequest::Chunk::Chunk(): _bytesToRead(0),
+								_chunk(Buffer()),
+								empty(true),
+								_lengthLineTmp("") {}
 
 ft::HttpRequest::Chunk& ft::HttpRequest::Chunk::operator=(const Chunk & rhs)
 {
+	this->_lengthLineTmp = rhs._lengthLineTmp;
 	this->_bytesToRead = rhs._bytesToRead;
 	this->_chunk = rhs._chunk;
 	this->empty = rhs.empty;
 	return *this;
 }
 
-void ft::HttpRequest::Chunk::setBytesToRead(unsigned long bytesToRead)
+void ft::HttpRequest::Chunk::setBytesToRead(std::string line)
 {
-	_bytesToRead = bytesToRead;
+	_lengthLineTmp += line;
+
+	_bytesToRead = Utils::strtoul(_lengthLineTmp, 16);
 	empty = false;
+}
+
+void ft::HttpRequest::Chunk::setBytesToRead(unsigned long length)
+{
+	_bytesToRead = length;
 }
 
 unsigned long ft::HttpRequest::Chunk::getBytesToRead() const
@@ -290,7 +325,7 @@ unsigned long ft::HttpRequest::Chunk::getBytesToRead() const
 	return _bytesToRead;
 }
 
-std::string	 ft::HttpRequest::Chunk::getChunk() const
+const ft::Buffer &ft::HttpRequest::Chunk::getChunk() const
 {
 	return _chunk;
 }
@@ -305,14 +340,20 @@ bool ft::HttpRequest::Chunk::isEmpty() const
 	return empty;
 }
 
-void ft::HttpRequest::Chunk::append(std::string string)
+void ft::HttpRequest::Chunk::append(Buffer buf)
 {
-	_chunk.append(string);
+	_chunk.append(buf);
 }
 
 void ft::HttpRequest::Chunk::clear()
 {
 	_bytesToRead = 0;
-	_chunk.clear();
+	_chunk = Buffer();
 	empty = true;
+	_lengthLineTmp = "";
+}
+
+void ft::HttpRequest::Chunk::setLengthLineTmp(const std::string & line)
+{
+	_lengthLineTmp = line;
 }

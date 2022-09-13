@@ -81,11 +81,6 @@ const char *ft::HttpResponse::getResponseBodyPart()
 	if (this->_url == "")
 	{
 		_bodyRead = true;
-		if (_code >= 200 && _code <= 299)
-		{
-			_bodyStr = "Hello from HttpResponse!" +
-			HttpUtils::getHttpReason(_code);
-		}
 		_sizeOfBuf = _bodyStr.length();
 		return _bodyStr.c_str();
 	}

@@ -13,12 +13,16 @@
 
 namespace ft
 {
+	#define DELIMITER	"\r\n\r\n"
+	#define HEADERS_DELIMITER "\r\n"
+	#define BUF_SIZE 2048
+
 	class Utils
 	{
 		public:
 		static unsigned long	strtoul(std::string string, int base);
 		static void				replaceAll(std::string &src, std::string toReplace, std::string replacement);
-		static std::string		readFromSocket(int fd, int buf_size);
+		static size_t			readFromSocket(int fd, char *buf, int buf_size);
 		static size_t			getdelim(std::string source, std::string &buffer, std::string delimeter, size_t pos = 0);
 		static void				signalHandler(int signal);
 		static void				checkArg(int argc, char **argv);

@@ -12,10 +12,6 @@
 
 namespace ft
 {
-	#define DELIMITER	"\r\n\r\n"
-	#define HEADERS_DELIMITER "\r\n"
-	#define BUF_SIZE 2048
-
 	class DataFd;
 
 	class HttpResponse
@@ -46,6 +42,8 @@ namespace ft
 			// ALocation	_loc;
 
 			std::string				_bodyStr;
+
+			/* it will be Buffer buffer*/
 			char					_buf[BUF_SIZE + 1];
 			size_t					_sizeOfBuf;
 			unsigned long			_bodySize;

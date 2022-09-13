@@ -6,22 +6,25 @@ ft::Responder::~Responder() {}
 
 void	ft::Responder::_makeSession(int &fd, DataFd &data)
 {
-	std::string	input;
-	std::string inputHeader;
+	char		input[BUF_SIZE + 1];
+	std::string	inputHeader;
 	size_t		startBody;
+	size_t		bytesRead;
 
 	data.clear();
 	HttpRequest &curRequest = *data.httpRequest;
 
-	input = ft::Utils::readFromSocket(fd, BUF_SIZE);
+	bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
+	input[bytesRead] = 0;
 	startBody = ft::Utils::getdelim(input, inputHeader, DELIMITER);
-	curRequest.appendHead(inputHeader);
+	curRequest.setHead(inputHeader);
 	if (startBody != std::string::npos)
 	{
 		if (curRequest.parseHeader() < 0)
 			data.code = HTTP_BAD_REQUEST;
+		data.code = HttpUtils::checkHttpRequest(data);
 		if (!curRequest.getConnectionClosed())
-			curRequest.readBody(input.substr(startBody));
+			curRequest.readBody(&input[startBody], bytesRead - startBody);
 		_setStatusRequest(&data);
 	}
 	// we could be really lucky to get delimiter in different portions of data
@@ -31,21 +34,22 @@ void	ft::Responder::_makeSession(int &fd, DataFd &data)
 		// trim request head so that part of the body wouldn't be there
 		// the remainder append to the body => it already contains the body from input; its fine
 
-		std::string body = curRequest.getRequestStr().substr(startBody);
-		curRequest.setRequestStr(inputHeader);
-		if (curRequest.parseHeader() < 0)
-			data.code = HTTP_BAD_REQUEST;
-		curRequest.readBody(body);
-		_setStatusRequest(&data);
+		// std::string body = curRequest.getRequestStr().substr(startBody);
+		// curRequest.setRequestStr(inputHeader);
+		// if (curRequest.parseHeader() < 0)
+		// 	data.code = HTTP_BAD_REQUEST;
+		// curRequest.readBody(body, );
+		// _setStatusRequest(&data);
 	}
 }
 
 void	ft::Responder::_readBody(int &fd, DataFd &data)
 {
-	std::string input = ft::Utils::readFromSocket(fd, BUF_SIZE);
+	char input[BUF_SIZE + 1];
 
-	data.httpRequest->readBody(input);
-	//set status
+	size_t bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
+	input[bytesRead] = '\0';
+	data.httpRequest->readBody(input, bytesRead);
 	_setStatusRequest(&data);
 }
 
@@ -62,7 +66,8 @@ void ft::Responder::_execute(DataFd &data)
 		_post(&data);
 	else
 		_delete(&data);
-	data.statusFd = ft::SendHead;
+	if (method != "POST")
+		data.statusFd = ft::SendHead;
 }
 
 void	ft::Responder::_sendHead(int &fd, DataFd &data)
@@ -74,7 +79,7 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	response = HttpResponse(data);
 
 	response.setBodyUrl(data.finalUrl);
-	// std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
+
 	std::string head = response.getResponseHead();
 	//create response body
 	// data.dataFd[fd]->responseBody = "Hello world!";
@@ -83,7 +88,7 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	status = send(fd, head.c_str(), head.length(), 0);
 	std::cout << "SendHead status = " << status << std::endl;
 	//set status
-	if (response.noBody())
+	if (response.noBody() || response.getBodySize())
 	{
 		if (data.httpRequest->getConnectionClosed() || response.connectionIsClosed())
 			data.statusFd = ft::Closefd;
@@ -188,9 +193,8 @@ void	ft::Responder::action(int &fd, MapDataFd &data)
 
 void ft::Responder::_setStatusRequest(DataFd *data)
 {
-	if (data->httpRequest->bodyIsRead())
+	if (data->httpRequest->bodyIsRead() || data->httpRequest->getMethod() == "POST")
 	{
-		data->code = HttpUtils::checkHttpRequest(*data);
 		if (HttpUtils::isSuccessful(data->code))
 		{
 			if (data->loc->getIsCgi())
@@ -251,8 +255,38 @@ void ft::Responder::_get(DataFd *data)
 void ft::Responder::_post(DataFd *data)
 {
 	std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
-	// check location if it is allowed to write ? HTTP_OK : HTTP_FORBIDDEN
-	// write to the location
+	const ALocation * loc = data->loc;
+	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
+
+//	checks every time, its bad
+	if (!loc->getIsPost())
+		data->code = HTTP_METHOD_NOT_ALLOWED;
+	if (!Utils::pathToFileExists(url))
+		data->code = HTTP_NOT_FOUND;
+	else if (!Utils::pathToFileIsWritable(url))
+		data->code = HTTP_FORBIDDEN;
+	else
+	{
+		if (!Utils::fileExists(url))
+			data->code = HTTP_CREATED;
+		std::ofstream file(url.c_str(), std::ofstream::out | std::ofstream::binary | std::ios_base::app);
+		if (file.is_open() && file.good())
+		{
+			file.write(data->httpRequest->getBody(), data->httpRequest->getBodySize());
+			file.close();
+			if (!data->httpRequest->bodyIsRead())
+			{
+				data->statusFd = ft::Readbody;
+			}
+			else
+			{
+				data->finalUrl = data->httpRequest->getUrl();
+				data->statusFd = ft::SendHead;
+			}
+		}
+		else
+			data->code = HTTP_INTERNAL_SERVER_ERROR;
+	}
 }
 
 void ft::Responder::_delete(DataFd *data)

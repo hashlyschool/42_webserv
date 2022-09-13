@@ -20,22 +20,16 @@ void ft::Utils::replaceAll(std::string &src, std::string toReplace, std::string 
 	}
 }
 
-std::string ft::Utils::readFromSocket(int fd, int buf_size)
+size_t ft::Utils::readFromSocket(int fd, char *buf, int buf_size)
 {
-	char		*buf = new char[buf_size + 1];
 	int			status;
-	std::string	ret;
 
 	status = recv(fd, buf, buf_size, 0);
 	if (status < 0)
 	{
-		delete [] buf;
 		std::exit(-1);
 	}
-	buf[status] = 0;
-	ret = buf;
-	delete [] buf;
-	return ret;
+	return status;
 }
 
 size_t ft::Utils::getdelim(std::string source, std::string &buffer, std::string delimeter, size_t pos)
