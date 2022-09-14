@@ -22,12 +22,14 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 	{
 		this->_headers[it->first] = it->second;
 	}
+	this->_buffer = rhs._buffer;
+	this->_totalBytesRead = rhs._totalBytesRead;
+	this->_bytesToRead = rhs._bytesToRead;
 	this->_contentLength = rhs._contentLength;
 	this->_close = rhs._close;
 	this->_chunked = rhs._chunked;
 	this->_headReady = rhs._headReady;
 	this->_bodyReady = rhs._bodyReady;
-	this->_currentChunk = rhs._currentChunk;
 	this->_currentChunk = rhs._currentChunk;
 	return *this;
 }
