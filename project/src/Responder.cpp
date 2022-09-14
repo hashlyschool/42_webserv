@@ -88,7 +88,7 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	status = send(fd, head.c_str(), head.length(), 0);
 	std::cout << "SendHead status = " << status << std::endl;
 	//set status
-	if (response.noBody() || response.getBodySize())
+	if (response.noBody() || response.getBodySize() == 0)
 	{
 		if (data.httpRequest->getConnectionClosed() || response.connectionIsClosed())
 			data.statusFd = ft::Closefd;
@@ -232,7 +232,7 @@ void ft::Responder::_get(DataFd *data)
 	}
 	if (Utils::isDirectory(url))
 	{
-		if (data->configServer->getFilename((url + loc->getIndex()), *loc).empty())
+		if (loc->getIndex().empty())
 		{
 			if (!loc->getAutoIndex())
 			{
