@@ -54,6 +54,7 @@ namespace ft
 
 			std::string	_formStatusLine() const;
 			void		_formPlainBody(std::string body);
+			void		_setErrorPage();
 
 		public:
 			/* Orthodox form */

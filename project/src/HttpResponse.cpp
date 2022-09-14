@@ -185,13 +185,25 @@ void ft::HttpResponse::setBodyUrl(std::string url)
 	}
 	else
 	{
-		_bodyStr = "OH NO IT IS NOT GOOD\n" + Utils::to_string(_code) + " " + HttpUtils::getHttpReason(_code);
-		_bodySize = _bodyStr.length();
-		_bodyType = "text/plain";
+		_setErrorPage();
 	}
 }
 
 void	ft::HttpResponse::setBodyType(const std::string bodyType)
 {
 	this->_bodyType = bodyType;
+}
+
+void	ft::HttpResponse::_setErrorPage()
+{
+	std::string res = "";
+	res += "<html><head><title>" +
+	Utils::to_string(_code) +
+	"</title></head><body><center><br><br><h1>Error " +
+	Utils::to_string(_code) + ": " +
+	HttpUtils::getHttpReason(_code) +
+	"</h1><h2>Oh no! Something went wrong.</h2></center></body></html>";
+	_bodyStr = res;
+	_bodySize = res.length();
+	_bodyType = "text/html";
 }
