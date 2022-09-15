@@ -255,25 +255,11 @@ void ft::Responder::_get(DataFd *data)
 void ft::Responder::_post(DataFd *data)
 {
 	std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
-	const ALocation * loc = data->loc;
-	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
-
-//	checks every time, its bad
-	if (!loc->getIsPost())
-		data->code = HTTP_METHOD_NOT_ALLOWED;
-	if (!Utils::pathToFileExists(url))
-		data->code = HTTP_NOT_FOUND;
-	else if (!Utils::pathToFileIsWritable(url))
-		data->code = HTTP_FORBIDDEN;
-	else
+	if (data->outFile != NULL || _fileGoodForPost(data))
 	{
-		if (!Utils::fileExists(url))
-			data->code = HTTP_CREATED;
-		std::ofstream file(url.c_str(), std::ofstream::out | std::ofstream::binary | std::ios_base::app);
-		if (file.is_open() && file.good())
+		if (data->outFile->good() && data->outFile->is_open())
 		{
-			file.write(data->httpRequest->getBody(), data->httpRequest->getBodySize());
-			file.close();
+			data->outFile->write(data->httpRequest->getBody(), data->httpRequest->getBodySize());
 			if (!data->httpRequest->bodyIsRead())
 			{
 				data->statusFd = ft::Readbody;
@@ -282,6 +268,7 @@ void ft::Responder::_post(DataFd *data)
 			{
 				data->finalUrl = data->httpRequest->getUrl();
 				data->statusFd = ft::SendHead;
+				data->outFile->close();
 			}
 		}
 		else
@@ -307,4 +294,29 @@ void ft::Responder::_delete(DataFd *data)
 		data->code = HTTP_INTERNAL_SERVER_ERROR;
 	else
 		data->code = HTTP_NO_CONTENT;
+}
+
+bool ft::Responder::_fileGoodForPost(DataFd *data)
+{
+	const ALocation * loc = data->loc;
+	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
+//	checks every time, its bad
+	if (!loc->getIsPost())
+		data->code = HTTP_METHOD_NOT_ALLOWED;
+	if (!Utils::pathToFileExists(url))
+		data->code = HTTP_NOT_FOUND;
+	else if (!Utils::pathToFileIsWritable(url))
+		data->code = HTTP_FORBIDDEN;
+	else
+	{
+		if (!Utils::fileExists(url))
+			data->code = HTTP_CREATED;
+	}
+	if (HttpUtils::isSuccessful(data->code))
+	{
+		data->outFile = new std::ofstream();
+		data->outFile->open(url.c_str(), std::ofstream::out | std::ofstream::binary | std::ios_base::app);
+		return true;
+	}
+	return false;
 }

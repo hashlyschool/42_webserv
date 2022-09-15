@@ -45,6 +45,7 @@ namespace ft
 			HttpRequest 		*httpRequest;
 			HttpResponse		*httpResponse;
 			Cgi					*cgi;
+			std::ofstream		*outFile;
 
 			/* methods */
 			void				updateTime();

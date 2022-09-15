@@ -35,6 +35,9 @@ namespace ft
 			void	_post(DataFd *data);
 			void	_delete(DataFd *data);
 
+			bool	_fileGoodForPost(DataFd *data);
+
+
 		public:
 			Responder();
 			virtual	~Responder();
