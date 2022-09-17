@@ -2,7 +2,6 @@
 
 ft::HttpRequest::HttpRequest() {
 	_buffer = Buffer();
-	_totalBytesRead = 0;
 	_bytesToRead = 0;
 	_contentLength = 0;
 	_chunked = false;
@@ -23,7 +22,6 @@ ft::HttpRequest& ft::HttpRequest::operator=(const HttpRequest & rhs) {
 		this->_headers[it->first] = it->second;
 	}
 	this->_buffer = rhs._buffer;
-	this->_totalBytesRead = rhs._totalBytesRead;
 	this->_bytesToRead = rhs._bytesToRead;
 	this->_contentLength = rhs._contentLength;
 	this->_close = rhs._close;
@@ -121,6 +119,7 @@ int ft::HttpRequest::setContentLength()
 				return -1;
 		}
 		_contentLength = ft::Utils::strtoul(sizeStr, 10);
+		_bytesToRead = _contentLength;
 	}
 	return 0;
 }
@@ -188,15 +187,12 @@ void ft::HttpRequest::readBodyByChunks(char *current, size_t sizeBuf)
 	while (lengthLine != "0")
 	{
 		if (_currentChunk.isEmpty())
-		{
 			_currentChunk.setBytesToRead(lengthLine);
-		}
 		// bytesToRead = number of characters to read from input buffer
 		// but the buffer can be smaller than the current size of chunk
 		size_t bytesToRead = (sizeBuf - pos > _currentChunk.getBytesToRead()) ?
 		_currentChunk.getBytesToRead() : sizeBuf - pos;
 		Buffer chunkBuf(current + pos, bytesToRead);
-		// std::string chunkBuf = current.substr(pos, _currentChunk.getBytesToRead());
 		pos += bytesToRead;
 
 		_currentChunk.setBytesToRead(_currentChunk.getBytesToRead() - bytesToRead);
@@ -219,7 +215,7 @@ void ft::HttpRequest::readBodyByChunks(char *current, size_t sizeBuf)
 
 int ft::HttpRequest::readBody(char *current, size_t sizeBuf)
 {
-	if (_method == "DELETE" || _method == "GET")
+	if (_contentLength == 0)
 	{
 		_bodyReady = true;
 		return 1;
@@ -230,11 +226,11 @@ int ft::HttpRequest::readBody(char *current, size_t sizeBuf)
 	}
 	else
 	{
+		if (sizeBuf > _bytesToRead)
+			sizeBuf = _bytesToRead;
 		_buffer = Buffer(current, sizeBuf);
-		_totalBytesRead += sizeBuf;
-		std::cout << "read " << _totalBytesRead
-				<< " length " << _contentLength << "\n";
-		if (_totalBytesRead >= _contentLength)
+		_bytesToRead -= sizeBuf;
+		if (_bytesToRead <= 0)
 		{
 			std::cout << "I decided that the body is done\n";
 			_bodyReady = true;
@@ -273,7 +269,7 @@ std::string ft::HttpRequest::getUrl() const
 	return _url;
 }
 
-void ft::HttpRequest::setHead(std::string buf)
+void ft::HttpRequest::appendHead(std::string buf)
 {
 	_requestStr.append(buf);
 }
@@ -288,7 +284,7 @@ bool ft::HttpRequest::getConnectionClosed() const
 	return _close;
 }
 
-void ft::HttpRequest::setRequestStr(std::string source)
+void ft::HttpRequest::setHead(std::string source)
 {
 	_requestStr = source;
 }

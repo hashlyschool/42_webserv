@@ -58,7 +58,6 @@ namespace ft
 
 			// Body Buffer fields
 			Buffer				_buffer;
-			size_t				_totalBytesRead;
 
 			size_t				_bytesToRead;
 			unsigned long		_contentLength;
@@ -100,12 +99,12 @@ namespace ft
 
 			/**setters**/
 
-			void			setRequestStr(std::string source);
+			void			setHead(std::string source);
 
 			/*request proccessing*/
 
 			int				parseHeader();
 			int				readBody(char *current, size_t size);
-			void			setHead(std::string buf);
+			void			appendHead(std::string buf);
 	};
 }

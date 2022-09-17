@@ -37,7 +37,8 @@ size_t ft::Utils::getdelim(std::string source, std::string &buffer, std::string 
 	size_t startDelim = source.find(delimeter, pos);
 	if (startDelim == std::string::npos)
 	{
-		buffer = source.substr(pos); // get the remainder anyway
+		if (pos != std::string::npos)
+			buffer = source.substr(pos); // get the remainder anyway
 		return startDelim;
 	}
 	buffer = source.substr(pos, startDelim - pos);

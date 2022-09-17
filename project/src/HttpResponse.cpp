@@ -61,14 +61,15 @@ ft::HttpResponse::HttpResponse(DataFd & data)
 	_code = data.code;
 	_method = data.httpRequest->getMethod();
 	_httpVersion = data.httpRequest->getHttpVersion();
-	_connectionClosed = data.httpRequest->getConnectionClosed();
+	_connectionClosed = (data.httpRequest->getConnectionClosed()
+						|| _code == HTTP_REQUEST_TIMEOUT
+						|| _code == HTTP_BAD_REQUEST);
 	_url = "";
 	_noBody = (_method == "HEAD" || _code < 200 || _code == HTTP_NO_CONTENT);
 	for (size_t i = 0; i < BUF_SIZE + 1; i++)
 		_buf[i] = 0;
 	_sizeOfBuf = 0;
-
-	if (!_noBody && _method == "GET")
+	if (_code >= 200 || _code != HTTP_NO_CONTENT)
 	{
 		setBodyUrl(data.finalUrl);
 	}
@@ -142,7 +143,7 @@ std::string ft::HttpResponse::getResponseHead() const
 		headStream << "Connection: close" << HEADERS_DELIMITER;
 	if (_method == "POST" && _code == HTTP_CREATED)
 		headStream << "Location: " << _url << HEADERS_DELIMITER;
-	if (!_noBody)
+	if (!_noBody || _method == "HEAD")
 	{
 		headStream <<"Content-Type: " << _bodyType << HEADERS_DELIMITER;
 		headStream << "Content-Length: " << _bodySize << HEADERS_DELIMITER;
@@ -175,8 +176,6 @@ bool	ft::HttpResponse::connectionIsClosed() const
 
 void ft::HttpResponse::setBodyUrl(std::string url)
 {
-	if (_noBody)
-		return;
 	this->_url = url;
 	if (!url.empty())
 	{

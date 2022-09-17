@@ -21,6 +21,7 @@ namespace ft
 		private:
 
 			void	_makeSession(int &fd, DataFd &data);
+			void	_readHead(int &fd, DataFd &data);
 			void	_readBody(int &fd, DataFd &data);
 			void	_execute(DataFd &data);
 			void	_sendHead(int &fd, DataFd &data);

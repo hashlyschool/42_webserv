@@ -105,7 +105,8 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 void	ft::Webserv::sendErrorToClientSocket(int &fd, HTTPStatus status)
 {
 	//set status
-	if (_dataResr[fd]->statusFd == ft::Readbody)
+	if (_dataResr[fd]->statusFd == ft::Readbody ||
+		_dataResr[fd]->statusFd == ft::Readhead)
 	{
 		_dataResr[fd]->code = status;
 		//send head

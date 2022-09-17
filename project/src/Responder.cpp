@@ -6,41 +6,46 @@ ft::Responder::~Responder() {}
 
 void	ft::Responder::_makeSession(int &fd, DataFd &data)
 {
+	data.clear();
+	data.statusFd = ft::Readhead;
+	_readHead(fd, data);
+}
+
+void	ft::Responder::_readHead(int &fd, DataFd & data)
+{
 	char		input[BUF_SIZE + 1];
 	std::string	inputHeader;
 	size_t		startBody;
 	size_t		bytesRead;
-
-	data.clear();
 	HttpRequest &curRequest = *data.httpRequest;
 
 	bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
 	input[bytesRead] = 0;
 	startBody = ft::Utils::getdelim(input, inputHeader, DELIMITER);
-	curRequest.setHead(inputHeader);
-	if (startBody != std::string::npos)
+	curRequest.appendHead(inputHeader);
+	if (startBody != std::string::npos ||
+	Utils::getdelim(curRequest.getRequestStr(), inputHeader,
+										DELIMITER) != std::string::npos)
 	{
+		if (startBody == std::string::npos) // if \r\n in different portions of data
+		{
+			// maybe i should move it to appenHead()
+			startBody = Utils::getdelim(curRequest.getRequestStr(),
+										inputHeader, DELIMITER);
+			curRequest.setHead(inputHeader); // replace current Header with trimmed version without body
+			startBody = 1; // only \n to skip
+		}
+		size_t bytesFromEnd = bytesRead - startBody;
 		if (curRequest.parseHeader() < 0)
 			data.code = HTTP_BAD_REQUEST;
-		data.code = HttpUtils::checkHttpRequest(data);
-		if (!curRequest.getConnectionClosed())
-			curRequest.readBody(&input[startBody], bytesRead - startBody);
-		_setStatusRequest(&data);
+		else
+		{
+			data.code = HttpUtils::checkHttpRequest(data);
+			if (HttpUtils::isSuccessful(data.code))
+				curRequest.readBody(&input[startBody], bytesFromEnd);
+		}
 	}
-	// we could be really lucky to get delimiter in different portions of data
-	else if ((startBody = ft::Utils::getdelim(curRequest.getRequestStr(), inputHeader, DELIMITER)) != std::string::npos)
-	{
-		// OR WE COULD DO ERROR 400 AND WHATEVER
-		// trim request head so that part of the body wouldn't be there
-		// the remainder append to the body => it already contains the body from input; its fine
-
-		// std::string body = curRequest.getRequestStr().substr(startBody);
-		// curRequest.setRequestStr(inputHeader);
-		// if (curRequest.parseHeader() < 0)
-		// 	data.code = HTTP_BAD_REQUEST;
-		// curRequest.readBody(body, );
-		// _setStatusRequest(&data);
-	}
+	_setStatusRequest(&data);
 }
 
 void	ft::Responder::_readBody(int &fd, DataFd &data)
@@ -60,13 +65,18 @@ void ft::Responder::_execute(DataFd &data)
 	// std::cout << "\nREQUEST\n\n" << data.dataFd[fd]->httpRequest.getRequestStr() << "\n\n";
 	// std::cout << "\nURL\n\n" << data.dataFd[fd]->httpRequest.getURL() << "\n\n";
 	std::string method = data.httpRequest->getMethod();
-	if (method == "GET")
+	if (method == "GET" || method == "HEAD")
 		_get(&data);
 	else if (method == "POST")
 		_post(&data);
-	else
+	else if (method == "DELETE")
 		_delete(&data);
-	if (method != "POST")
+	else
+	{
+		std::cout << "method = " << method << std::endl;
+		std::exit(-1);
+	}
+	if (method != "POST" || !HttpUtils::isSuccessful(data.code))
 		data.statusFd = ft::SendHead;
 }
 
@@ -77,20 +87,13 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	//create response head
 	HttpResponse &response = *data.httpResponse;
 	response = HttpResponse(data);
-
-	response.setBodyUrl(data.finalUrl);
-
 	std::string head = response.getResponseHead();
-	//create response body
-	// data.dataFd[fd]->responseBody = "Hello world!";
-	// send Head
-	// std::string &response = data.dataFd[fd]->responseHead;
 	status = send(fd, head.c_str(), head.length(), 0);
 	std::cout << "SendHead status = " << status << std::endl;
 	//set status
 	if (response.noBody() || response.getBodySize() == 0)
 	{
-		if (data.httpRequest->getConnectionClosed() || response.connectionIsClosed())
+		if (response.connectionIsClosed())
 			data.statusFd = ft::Closefd;
 		else
 			data.statusFd = ft::Nosession;
@@ -101,12 +104,12 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 
 void	ft::Responder::_sendBody(int &fd, DataFd &data)
 {
-	// size_t		&sendByteNow = data.dataFd[fd]->sendBodyByte;
-	// std::string responseBody = data.dataFd[fd]->httpResponse.getResponseBody();
-
 	const char *responseBody = data.httpResponse->getResponseBodyPart();
-	size_t status = send(fd, responseBody, data.httpResponse->getSizeOfBuf(), 0);
-	std::cout << "SendBody status = " << status << std::endl;
+	// if responsebody == NULL?
+	// we close connection and send one new response with sever error?
+	ssize_t status = send(fd, responseBody, data.httpResponse->getSizeOfBuf(), 0);
+	if (status < 0)
+		std::exit(-1);
 	// appendbody again
 	if (data.httpResponse->bodyIsRead())
 	{
@@ -115,11 +118,6 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 		else
 			data.statusFd = ft::Nosession;
 	}
-	// std::string	response = data.dataFd[fd]->responseBody.substr(sendByteNow, sendByteNow + BUF_SIZE);
-	// //trim body
-	// sendByteNow += response.length();
-	// if (data.dataFd[fd]->responseBody.length() == sendByteNow)
-	// 	data.dataFd[fd]->statusFd = ft::Closefd;
 }
 
 void	ft::Responder::_cgi(DataFd &data)
@@ -158,6 +156,8 @@ void	ft::Responder::_autoIndex(int &fd, MapDataFd &data)
 
 void	ft::Responder::action(int &fd, MapDataFd &data)
 {
+	if (data[fd] == NULL)
+		return;
 	DataFd	&dataFd = *data[fd];
 	int		status = dataFd.statusFd;
 
@@ -166,6 +166,9 @@ void	ft::Responder::action(int &fd, MapDataFd &data)
 	{
 		case ft::Nosession:
 			_makeSession(fd, dataFd);
+			break;
+		case ft::Readhead:
+			_readHead(fd, dataFd);
 			break;
 		case ft::Readbody:
 			_readBody(fd, dataFd);
@@ -213,43 +216,30 @@ void ft::Responder::_get(DataFd *data)
 {
 	std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
 	const ALocation * loc = data->loc;
-	if (!loc->getIsGet())
-	{
-		data->code = HTTP_METHOD_NOT_ALLOWED;
-		return;
-	}
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
 	std::cout << "found url: " << url << std::endl;
-	if (!Utils::fileExists(url))
-	{
+	if (!loc->getIsGet()) // !loc->getIsHead()
+		data->code = HTTP_METHOD_NOT_ALLOWED;
+	else if (!Utils::fileExists(url))
 		data->code = HTTP_NOT_FOUND;
-		return;
-	}
-	if (!Utils::fileIsReadable(url))
-	{
+	else if (!Utils::fileIsReadable(url))
 		data->code = HTTP_FORBIDDEN;
-		return;
-	}
-	if (Utils::isDirectory(url))
+	else if (Utils::isDirectory(url))
 	{
 		if (loc->getIndex().empty())
 		{
 			if (!loc->getAutoIndex())
-			{
 				data->code = HTTP_FORBIDDEN;
-				return;
-			}
 			else
 			{
 				std::cout << "It will be autoindex once it is ready" << std::endl;
 			}
 		}
 		else
-		{
 			url += loc->getIndex();
-		}
 	}
-	data->finalUrl = url;
+	if (HttpUtils::isSuccessful(data->code))
+		data->finalUrl = url;
 }
 
 void ft::Responder::_post(DataFd *data)
@@ -300,10 +290,9 @@ bool ft::Responder::_fileGoodForPost(DataFd *data)
 {
 	const ALocation * loc = data->loc;
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
-//	checks every time, its bad
 	if (!loc->getIsPost())
 		data->code = HTTP_METHOD_NOT_ALLOWED;
-	if (!Utils::pathToFileExists(url))
+	else if (!Utils::pathToFileExists(url))
 		data->code = HTTP_NOT_FOUND;
 	else if (!Utils::pathToFileIsWritable(url))
 		data->code = HTTP_FORBIDDEN;
