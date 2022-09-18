@@ -9,6 +9,7 @@ ft::DataFd::DataFd(int fd)
 	this->httpRequest = new HttpRequest();
 	this->httpResponse = new HttpResponse();
 	this->cgi = new Cgi();
+	this->outFile = NULL;
 	gettimeofday(&this->_timeLastAction, NULL);
 }
 
@@ -20,6 +21,12 @@ ft::DataFd::~DataFd()
 		delete this->httpResponse;
 	if (this->cgi)
 		delete this->cgi;
+	if (outFile)
+	{
+		if (outFile->is_open())
+			outFile->close();
+		delete outFile;
+	}
 }
 
 void	ft::DataFd::clear()
@@ -28,6 +35,13 @@ void	ft::DataFd::clear()
 	this->finalUrl = "";
 	*(this->httpRequest) = HttpRequest();
 	*(this->httpResponse) = HttpResponse();
+	if (outFile)
+	{
+		if (outFile->is_open())
+			outFile->close();
+		delete outFile;
+		outFile = NULL;
+	}
 }
 
 void	ft::DataFd::updateTime()

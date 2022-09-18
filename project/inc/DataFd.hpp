@@ -18,6 +18,7 @@ namespace ft
 	enum e_statusSession
 	{
 		Nosession,	//только создан, прочитать head, обработать
+		Readhead,
 		Readbody,	//идет чтение body request
 		Execute,	// исполнение запроса
 		SendHead,		//Чтение закончено, нужно обработать запрос и сформировать строку ответа
@@ -45,6 +46,7 @@ namespace ft
 			HttpRequest 		*httpRequest;
 			HttpResponse		*httpResponse;
 			Cgi					*cgi;
+			std::ofstream		*outFile;
 
 			/* methods */
 			void				updateTime();

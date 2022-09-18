@@ -21,6 +21,7 @@ namespace ft
 		private:
 
 			void	_makeSession(int &fd, DataFd &data);
+			void	_readHead(int &fd, DataFd &data);
 			void	_readBody(int &fd, DataFd &data);
 			void	_execute(DataFd &data);
 			void	_sendHead(int &fd, DataFd &data);
@@ -34,6 +35,9 @@ namespace ft
 			void	_get(DataFd *data);
 			void	_post(DataFd *data);
 			void	_delete(DataFd *data);
+
+			bool	_fileGoodForPost(DataFd *data);
+
 
 		public:
 			Responder();

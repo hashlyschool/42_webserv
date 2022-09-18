@@ -13,7 +13,22 @@
 */
 
 /* Orthodox form */
-ft::HttpResponse::HttpResponse() {}
+ft::HttpResponse::HttpResponse():	_code(200),
+									_method(""),
+									_httpVersion("HTTP/1.1"),
+									_connectionClosed(false),
+									_url(""),
+									_bodyStr(""),
+									_sizeOfBuf(0),
+									_bodySize(0),
+									_bodyType("text/plain"),
+									_bodyRead(true),
+									_bytesRead(0),
+									_noBody(false)
+{
+	for (size_t i = 0; i < BUF_SIZE + 1; i++)
+		_buf[i] = 0;
+}
 
 ft::HttpResponse::~HttpResponse() {}
 
@@ -25,6 +40,13 @@ ft::HttpResponse & ft::HttpResponse::operator=(const ft::HttpResponse &rhs)
 	this->_connectionClosed = rhs._connectionClosed;
 	this->_url = rhs._url;
 	this->_bodyStr = rhs._bodyStr;
+	for (size_t i = 0; i < rhs._sizeOfBuf; i++)
+	{
+		this->_buf[i] = rhs._buf[i];
+	}
+	for (size_t i = rhs._sizeOfBuf; i < this->_sizeOfBuf; i++)
+		this->_buf[i] = 0;
+	this->_sizeOfBuf = rhs._sizeOfBuf;
 	this->_bodySize = rhs._bodySize;
 	this->_bodyType = rhs._bodyType;
 	this->_bodyRead = rhs._bodyRead;
@@ -39,13 +61,17 @@ ft::HttpResponse::HttpResponse(DataFd & data)
 	_code = data.code;
 	_method = data.httpRequest->getMethod();
 	_httpVersion = data.httpRequest->getHttpVersion();
-	_connectionClosed = data.httpRequest->getConnectionClosed();
-	_url = data.finalUrl;
+	_connectionClosed = (data.httpRequest->getConnectionClosed()
+						|| _code == HTTP_REQUEST_TIMEOUT
+						|| _code == HTTP_BAD_REQUEST);
+	_url = "";
 	_noBody = (_method == "HEAD" || _code < 200 || _code == HTTP_NO_CONTENT);
-	if (!_noBody && _method == "GET") //or cgi; to do later
+	for (size_t i = 0; i < BUF_SIZE + 1; i++)
+		_buf[i] = 0;
+	_sizeOfBuf = 0;
+	if (_code >= 200 || _code != HTTP_NO_CONTENT)
 	{
-		_bodySize = Utils::getFileSize(_url);
-		_bodyType = HttpUtils::getHttpFileType(_url);
+		setBodyUrl(data.finalUrl);
 	}
 	else
 	{
@@ -53,7 +79,7 @@ ft::HttpResponse::HttpResponse(DataFd & data)
 		_bodyType = "text/plain";
 	}
 	_bodyRead = false;
-	_bytesRead = false;
+	_bytesRead = 0;
 }
 
 /* basic response elements construction */
@@ -81,11 +107,6 @@ const char *ft::HttpResponse::getResponseBodyPart()
 	if (this->_url == "")
 	{
 		_bodyRead = true;
-		if (_code >= 200 && _code <= 299)
-		{
-			_bodyStr = "Hello from HttpResponse!" +
-			HttpUtils::getHttpReason(_code);
-		}
 		_sizeOfBuf = _bodyStr.length();
 		return _bodyStr.c_str();
 	}
@@ -122,7 +143,7 @@ std::string ft::HttpResponse::getResponseHead() const
 		headStream << "Connection: close" << HEADERS_DELIMITER;
 	if (_method == "POST" && _code == HTTP_CREATED)
 		headStream << "Location: " << _url << HEADERS_DELIMITER;
-	if (!_noBody)
+	if (!_noBody || _method == "HEAD")
 	{
 		headStream <<"Content-Type: " << _bodyType << HEADERS_DELIMITER;
 		headStream << "Content-Length: " << _bodySize << HEADERS_DELIMITER;
@@ -165,8 +186,6 @@ void	ft::HttpResponse::setBodySize(size_t size)
 
 void ft::HttpResponse::setBodyUrl(std::string url)
 {
-	if (_noBody)
-		return;
 	this->_url = url;
 	if (!url.empty())
 	{
@@ -175,13 +194,25 @@ void ft::HttpResponse::setBodyUrl(std::string url)
 	}
 	else
 	{
-		_bodyStr = "OH NO IT IS NOT GOOD\n" + Utils::to_string(_code) + " " + HttpUtils::getHttpReason(_code);
-		_bodySize = _bodyStr.length();
-		_bodyType = "text/plain";
+		_setErrorPage();
 	}
 }
 
 void	ft::HttpResponse::setBodyType(const std::string bodyType)
 {
 	this->_bodyType = bodyType;
+}
+
+void	ft::HttpResponse::_setErrorPage()
+{
+	std::string res = "";
+	res += "<html><head><title>" +
+	Utils::to_string(_code) +
+	"</title></head><body><center><br><br><h1>Error " +
+	Utils::to_string(_code) + ": " +
+	HttpUtils::getHttpReason(_code) +
+	"</h1><h2>Oh no! Something went wrong.</h2></center></body></html>";
+	_bodyStr = res;
+	_bodySize = res.length();
+	_bodyType = "text/html";
 }
