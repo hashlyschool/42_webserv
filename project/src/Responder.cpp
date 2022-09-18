@@ -16,10 +16,15 @@ void	ft::Responder::_readHead(int &fd, DataFd & data)
 	char		input[BUF_SIZE + 1];
 	std::string	inputHeader;
 	size_t		startBody;
-	size_t		bytesRead;
+	ssize_t		bytesRead;
 	HttpRequest &curRequest = *data.httpRequest;
 
 	bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
+	if (bytesRead < 0)
+	{
+		data.statusFd = ft::Closefd;
+		return;
+	}
 	input[bytesRead] = 0;
 	startBody = ft::Utils::getdelim(input, inputHeader, DELIMITER);
 	curRequest.appendHead(inputHeader);
@@ -41,8 +46,7 @@ void	ft::Responder::_readHead(int &fd, DataFd & data)
 		else
 		{
 			data.code = HttpUtils::checkHttpRequest(data);
-			if (HttpUtils::isSuccessful(data.code))
-				curRequest.readBody(&input[startBody], bytesFromEnd);
+			curRequest.readBody(&input[startBody], bytesFromEnd);
 		}
 	}
 	_setStatusRequest(&data);
@@ -52,7 +56,12 @@ void	ft::Responder::_readBody(int &fd, DataFd &data)
 {
 	char input[BUF_SIZE + 1];
 
-	size_t bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
+	ssize_t bytesRead = ft::Utils::readFromSocket(fd, input, BUF_SIZE);
+	if (bytesRead < 0)
+	{
+		data.statusFd = ft::Closefd;
+		return;
+	}
 	input[bytesRead] = '\0';
 	data.httpRequest->readBody(input, bytesRead);
 	_setStatusRequest(&data);
@@ -71,18 +80,12 @@ void ft::Responder::_execute(DataFd &data)
 		_post(&data);
 	else if (method == "DELETE")
 		_delete(&data);
-	else
-	{
-		std::cout << "method = " << method << std::endl;
-		std::exit(-1);
-	}
 	if (method != "POST" || !HttpUtils::isSuccessful(data.code))
 		data.statusFd = ft::SendHead;
 }
 
 void	ft::Responder::_sendHead(int &fd, DataFd &data)
 {
-	int	status;
 
 	//create response head
 	HttpResponse &response = *data.httpResponse;
@@ -90,8 +93,12 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	if (data.cgi->isCGI(data) == 1)
 		data.cgi->parseOutFile(data);
 	std::string head = response.getResponseHead();
-	status = send(fd, head.c_str(), head.length(), 0);
-	std::cout << "SendHead status = " << status << std::endl;
+	ssize_t status = send(fd, head.c_str(), head.length(), 0);
+	if (status < 0)
+	{
+		data.statusFd = ft::Closefd;
+		return;
+	}
 	//set status
 	if (response.noBody() || response.getBodySize() == 0)
 	{
@@ -111,7 +118,10 @@ void	ft::Responder::_sendBody(int &fd, DataFd &data)
 	// we close connection and send one new response with sever error?
 	ssize_t status = send(fd, responseBody, data.httpResponse->getSizeOfBuf(), 0);
 	if (status < 0)
-		std::exit(-1);
+	{
+		data.statusFd = ft::Closefd;
+		return;
+	}
 	// appendbody again
 	if (data.httpResponse->bodyIsRead())
 	{
@@ -156,7 +166,7 @@ void	ft::Responder::_autoIndex(int &fd, MapDataFd &data)
 
 void	ft::Responder::action(int &fd, MapDataFd &data)
 {
-	if (data[fd] == NULL)
+	if (data.find(fd) == data.end())
 		return;
 	DataFd	&dataFd = *data[fd];
 	int		status = dataFd.statusFd;
@@ -247,9 +257,11 @@ void ft::Responder::_post(DataFd *data)
 	std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
 	if (data->outFile != NULL || _fileGoodForPost(data))
 	{
-		if (data->outFile->good() && data->outFile->is_open())
+		if (data->outFile->is_open())
 		{
 			data->outFile->write(data->httpRequest->getBody(), data->httpRequest->getBodySize());
+			if (!data->outFile->good())
+				data->code = HTTP_INTERNAL_SERVER_ERROR;
 			if (!data->httpRequest->bodyIsRead())
 			{
 				data->statusFd = ft::Readbody;
@@ -305,7 +317,7 @@ bool ft::Responder::_fileGoodForPost(DataFd *data)
 	{
 		data->outFile = new std::ofstream();
 		data->outFile->open(url.c_str(), std::ofstream::out | std::ofstream::binary | std::ios_base::app);
-		return true;
+		return data->outFile->good();
 	}
 	return false;
 }
