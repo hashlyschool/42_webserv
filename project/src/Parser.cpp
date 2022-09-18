@@ -39,9 +39,9 @@ ft::Parser::Parser(std::string pathConf) : _pathConf(pathConf)
 	// else
 	// 	std::cout << "Test - Fail!" << std::endl;
 	// std::cout << "found - " + loc->getUrl() << std::endl;
-	ConfigServer serv = getConfigServers().at(2);
+	ConfigServer serv = getConfigServers().at(3);
 	std::cout << serv.getServerName() << std::endl;
-	std::string url = "/indexGeek.html";
+	std::string url = "/cgi-bin/";
 	const ft::ALocation *loc = serv.getLocation(url);
 	if (loc == NULL)
 		std::cout << "Location is not found!" << std::endl;
@@ -277,28 +277,29 @@ void ft::Parser::_checkDirective(std::vector<std::string> &parsed_line, serverBl
 	case -1:
 		throw exception_NameParseError;
 	case server_error_page:
-		if (!_validKeys(parsed_line[1], serverBlock, server_error_page))
+		if (!_validKeys(parsed_line[1], serverBlock, true))
 			throw std::invalid_argument("Parser error: incorrect key of error rule in the config");
 		break;
 	default:
-		if (!_validKeys(parsed_line[0], serverBlock, 0))
+		if (!_validKeys(parsed_line[0], serverBlock, false))
 			throw std::invalid_argument("Parser error: incorrect key of regular rule in the config");
 		break;
 	}
 }
 
-bool ft::Parser::_validKeys(std::string &key, serverBlockConfig_t &serverBlock, size_t code)
+bool ft::Parser::_validKeys(std::string &key, serverBlockConfig_t &serverBlock, bool isError)
 {
-	switch (code)
+	if (isError == true && serverBlock.server_err_page.size() > 0)
 	{
-	case server_error_page:
-		if (serverBlock.server_err_page.find(atoi(key.c_str()))->first == atoi(key.c_str()))
+		std::map<int, std::string>::iterator it = serverBlock.server_err_page.find(atoi(key.c_str()));
+		if (it != serverBlock.server_err_page.end() && it->first == atoi(key.c_str()))
 			return false;
-		break;
-	default:
-		if (serverBlock.server_param.find(key)->first == key)
+	}
+	else if (serverBlock.server_param.size() > 0 && key.empty() == false)
+	{
+		std::map<std::string, std::vector<std::string> >::iterator it = serverBlock.server_param.find(key);
+		if (it != serverBlock.server_param.end() &&	it->first == key)
 			return false;
-		break;
 	}
 	return true;
 }
@@ -407,9 +408,9 @@ void ft::Parser::_fillLocationName(ft::Location &obj, std::string line)
 {
 	if (!obj.getUrl().empty())
 		throw std::invalid_argument("Parser error: location error");
-
+	line = _checkSyntaxPath(line);
 	obj.setUrl(line);
-	if (line == "/cgi-bin/")
+	if (line == "/cgi-bin")
 		obj.setIsCgi(true);
 }
 
@@ -464,6 +465,7 @@ void ft::Parser::_fillLocationIndex(std::vector<std::string> args, ft::Location 
 {
 	if (!location.getIndex().empty() || args.size() != 1)
 		throw std::invalid_argument("Parser error: wrong lcoation index page");
+	args[0] = _checkSyntaxPath(args[0]);
 	location.setIndex(args[0]);
 }
 
@@ -547,6 +549,7 @@ void ft::Parser::_fillIndex(std::vector<std::string> value, ssize_t index)
 {
 	if (!_servers[index].getIndex().empty() || value.size() != 1)
 		throw std::invalid_argument("Parser error: root index page error");
+	value[0] = _checkSyntaxPath(value[0]);
 	_servers[index].setIndex(value[0]);
 }
 

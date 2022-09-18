@@ -14,7 +14,7 @@
 namespace ft
 {
 
-	#define MAX_TIME_CONNECTION 5
+	#define MAX_TIME_CONNECTION 15
 	#define MAX_CONNECTION 10
 
 	class Webserv

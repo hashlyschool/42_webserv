@@ -75,6 +75,8 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 
 void	ft::Webserv::readFromClientSocket(int &fd)
 {
+	if (_dataResr.find(fd) == _dataResr.end())
+		return ;
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::SendHead ||
 	_dataResr[fd]->statusFd == ft::Sendbody ||
@@ -88,6 +90,8 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 
 void	ft::Webserv::sendToClientSocket(int &fd)
 {
+	if (_dataResr.find(fd) == _dataResr.end())
+		return ;
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::Nosession)
 	{
@@ -105,10 +109,14 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 void	ft::Webserv::sendErrorToClientSocket(int &fd, HTTPStatus status)
 {
 	//set status
-	_dataResr[fd]->code = status;
-	//send head
-	_dataResr[fd]->statusFd = ft::SendHead;
-	_responder.action(fd, _dataResr);
+	if (_dataResr[fd]->statusFd == ft::Readbody ||
+		_dataResr[fd]->statusFd == ft::Readhead)
+	{
+		_dataResr[fd]->code = status;
+		//send head
+		_dataResr[fd]->statusFd = ft::SendHead;
+		_responder.action(fd, _dataResr);
+	}
 	//close fd
 	_dataResr[fd]->statusFd = Closefd;
 	_responder.action(fd, _dataResr);

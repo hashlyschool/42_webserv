@@ -20,22 +20,16 @@ void ft::Utils::replaceAll(std::string &src, std::string toReplace, std::string 
 	}
 }
 
-std::string ft::Utils::readFromSocket(int fd, int buf_size)
+size_t ft::Utils::readFromSocket(int fd, char *buf, int buf_size)
 {
-	char		*buf = new char[buf_size + 1];
 	int			status;
-	std::string	ret;
 
 	status = recv(fd, buf, buf_size, 0);
 	if (status < 0)
 	{
-		delete [] buf;
 		std::exit(-1);
 	}
-	buf[status] = 0;
-	ret = buf;
-	delete [] buf;
-	return ret;
+	return status;
 }
 
 size_t ft::Utils::getdelim(std::string source, std::string &buffer, std::string delimeter, size_t pos)
@@ -43,7 +37,8 @@ size_t ft::Utils::getdelim(std::string source, std::string &buffer, std::string 
 	size_t startDelim = source.find(delimeter, pos);
 	if (startDelim == std::string::npos)
 	{
-		buffer = source.substr(pos); // get the remainder anyway
+		if (pos != std::string::npos)
+			buffer = source.substr(pos); // get the remainder anyway
 		return startDelim;
 	}
 	buffer = source.substr(pos, startDelim - pos);
@@ -81,7 +76,8 @@ void	ft::Utils::setSignal()
 unsigned long  ft::Utils::getFileSize(std::string path)
 {
 	struct stat64 stat_buf;
-	stat64(path.c_str(), &stat_buf);
+	if (stat64(path.c_str(), &stat_buf) < 0)
+		return 0;
 	return stat_buf.st_size;
 }
 
@@ -98,6 +94,11 @@ int	ft::Utils::findMaxElem(std::list<int> list)
 	return max;
 }
 
+char	*ft::Utils::getEnvStr(std::string key, std::string value)
+{
+	return (strdup((key + "=" + value).c_str()));
+}
+
 bool ft::Utils::fileExists(std::string url)
 {
 	struct stat stat_buf;
@@ -105,6 +106,26 @@ bool ft::Utils::fileExists(std::string url)
 	return (res == 0);
 }
 
+bool ft::Utils::pathToFileExists(std::string url)
+{
+	size_t pos = url.find_last_of('/');
+	if (pos == std::string::npos) // not sure if it ever happens but just in case
+		return false;
+	std::string pathToDir = url.substr(0, pos);
+	if (pathToDir.empty()) // not sure if it ever happens but just in case
+		return false;
+	if (isDirectory(pathToDir))
+		return true;
+	return false;
+}
+
+bool ft::Utils::pathToFileIsWritable(std::string url)
+{
+	std::string pathToDir = url.substr(0, url.find_last_of('/'));
+	if (fileIsWritable(pathToDir))
+		return true;
+	return false;
+}
 
 bool ft::Utils::fileIsReadable(std::string url)
 {
