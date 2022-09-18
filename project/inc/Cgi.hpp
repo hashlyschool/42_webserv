@@ -56,6 +56,9 @@ namespace ft
 			char		parseURL(DataFd &data);
 			void		formExecveData(DataFd &data);
 			void		childProcess();
+
+			size_t		parseFirstLine(DataFd &data, std::string line);
+			void		parseHeadLine(DataFd &data, std::string line);
 		public:
 			Cgi();
 			~Cgi();
@@ -64,6 +67,8 @@ namespace ft
 
 			void	runChildProcess(DataFd &data);
 			void	waitChildProcess(DataFd &data);
+
+			int		parseOutFile(DataFd &data);
 
 			/* getters */
 			bool	hasChildProcess() const;

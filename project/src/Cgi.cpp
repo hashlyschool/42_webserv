@@ -54,7 +54,7 @@ char	ft::Cgi::parseURL(DataFd &data)
 	if (posStart == std::string::npos)
 		return (-1);
 	posStart += data.loc->getUrl().length();
-	posStart--;
+	// posStart--;
 	posEnd = fullURL.find('/', posStart + 1);
 	if (posEnd == std::string::npos)
 		_scriptName = fullURL.substr(posStart, fullURL.length() - posStart);
@@ -115,7 +115,7 @@ void	ft::Cgi::setPathInterpreter(DataFd &data)
 	if (_isPy)
 		_pathInterpreter = loc->getBinPathPy().c_str();
 	else if (_isSh)
-		_pathInterpreter = loc->getBinPathPy().c_str();
+		_pathInterpreter = loc->getBinPathSh().c_str();
 	else
 		_pathInterpreter = NULL;
 }
@@ -195,19 +195,84 @@ void	ft::Cgi::childProcess()
 	exit(EXIT_SUCCESS);
 }
 
+size_t	ft::Cgi::parseFirstLine(DataFd &data, std::string line)
+{
+	size_t			pos = 0;
+	std::string		temp;
+	int				code;
+
+	pos = ft::Utils::getdelim(line, temp, " ", pos);
+	if (pos == std::string::npos)
+		return (pos);
+
+	pos = ft::Utils::getdelim(line, temp, " ", pos);
+	if (pos == std::string::npos)
+		return (pos);
+
+	code = ft::Utils::strtoul(temp, 10);
+	if (code == 0)
+		return (std::string::npos);
+
+	pos = ft::Utils::getdelim(line, temp, "\n", pos);
+	if (pos == std::string::npos)
+		return (pos);
+
+	data.code = code;
+	return pos;
+}
+
+void	ft::Cgi::parseHeadLine(DataFd &data, std::string line)
+{
+	size_t	pos = 0;
+
+	pos = line.find("Content-Type: ", 0);
+	if (pos == std::string::npos)
+		return ;
+	data.httpResponse->setBodyType(line.substr(14));
+}
+
+int	ft::Cgi::parseOutFile(DataFd &data)
+{
+	std::string			temp;
+	std::fstream		outFile;
+	size_t				bytesRead;
+
+	outFile.open(_outName.c_str());
+	if (outFile.fail() || outFile.bad())
+		return (-1);
+	std::getline(outFile, temp);
+	if (parseFirstLine(data, temp) == std::string::npos)
+		parseHeadLine(data, temp);
+	for (; std::getline(outFile, temp); )
+	{
+		if (temp == "\n" || temp == "r\n" || temp == "")
+			break ;
+		parseHeadLine(data, temp);
+		std::getline(outFile, temp);
+	}
+	bytesRead = outFile.tellp();
+	data.httpResponse->setBytesRead(bytesRead);
+	data.httpResponse->setBodySize(ft::Utils::getFileSize(_outName) - bytesRead);
+	data.statusFd = ft::SendHead;
+	outFile.close();
+	return 1;
+}
+
 void	ft::Cgi::waitChildProcess(DataFd &data)
 {
 	if (waitpid(_pid, NULL, WNOHANG) == _pid)
 	{
 		_pid = -1;
 		data.finalUrl = _outName;
-		// data.httpResponse->setBodyType
 		data.statusFd = ft::SendHead;
-		// dup2(STDIN_FILENO, STDIN_FILENO);
-		// dup2(STDOUT_FILENO, STDOUT_FILENO);
-		// dup2(STDERR_FILENO, STDERR_FILENO);
+		if (_scriptName.find("nph-") == 0)
+			return ;
+		_hasChildProcess = false;
+		_isSh = false;
+		_isPy = false;
+		// if (parseOutFile(data) < 0)
+		// 	data.code = ft::HTTP_INTERNAL_SERVER_ERROR;
 	}
-	//if Script complete
 	return ;
 }
 

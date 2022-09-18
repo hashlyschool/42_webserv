@@ -153,6 +153,16 @@ bool	ft::HttpResponse::connectionIsClosed() const
 
 /* setters */
 
+void	ft::HttpResponse::setBytesRead(size_t bytes)
+{
+	_bytesRead = bytes;
+}
+
+void	ft::HttpResponse::setBodySize(size_t size)
+{
+	_bodySize = size;
+}
+
 void ft::HttpResponse::setBodyUrl(std::string url)
 {
 	if (_noBody)

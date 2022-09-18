@@ -75,6 +75,8 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 
 	response.setBodyUrl(data.finalUrl);
 	// std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
+	if (data.cgi->isCGI(data) == 1)
+		data.cgi->parseOutFile(data);
 	std::string head = response.getResponseHead();
 	//create response body
 	// data.dataFd[fd]->responseBody = "Hello world!";
