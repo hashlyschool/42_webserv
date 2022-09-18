@@ -82,6 +82,8 @@ namespace ft
 			bool			connectionIsClosed() const;
 
 			/* setters */
+			void			setBytesRead(size_t bytes);
+			void			setBodySize(size_t size);
 			void			setBodyUrl(std::string url);
 			void			setBodyType(const std::string bodyType);
 	};

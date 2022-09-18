@@ -94,6 +94,11 @@ int	ft::Utils::findMaxElem(std::list<int> list)
 	return max;
 }
 
+char	*ft::Utils::getEnvStr(std::string key, std::string value)
+{
+	return (strdup((key + "=" + value).c_str()));
+}
+
 bool ft::Utils::fileExists(std::string url)
 {
 	struct stat stat_buf;

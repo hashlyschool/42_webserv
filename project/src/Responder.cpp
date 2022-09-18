@@ -87,6 +87,8 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	//create response head
 	HttpResponse &response = *data.httpResponse;
 	response = HttpResponse(data);
+	if (data.cgi->isCGI(data) == 1)
+		data.cgi->parseOutFile(data);
 	std::string head = response.getResponseHead();
 	status = send(fd, head.c_str(), head.length(), 0);
 	std::cout << "SendHead status = " << status << std::endl;
@@ -144,8 +146,6 @@ void	ft::Responder::_closeFd(int &fd, MapDataFd &data)
 	close(fd);
 	delete data[fd];
 	data.erase(fd);
-	//if connection close or time -> makesession
-	//else close
 }
 
 void	ft::Responder::_autoIndex(int &fd, MapDataFd &data)

@@ -10,6 +10,8 @@
 #include <list>
 #include <dirent.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdio.h>
 
 namespace ft
 {
@@ -29,6 +31,7 @@ namespace ft
 		static void				setSignal();
 		static unsigned long	getFileSize(std::string path);
 		static int				findMaxElem(std::list<int> list);
+		static char				*getEnvStr(std::string key, std::string value);
 
 		template <typename T>
 		static std::string		to_string(T elem)

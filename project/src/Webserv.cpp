@@ -75,6 +75,8 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 
 void	ft::Webserv::readFromClientSocket(int &fd)
 {
+	if (_dataResr.find(fd) == _dataResr.end())
+		return ;
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::SendHead ||
 	_dataResr[fd]->statusFd == ft::Sendbody ||
@@ -88,6 +90,8 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 
 void	ft::Webserv::sendToClientSocket(int &fd)
 {
+	if (_dataResr.find(fd) == _dataResr.end())
+		return ;
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::Nosession)
 	{
