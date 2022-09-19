@@ -54,7 +54,8 @@ namespace ft
 
 			std::string	_formStatusLine() const;
 			void		_formPlainBody(std::string body);
-			void		_setErrorPage();
+			void		_setErrorPage(DataFd &data);
+			std::string	_generateErrorPage();
 
 		public:
 			/* Orthodox form */
@@ -84,7 +85,7 @@ namespace ft
 			/* setters */
 			void			setBytesRead(size_t bytes);
 			void			setBodySize(size_t size);
-			void			setAutoIndex(std::string str);
+			void			setHtml(std::string str);
 			void			setBodyUrl(std::string url);
 			void			setBodyType(const std::string bodyType);
 	};
