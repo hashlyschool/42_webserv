@@ -48,21 +48,21 @@ char	ft::Cgi::parseURL(DataFd &data)
 
 	fullURL = data.httpRequest->getUrl();
 	_rootPath = data.loc->getRoot();
-	_pathTranslated = data.configServer->getFilename(fullURL, *data.loc);
 	_outName = _rootPath + "/outCgi" + ft::Utils::to_string(data.fd);
 	_inName = _rootPath + "/inCgi" + ft::Utils::to_string(data.fd);
-
 	posStart = fullURL.find(data.loc->getUrl());
 	if (posStart == std::string::npos)
 		return (-1);
 	posStart += data.loc->getUrl().length();
-	// posStart--;
 	posEnd = fullURL.find('/', posStart + 1);
+	if (posEnd == std::string::npos)
+		posEnd = fullURL.find('?', posStart + 1);
 	if (posEnd == std::string::npos)
 		_scriptName = fullURL.substr(posStart, fullURL.length() - posStart);
 	else
 		_scriptName = fullURL.substr(posStart, posEnd - posStart);
-	// _pathTranslated += _scriptName;
+	_pathTranslated = _rootPath + data.loc->getUrl();
+	_pathTranslated += _scriptName;
 	if (posEnd == std::string::npos)
 		return (0);
 	posStart = posEnd;
@@ -70,10 +70,14 @@ char	ft::Cgi::parseURL(DataFd &data)
 	if (posEnd == std::string::npos)
 	{
 		_pathInfo = fullURL.substr(posStart, fullURL.length() - posStart);
+		ft::Utils::normalizedPath(_pathInfo);
 		return (0);
 	}
 	else
+	{
 		_pathInfo = fullURL.substr(posStart, posEnd - posStart);
+		ft::Utils::normalizedPath(_pathInfo);
+	}
 	_queryString = fullURL.substr(posEnd + 1);
 	return (0);
 }

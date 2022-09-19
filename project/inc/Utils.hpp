@@ -37,6 +37,7 @@ namespace ft
 		static std::string		getFileSizeNormalized(std::string path);
 		static int				findMaxElem(std::list<int> list);
 		static char				*getEnvStr(std::string key, std::string value);
+		static std::string				&normalizedPath(std::string &path);
 
 		template <typename T>
 		static std::string		to_string(T elem)
