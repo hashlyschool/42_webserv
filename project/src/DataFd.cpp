@@ -10,6 +10,7 @@ ft::DataFd::DataFd(int fd)
 	this->httpResponse = new HttpResponse();
 	this->cgi = new Cgi();
 	this->outFile = NULL;
+	this->autoIndexHtml = "";
 	gettimeofday(&this->_timeLastAction, NULL);
 }
 
@@ -35,6 +36,7 @@ void	ft::DataFd::clear()
 	this->finalUrl = "";
 	*(this->httpRequest) = HttpRequest();
 	*(this->httpResponse) = HttpResponse();
+	autoIndexHtml = "";
 	if (outFile)
 	{
 		if (outFile->is_open())

@@ -77,6 +77,23 @@ unsigned long  ft::Utils::getFileSize(std::string path)
 	return stat_buf.st_size;
 }
 
+std::string ft::Utils::getFileSizeNormalized(std::string path)
+{
+	unsigned long size = getFileSize(path);
+	std::string sizeType = "Bytes";
+	if (size / 1024 > 0)
+	{
+		size /= 1024;
+		sizeType = "KB";
+		if (size / 1024 > 0)
+		{
+			size /= 1024;
+			sizeType = "MB";
+		}
+	}
+	return to_string(size) + " " + sizeType;
+}
+
 int	ft::Utils::findMaxElem(std::list<int> list)
 {
 	int	max;
@@ -145,63 +162,93 @@ bool ft::Utils::isDirectory(std::string url)
 }
 
 bool ft::Utils::isNotEmptyDirectory(std::string url) {
-  int n = 0;
-  struct dirent *d;
-  DIR *dir = opendir(url.c_str());
-  if (dir == NULL) //Not a directory or doesn't exist
-    return false;
-  while ((d = readdir(dir)) != NULL) {
+	int n = 0;
+	struct dirent *d;
+	DIR *dir = opendir(url.c_str());
+	if (dir == NULL) //Not a directory or doesn't exist
+		return false;
+	while ((d = readdir(dir)) != NULL) {
 	n += 1;
 	if (n > 2)
 		break;
-  }
-  closedir(dir);
-  if (n <= 2) //Directory Empty
-    return false;
-  else
-    return true;
+	}
+	closedir(dir);
+	if (n <= 2) //Directory Empty
+		return false;
+	else
+		return true;
 }
 
-/*
-std::string ft::Utils::normalizeUri(std::string s)
+std::string ft::Utils::fileTimeModified(std::string url) {
+	struct stat stat_buf;
+	struct tm *clock;
+
+	if (stat(url.c_str(), &stat_buf) < 0)
+		return "NOT DEFINED";
+
+	clock = gmtime(&(stat_buf.st_mtim.tv_sec));
+	return (asctime(clock));
+}
+
+
+std::string ft::Utils::_getAutoIndexTable(const std::string &path, const std::string &reqUrl)
 {
-    std::list<std::string>                   tokens;
-    std::list<std::string>::reverse_iterator tmp1;
-    std::list<std::string>::reverse_iterator it = tokens.rbegin();
-    int                                      i  = 0;
+	DIR  *dp;
+	struct dirent *di_struct;
+	int i = 0;
+	std::stringstream table;
 
-    if (s[0] != '/') {
-        s.clear();
-        return (s);
-    }
-
-    tokens = strTokenizer(s, '/');
-    for (; it != tokens.rend(); ++it) {
-        tmp1 = it;
-        if (*it == "..")
-            i += 4;
-        if (i > 0) {
-            --tmp1;
-            tokens.erase(--(it.base()));
-            it = tmp1;
-            --i;
-        }
-    }
-    if (i != 0) {
-        s.clear();
-        return (s);
-    }
-    s.clear();
-    for (std::list<std::string>::iterator rit = tokens.begin(); rit != tokens.end(); ++rit) {
-        if (*rit == "/") {
-            if (++rit != tokens.end() && *(rit) == "/") {
-                s.clear();
-                return (s);
-            } else
-                --rit;
-        }
-        s.append(*rit);
-    }
-    return (s);
+	dp = opendir(path.data());
+	table << "<h1>" << reqUrl << "</h1>" <<
+			"<table>" <<
+			"<tr> <th>File name</th>"<<
+			"<th> File size</th>" <<
+			"<th>Last modified</th> </tr>";
+	if (dp != NULL) {
+		while ((di_struct = readdir(dp)) != NULL) {
+			std::string pathFile(path + "/" + di_struct->d_name);
+			table << "<tr>" <<
+					"<td><a href=\"" << reqUrl + di_struct->d_name;
+			if (isDirectory(pathFile))
+				table << "/";
+			table << "\">";
+			table << std::string(di_struct->d_name);
+			if (isDirectory(pathFile))
+				table << "/";
+			table << "</a></td>";
+			table << "<td>" << getFileSizeNormalized(pathFile) << "</td>";
+			table << "<td>" + fileTimeModified(pathFile) << "</td>";
+			table << "</tr>";
+			i++;
+		}
+		closedir(dp);
+	}
+	table << "</table>";
+	return table.str();
 }
-*/
+
+std::string ft::Utils::generateAutoIndex(const std::string & path, const std::string & reqUrl)
+{
+	std::string table = Utils::_getAutoIndexTable(path, reqUrl);
+	std::stringstream sstream;
+	sstream << "<!DOCTYPE html><html lang=\"en\">" <<
+				"<head><meta charset=\"UTF-8\">" <<
+				"<title>" << reqUrl << "</title>" <<
+				"</head>" <<
+				"<style>" <<
+				"table {" <<
+				"border: 1px solid #ccc;" <<
+				"background-color: #f8f8f8;" <<
+				"border-collapse: collapse;" <<
+				"margin: 0;" <<
+				"padding: 0;" <<
+				"width: 100%;" <<
+				"table-layout: fixed;" <<
+				"text-align: left;" <<
+				"} table " <<
+				"td:last-child " <<
+				"{border-bottom: 0;}" <<
+				"</style>" <<
+				"<body>" << table << "</body></html>";
+	return sstream.str();
+}
