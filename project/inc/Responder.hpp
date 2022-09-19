@@ -28,7 +28,6 @@ namespace ft
 			void	_sendBody(int &fd, DataFd &data);
 			void	_cgi(DataFd &data);
 			void	_closeFd(int &fd, MapDataFd &data);
-			void	_autoIndex(int &fd, MapDataFd &data);
 
 			void	_setStatusRequest(DataFd *data);
 
