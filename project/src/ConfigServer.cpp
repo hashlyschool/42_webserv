@@ -129,10 +129,7 @@ std::string ft::ConfigServer::getFilename(std::string _url, const ft::ALocation 
 		}
 		else // Location without index page
 		{
-			if (this->getAutoIndex())
-				filename += _url + "/";
-			else
-				filename += _url;
+			filename += _url;
 		}
 	}
 	return filename;

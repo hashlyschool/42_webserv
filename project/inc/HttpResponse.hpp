@@ -84,6 +84,7 @@ namespace ft
 			/* setters */
 			void			setBytesRead(size_t bytes);
 			void			setBodySize(size_t size);
+			void			setAutoIndex(std::string str);
 			void			setBodyUrl(std::string url);
 			void			setBodyType(const std::string bodyType);
 	};

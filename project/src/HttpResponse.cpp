@@ -184,6 +184,13 @@ void	ft::HttpResponse::setBodySize(size_t size)
 	_bodySize = size;
 }
 
+void ft::HttpResponse::setAutoIndex(std::string str)
+{
+	_bodyStr = str;
+	_bodySize = str.length();
+	_bodyType = "text/html";
+}
+
 void ft::HttpResponse::setBodyUrl(std::string url)
 {
 	this->_url = url;

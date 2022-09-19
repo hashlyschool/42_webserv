@@ -92,6 +92,8 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	response = HttpResponse(data);
 	if (data.cgi->isCGI(data) == 1)
 		data.cgi->parseOutFile(data);
+	if (!data.autoIndexHtml.empty())
+		response.setAutoIndex(data.autoIndexHtml);
 	std::string head = response.getResponseHead();
 	ssize_t status = send(fd, head.c_str(), head.length(), 0);
 	if (status < 0)
@@ -158,12 +160,6 @@ void	ft::Responder::_closeFd(int &fd, MapDataFd &data)
 	data.erase(fd);
 }
 
-void	ft::Responder::_autoIndex(int &fd, MapDataFd &data)
-{
-	if (fd || data[fd]->statusFd)
-		fd = fd;
-}
-
 void	ft::Responder::action(int &fd, MapDataFd &data)
 {
 	if (data.find(fd) == data.end())
@@ -197,9 +193,6 @@ void	ft::Responder::action(int &fd, MapDataFd &data)
 			break;
 		case ft::Closefd:
 			_closeFd(fd, data);
-			break;
-		case ft::AutoIndex:
-			_autoIndex(fd, data);
 			break;
 	}
 }
@@ -242,7 +235,8 @@ void ft::Responder::_get(DataFd *data)
 				data->code = HTTP_FORBIDDEN;
 			else
 			{
-				std::cout << "It will be autoindex once it is ready" << std::endl;
+				data->autoIndexHtml = Utils::generateAutoIndex(url, data->httpRequest->getUrl());
+				return;
 			}
 		}
 		else

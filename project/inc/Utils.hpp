@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctime>
 
 namespace ft
 {
@@ -21,6 +22,9 @@ namespace ft
 
 	class Utils
 	{
+		private:
+		static std::string		_getAutoIndexTable(const std::string &path, const std::string &reqUrl);
+
 		public:
 		static unsigned long	strtoul(std::string string, int base);
 		static void				replaceAll(std::string &src, std::string toReplace, std::string replacement);
@@ -30,6 +34,7 @@ namespace ft
 		static void				checkArg(int argc, char **argv);
 		static void				setSignal();
 		static unsigned long	getFileSize(std::string path);
+		static std::string		getFileSizeNormalized(std::string path);
 		static int				findMaxElem(std::list<int> list);
 		static char				*getEnvStr(std::string key, std::string value);
 
@@ -48,6 +53,8 @@ namespace ft
 		static bool				isDirectory(std::string url);
 		static bool				isNotEmptyDirectory(std::string url);
 		static bool				pathToFileIsWritable(std::string url);
+		static std::string		fileTimeModified(std::string url);
 
+		static std::string		generateAutoIndex(const std::string &path, const std::string &reqUrl);
 	};
 }
