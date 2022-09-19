@@ -38,6 +38,18 @@ void	ft::Webserv::printHelp() const
 					"\n------------------\n";
 }
 
+void	ft::Webserv::fdClr(int &fd, fd_set &set)
+{
+	if (FD_ISSET(fd, &set))
+		FD_CLR(fd, &set);
+}
+
+void	ft::Webserv::fdSet(int &fd, fd_set &set)
+{
+	if (!FD_ISSET(fd, &set))
+		FD_SET(fd, &set);
+}
+
 void	ft::Webserv::processStdInput()
 {
 	std::string	inputStr;
@@ -65,9 +77,8 @@ void	ft::Webserv::createClientSocket(Socket *socket, int i)
 	if (fd < 0)
 		throw std::runtime_error("error accept");
 	std::cout << "[INFO] new accept fd = " << fd << std::endl;
-	FD_SET(fd, &_mRead);
+	fdSet(fd, _mRead);
 	_clientSocket.push_back(fd);
-
 	setNum();
 	_dataResr.insert(std::make_pair(fd, new DataFd(fd)));
 	_dataResr[fd]->configServer = &(_parser.getConfigServers().at(i));
@@ -83,8 +94,8 @@ void	ft::Webserv::readFromClientSocket(int &fd)
 	_dataResr[fd]->statusFd == ft::Execute ||
 	_dataResr[fd]->statusFd == ft::CGI)
 	{
-		FD_CLR(fd, &_mRead);
-		FD_SET(fd, &_mWrite);
+		fdClr(fd, _mRead);
+		fdSet(fd, _mWrite);
 	}
 }
 
@@ -95,14 +106,15 @@ void	ft::Webserv::sendToClientSocket(int &fd)
 	_responder.action(fd, _dataResr);
 	if (_dataResr[fd]->statusFd == ft::Nosession)
 	{
-		FD_CLR(fd, &_mWrite);
-		FD_SET(fd, &_mRead);
+		fdClr(fd, _mWrite);
+		fdSet(fd, _mRead);
 	}
 	else if (_dataResr[fd]->statusFd == ft::Closefd)
 	{
 		_responder.action(fd, _dataResr);
 		_fdForDelete.push_back(fd);
-		FD_CLR(fd, &_mWrite);
+		fdClr(fd, _mWrite);
+		fdClr(fd, _mRead);
 	}
 }
 
@@ -122,10 +134,8 @@ void	ft::Webserv::sendErrorToClientSocket(int &fd, HTTPStatus status)
 	_responder.action(fd, _dataResr);
 	//remove fd
 	_fdForDelete.push_back(fd);
-	if (FD_ISSET(fd, &_mWrite))
-		FD_CLR(fd, &_mWrite);
-	if (FD_ISSET(fd, &_mRead))
-		FD_CLR(fd, &_mRead);
+	fdClr(fd, _mWrite);
+	fdClr(fd, _mRead);
 }
 
 void	ft::Webserv::checkTimeConnection(int &fd)

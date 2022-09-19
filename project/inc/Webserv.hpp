@@ -35,6 +35,8 @@ namespace ft
 			fd_set			_mWrite;
 			fd_set			_tWrite;
 			fd_set			_tRead;
+			void			fdClr(int &fd, fd_set &set);
+			void			fdSet(int &fd, fd_set &set);
 
 			//Process input
 			void		processStdInput();
@@ -54,7 +56,6 @@ namespace ft
 
 			void					setNum();
 			//free memory
-			void					freeMemory();
 			void					removeFdClientSocket();
 
 			// Exceptions

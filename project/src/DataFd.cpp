@@ -37,6 +37,10 @@ void	ft::DataFd::clear()
 	this->finalUrl = "";
 	*(this->httpRequest) = HttpRequest();
 	*(this->httpResponse) = HttpResponse();
+
+	delete this->cgi;
+	this->cgi = new Cgi();
+
 	autoIndexHtml = "";
 	if (outFile)
 	{

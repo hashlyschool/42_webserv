@@ -2,12 +2,14 @@
 
 ft::Cgi::Cgi()
 {
-	_hasChildProcess = false;
-	_isSh = false;
 	_isPy = false;
+	_isSh = false;
+	_pathInterpreter = NULL;
+	_hasChildProcess = false;
+
+	_pid = -1;
 	_outFd = -1;
 	_inFd = -1;
-	_pid = -1;
 	for (size_t i = 0; i < SIZE_ARGV; ++i)
 		_argv[i] = NULL;
 	for (size_t i = 0; i < SIZE_ENV; ++i)
@@ -237,6 +239,8 @@ int	ft::Cgi::parseOutFile(DataFd &data)
 	std::fstream		outFile;
 	size_t				bytesRead;
 
+	// if (_scriptName.find("nph-") == 0)
+	// 	return ;
 	outFile.open(_outName.c_str());
 	if (outFile.fail() || outFile.bad())
 		return (-1);
@@ -265,11 +269,11 @@ void	ft::Cgi::waitChildProcess(DataFd &data)
 		_pid = -1;
 		data.finalUrl = _outName;
 		data.statusFd = ft::SendHead;
-		if (_scriptName.find("nph-") == 0)
-			return ;
 		_hasChildProcess = false;
-		_isSh = false;
-		_isPy = false;
+		// if (_scriptName.find("nph-") == 0)
+		// 	return ;
+		// _isSh = false;
+		// _isPy = false;
 		// if (parseOutFile(data) < 0)
 		// 	data.code = ft::HTTP_INTERNAL_SERVER_ERROR;
 	}
