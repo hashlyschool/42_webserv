@@ -20,15 +20,11 @@ void ft::Utils::replaceAll(std::string &src, std::string toReplace, std::string 
 	}
 }
 
-size_t ft::Utils::readFromSocket(int fd, char *buf, int buf_size)
+ssize_t ft::Utils::readFromSocket(int fd, char *buf, int buf_size)
 {
-	int			status;
+	ssize_t	status;
 
 	status = recv(fd, buf, buf_size, 0);
-	if (status < 0)
-	{
-		std::exit(-1);
-	}
 	return status;
 }
 
