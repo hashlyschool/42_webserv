@@ -10,6 +10,7 @@ ft::DataFd::DataFd(int fd)
 	this->httpResponse = new HttpResponse();
 	this->cgi = new Cgi();
 	this->outFile = NULL;
+	this->loc = NULL;
 	gettimeofday(&this->_timeLastAction, NULL);
 }
 

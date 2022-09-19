@@ -82,7 +82,7 @@ char	ft::Cgi::isCGI(DataFd &data)
 	std::string	end;
 	size_t		lenght;
 
-	if (parseURL(data) < 0)
+	if (data.loc == NULL || parseURL(data) < 0)
 		return (0);
 	point = _scriptName.rfind('.');
 	lenght = _scriptName.length();
