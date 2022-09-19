@@ -11,6 +11,7 @@ ft::DataFd::DataFd(int fd)
 	this->cgi = new Cgi();
 	this->outFile = NULL;
 	this->autoIndexHtml = "";
+	this->loc = NULL;
 	gettimeofday(&this->_timeLastAction, NULL);
 }
 
