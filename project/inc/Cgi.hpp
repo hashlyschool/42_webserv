@@ -27,21 +27,20 @@ namespace ft
 	class Cgi
 	{
 		private:
-			std::string	_rootPath; //+
-			std::string	_scriptName; //+
-			std::string	_pathInfo; //+
-			std::string	_queryString; //-
-			std::string	_pathTranslated; //+
-			// URL = /cgi-bin/script.py/tempFolser/pass?and=1&or=2
-			// URL = [requestURL][ScriptName][PATH_INFO][QUERY_STRING]
-			bool		_isPy; //+
-			bool		_isSh; //+
+			std::string	_rootPath;
+			std::string	_scriptName;
+			std::string	_pathInfo;
+			std::string	_queryString;
+			std::string	_pathTranslated;
+			bool		_isPy;
+			bool		_isSh;
+			char		_isCGI;
 			const char	*_pathInterpreter;
 			bool		_hasChildProcess;
 
 			pid_t		_pid;
-			std::string	_outName; //+
-			std::string	_inName; //+
+			std::string	_outName;
+			std::string	_inName;
 
 			int			_outFd;
 			int			_inFd;

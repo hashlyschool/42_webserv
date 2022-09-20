@@ -4,6 +4,7 @@ ft::Cgi::Cgi()
 {
 	_isPy = false;
 	_isSh = false;
+	_isCGI = -2;
 	_pathInterpreter = NULL;
 	_hasChildProcess = false;
 
@@ -88,12 +89,20 @@ char	ft::Cgi::isCGI(DataFd &data)
 	std::string	end;
 	size_t		lenght;
 
+	if (_isCGI > -2)
+		return (_isCGI);
 	if (data.loc == NULL || parseURL(data) < 0)
-		return (0);
+	{
+		_isCGI = 0;
+		return (_isCGI);
+	}
 	point = _scriptName.rfind('.');
 	lenght = _scriptName.length();
 	if (point == std::string::npos || lenght <= 3)
-		return (0);
+	{
+		_isCGI = 0;
+		return (_isCGI);
+	}
 	end = _scriptName.substr(point, _scriptName.length());
 	if (end == ".py")
 		_isPy = true;
@@ -102,16 +111,19 @@ char	ft::Cgi::isCGI(DataFd &data)
 	else
 	{
 		data.code = ft::HTTP_PRECONDITION_FAILED;
-		return (-1);
+		_isCGI = -1;
+		return (_isCGI);
 	}
 	if (data.httpRequest->getMethod() != "POST" && \
 	data.httpRequest->getMethod() != "GET" && \
 	data.httpRequest->getMethod() != "HEAD")
 	{
 		data.code = ft::HTTP_METHOD_NOT_ALLOWED;
-		return (-1);
+		_isCGI = -1;
+		return (_isCGI);
 	}
-	return (1);
+	_isCGI = 1;
+	return (_isCGI);
 }
 
 void	ft::Cgi::setPathInterpreter(DataFd &data)
