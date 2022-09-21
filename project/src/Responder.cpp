@@ -93,7 +93,7 @@ void	ft::Responder::_sendHead(int &fd, DataFd &data)
 	if (data.cgi->isCGI(data) == 1)
 		data.cgi->parseOutFile(data);
 	if (!data.autoIndexHtml.empty())
-		response.setAutoIndex(data.autoIndexHtml);
+		response.setHtml(data.autoIndexHtml);
 	std::string head = response.getResponseHead();
 	ssize_t status = send(fd, head.c_str(), head.length(), 0);
 	if (status < 0)
