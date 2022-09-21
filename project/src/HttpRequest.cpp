@@ -38,12 +38,6 @@ size_t	ft::HttpRequest::parseRequestLine()
 	pos = ft::Utils::getdelim(_requestStr, _method, " ", pos);
 	pos = ft::Utils::getdelim(_requestStr, _url, " ", pos);
 	pos = ft::Utils::getdelim(_requestStr, _httpVersion, "\r\n", pos);
-
-	// for debug
-	// std::cout << "method = " << _method << std::endl;
-	// std::cout << "url = " << _url << std::endl;
-	// std::cout << "httpVersion = " << _httpVersion << std::endl;
-	// std::cout << "-------------request line end---------------"  << std::endl;
 	return pos;
 }
 

@@ -11,7 +11,7 @@
 
 namespace ft
 {
-	struct Location;
+	class Location;
 
 	class ConfigServer : public ft::ALocation
 	{

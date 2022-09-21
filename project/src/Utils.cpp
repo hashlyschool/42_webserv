@@ -45,9 +45,9 @@ void	ft::Utils::signalHandler(int signal)
 {
 	if (signal)
 		signal = 0;
-	std::cout <<	"--------[INFO]--------\n" << \
-					"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'\n" << \
-					"--------[INFO]--------\n";
+	std::cout << "--------[INFO]--------\n" << \
+	"To turn off the web server, type: \'EXIT\' or \'Ctrl+D\'\n" << \
+	"--------[INFO]--------\n";
 }
 
 void	ft::Utils::checkArg(int argc, char **argv)

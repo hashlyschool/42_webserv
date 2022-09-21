@@ -193,7 +193,6 @@ void	ft::Cgi::runChildProcess(DataFd &data)
 	}
 	if (_pid == 0)
 		childProcess();
-	// if (!data.httpResponse->bodyIsRead() && data.httpRequest->getMethod() == "POST")
 	_hasChildProcess = true;
 }
 
@@ -204,7 +203,6 @@ void	ft::Cgi::childProcess()
 	dup2(_outFd, STDOUT_FILENO);
 	dup2(_outFd, STDERR_FILENO);
 	if (execve(_pathInterpreter, _argv, _env) == -1) {
-		perror("execve");
 		exit(EXIT_FAILURE);
 	}
 	exit(EXIT_SUCCESS);

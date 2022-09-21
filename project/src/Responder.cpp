@@ -213,10 +213,8 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 
 void ft::Responder::_get(DataFd *data)
 {
-	// std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
 	const ALocation * loc = data->loc;
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
-	// std::cout << "found url: " << url << std::endl;
 	if (!loc->getIsGet())
 		data->code = HTTP_METHOD_NOT_ALLOWED;
 	else if (!Utils::fileExists(url))
@@ -244,7 +242,6 @@ void ft::Responder::_get(DataFd *data)
 
 void ft::Responder::_post(DataFd *data)
 {
-	// std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
 	if (data->outFile != NULL || _fileGoodForPost(data))
 	{
 		if (data->outFile->is_open())
@@ -270,7 +267,6 @@ void ft::Responder::_post(DataFd *data)
 
 void ft::Responder::_delete(DataFd *data)
 {
-	// std::cout << "in delete for " << data->httpRequest->getUrl() << std::endl;
 	const ALocation * loc = data->loc;
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
 
