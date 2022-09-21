@@ -121,7 +121,6 @@ const char *ft::HttpResponse::getResponseBodyPart()
 		_sizeOfBuf = read;
 		_bytesRead += read;
 		_buf[read] = '\0';
-		std::cout << "read = " << read << std::endl;
 		if (_bytesRead >= _bodySize)
 		{
 			_bodyRead = true;

@@ -88,21 +88,6 @@ int	ft::HttpRequest::parseHeader()
 		_close = true;
 		return -1;
 	}
-
-	// for debug
-	for (std::map< std::string, std::vector<std::string> >::iterator it = _headers.begin();
-												it != _headers.end(); it++)
-	{
-		std::cout << it->first << ": " << std::endl;
-		std::vector<std::string> curV = it->second;
-		for (size_t i = 0; i < curV.size(); i++)
-		{
-			std::cout << curV[i];
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << "---------------Request header end--------------------" << std::endl;
 	return 1;
 }
 

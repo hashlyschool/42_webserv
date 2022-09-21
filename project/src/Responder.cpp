@@ -69,10 +69,6 @@ void	ft::Responder::_readBody(int &fd, DataFd &data)
 
 void ft::Responder::_execute(DataFd &data)
 {
-	//create response head
-	// std::cout << "body = " << data.dataFd[fd]->httpRequest.getBody() << std::endl;
-	// std::cout << "\nREQUEST\n\n" << data.dataFd[fd]->httpRequest.getRequestStr() << "\n\n";
-	// std::cout << "\nURL\n\n" << data.dataFd[fd]->httpRequest.getURL() << "\n\n";
 	std::string method = data.httpRequest->getMethod();
 	if (method == "GET" || method == "HEAD")
 		_get(&data);
@@ -203,10 +199,7 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 	{
 		if (HttpUtils::isSuccessful(data->code))
 		{
-			// if (data->loc->getIsCgi() &&
-			// (data->httpRequest->getMethod() != "POST" && 
-			// data))
-			if (data->loc->getIsCgi())
+			if (data->loc && data->loc->getIsCgi())
 				data->statusFd = ft::CGI;
 			else
 				data->statusFd = ft::Execute;
@@ -220,11 +213,11 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 
 void ft::Responder::_get(DataFd *data)
 {
-	std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
+	// std::cout << "in get for " << data->httpRequest->getUrl() << std::endl;
 	const ALocation * loc = data->loc;
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
-	std::cout << "found url: " << url << std::endl;
-	if (!loc->getIsGet()) // !loc->getIsHead()
+	// std::cout << "found url: " << url << std::endl;
+	if (!loc->getIsGet())
 		data->code = HTTP_METHOD_NOT_ALLOWED;
 	else if (!Utils::fileExists(url))
 		data->code = HTTP_NOT_FOUND;
@@ -251,7 +244,7 @@ void ft::Responder::_get(DataFd *data)
 
 void ft::Responder::_post(DataFd *data)
 {
-	std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
+	// std::cout << "in post for " << data->httpRequest->getUrl() << std::endl;
 	if (data->outFile != NULL || _fileGoodForPost(data))
 	{
 		if (data->outFile->is_open())
@@ -277,7 +270,7 @@ void ft::Responder::_post(DataFd *data)
 
 void ft::Responder::_delete(DataFd *data)
 {
-	std::cout << "in delete for " << data->httpRequest->getUrl() << std::endl;
+	// std::cout << "in delete for " << data->httpRequest->getUrl() << std::endl;
 	const ALocation * loc = data->loc;
 	std::string url = data->configServer->getFilename(data->httpRequest->getUrl(), *loc);
 
