@@ -224,7 +224,6 @@ int ft::HttpRequest::readBody(char *current, size_t sizeBuf)
 		_bytesToRead -= sizeBuf;
 		if (_bytesToRead <= 0)
 		{
-			std::cout << "I decided that the body is done\n";
 			_bodyReady = true;
 		}
 	}
