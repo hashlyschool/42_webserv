@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Upload file</title>
+		<link rel="stylesheet" href="../styles.css">
+			<link rel="icon" type="image/png" href="../favicon.png"/>
+			</head>
+
+	<body>
+		<ul class="navbar">
+			<br>
+			<br>
+			<li><a href="../index.html">HOME</a>
+			<li><a href="../upload/upload.html">FILES</a>
+			<li><a href="tools.html">TOOLS</a>
+			<li><a href="../cgi-bin/cgi.html">CGI</a>
+			<li><a href="../choice/other.html">CHOICE</a>
+		</ul>
+
+		<!-- Content -->
+
+		<h1>WEBSERVER 1.0</h1>
+			<h2>We are pleased to present our tools!!!</h2>
+				<h2>Right now and right here you can use Stopwatch and Calculate something...</h2>
+					<h3>This text is only for padding some spacing...</h3>
+
+				<address></address>
+
+<!---------------------------------StopWatch----------------------------------->
+
+				<h3>StopWatch Timer:</h3>
+				<div class="wrapper">
+					<div class="time">
+						<span class="hour">00</span>
+						<span class="colon">:</span>
+						<span class="minute">00</span>
+						<span class="colon">:</span>
+						<span class="second">00</span>
+						<span class="colon ms-colon">:</span>
+						<span class="millisecond">00</span>
+					</div>
+					<div class="buttons">
+						<button class="start">Start</button>
+						<button class="stop">Stop</button>
+						<button class="reset">Reset</button>
+					</div>
+				</div>
+				<address></address>
+
+<!----------------------------------Calculator---------------------------------->
+
+				<h3>Calculator:</h3>
+			<div class="box">
+				<div class="display">
+					<input type="text" readonly size="18" id="d">
+				</div>
+					<div class="keys">
+						<p>
+							<input type="button" class="button gray"
+								value="mrc" onclick='c("....................................")'>
+							<input type="button" class="button gray"
+								value="m-" onclick='c("....................................")'>
+							<input type="button" class="button gray"
+								value="m+" onclick='c("....................................")'>
+							<input type="button" class="button pink" value="/" onclick='v("/")'>
+						</p>
+						<p>
+							<input type="button" class="button black" value="7" onclick='v("7")'>
+							<input type="button" class="button black" value="8" onclick='v("8")'>
+							<input type="button" class="button black" value="9" onclick='v("9")'>
+							<input type="button" class="button pink" value="*" onclick='v("*")'>
+						</p>
+						<p>
+							<input type="button" class="button black" value="4" onclick='v("4")'>
+							<input type="button" class="button black" value="5" onclick='v("5")'>
+							<input type="button" class="button black" value="6" onclick='v("6")'>
+							<input type="button" class="button pink" value="-" onclick='v("-")'>
+						</p>
+						<p>
+							<input type="button" class="button black" value="1" onclick='v("1")'>
+							<input type="button" class="button black" value="2" onclick='v("2")'>
+							<input type="button" class="button black" value="3" onclick='v("3")'>
+							<input type="button" class="button pink" value="+" onclick='v("+")'>
+						</p>
+						<p>
+							<input type="button" class="button black" value="0" onclick='v("0")'>
+							<input type="button" class="button black" value="." onclick='v(".")'>
+							<input type="button" class="button black" value="C" onclick='c("")'>
+							<input type="button" class="button orange" value="=" onclick='e()'>
+						</p>
+					</div>
+			</div>
+			<address></address>
+			<p>&copy; Made 15 March 2022 by jkassand, mgracefo and ebalgruu.</p>
+
+<!------------------------------Calculator Script-------------------------------->
+
+			<script>
+					function c(val) {
+						document.getElementById("d").value=val;
+					}
+					function v(val)
+					{document.getElementById("d").value+=val;
+					}
+					function e() {
+					try
+					{
+						c(eval(document.getElementById("d").value))
+					}
+					catch(e)
+					{
+						c('Error') }
+				}
+			</script>
+
+<!------------------------------StopWatch Script-------------------------------->
+
+			<script>
+				let hr = min = sec = ms = "0" + 0,
+				startTimer;
+
+				const startBtn = document.querySelector(".start"),
+				stopBtn = document.querySelector(".stop"),
+				resetBtn = document.querySelector(".reset");
+
+				startBtn.addEventListener("click", start);
+				stopBtn.addEventListener("click", stop);
+				resetBtn.addEventListener("click", reset);
+
+				function start() {
+					startBtn.classList.add("active");
+					stopBtn.classList.remove("stopActive");
+
+					startTimer = setInterval(()=>{
+					 ms++
+					 ms = ms < 10 ? "0" + ms : ms;
+
+					 if(ms == 100){
+					 sec++;
+					 sec = sec < 10 ? "0" + sec : sec;
+					 ms = "0" + 0;
+					 }
+					 if(sec == 60){
+					 min++;
+					 min = min < 10 ? "0" + min : min;
+					 sec = "0" + 0;
+					 }
+					 if(min == 60){
+					 hr++;
+					 hr = hr < 10 ? "0" + hr : hr;
+					 min = "0" + 0;
+					 }
+					 putValue();
+					 },10); //1000ms = 1s
+				}
+				function stop() {
+					startBtn.classList.remove("active");
+					stopBtn.classList.add("stopActive");
+					clearInterval(startTimer);
+				}
+				function reset() {
+					startBtn.classList.remove("active");
+					stopBtn.classList.remove("stopActive");
+					clearInterval(startTimer);
+					hr = min = sec = ms = "0" + 0;
+					putValue();
+				}
+				function putValue() {
+					document.querySelector(".millisecond").innerText = ms;
+					document.querySelector(".second").innerText = sec;
+					document.querySelector(".minute").innerText = min;
+					document.querySelector(".hour").innerText = hr;
+				}
+			</script>
+	</body>
+</html>

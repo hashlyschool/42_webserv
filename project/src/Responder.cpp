@@ -203,8 +203,8 @@ void ft::Responder::_setStatusRequest(DataFd *data)
 	{
 		if (HttpUtils::isSuccessful(data->code))
 		{
-			// if (data->loc->getIsCgi() && \
-			// (data->httpRequest->getMethod() != "POST" && \
+			// if (data->loc->getIsCgi() &&
+			// (data->httpRequest->getMethod() != "POST" && 
 			// data))
 			if (data->loc->getIsCgi())
 				data->statusFd = ft::CGI;
