@@ -1,0 +1,243 @@
+body {
+	padding-left: 11em;
+	font-family: Helvetica, "Times New Roman",
+	Times, serif;
+	color: #604020;
+	background-color: #d9b38c
+}
+
+ul.navbar {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	position: absolute;
+	top: 2em;
+	left: 1em;
+	width: 9em
+}
+
+h1 {
+	font-family: Helvetica, Geneva, Arial,
+	SunSans-Regular, sans-serif
+}
+
+ul.navbar li {
+	background: white;
+	margin: 0.5em 0;
+	padding: 0.3em;
+	border-right: 1em solid black
+}
+
+ul.navbar a {
+	text-decoration: none
+}
+
+a:link {
+	color: blue
+}
+
+a:visited {
+	color: #604020
+}
+
+address {
+	margin-top: 1em;
+	padding-top: 1em;
+	border-top: thin dotted
+}
+
+.error {
+	text-align: center;
+	color: black;
+	font-size: 1.5rem;
+}
+
+.click {
+	width: 55px;
+	height: 20px;
+	border-color: black;
+	cursor: pointer;
+	margin: 5;
+	padding: 0;
+	border: 1px solid black;
+}
+
+/***********************      CALCULATOR      ****************************/
+
+.box
+{
+	background-color: #3d4543;
+	height: 300px;
+	width: 270px;
+	border-radius: 10px;
+	top: 80px;
+	left: 40%;
+}
+
+.display
+{
+	background-color: #222;
+	width: 220px;
+	position: relative;
+	left: 15px;
+	top: 20px;
+	height: 40px;
+}
+
+.display input
+{
+	position: relative;
+	left: 2px;
+	top: 2px;
+	height: 35px;
+	color: black;
+	background-color: #bccd95;
+	font-size: 21px;
+	text-align: right;
+}
+
+.keys
+{
+	position: relative;
+	top: 15px;
+}
+
+.button
+{
+	width: 40px;
+	height: 30px;
+	border: none;
+	border-radius: 8px;
+	margin-left: 17px;
+	cursor: pointer;
+	border-top: 2px solid transparent;
+}
+
+.button.gray
+{
+	color: black;
+	font-color: black;
+	background-color: #6f6f6f;
+	border-bottom: black 2px solid;
+	border-top: 2px #6f6f6f solid;
+}
+
+.title:hover {
+	color: #fff;
+}
+
+.title {
+	margin-bottom: 10px;
+	margin-top: 30px;
+	padding: 5px 0;
+	font-size: 40px;
+	font-weight: bold;
+	text-align: center;
+	color: black;
+	font-family: 'Cookie', cursive;
+}
+
+.button.pink
+{
+	color: black;
+	background-color: #ff4561;
+	border-bottom: black 2px solid;
+}
+
+.button.black
+{
+	color: black;
+	background-color: 303030;
+	border-bottom: black 2px solid;
+	border-top: 2px 303030 solid;
+	font-weight: bold;
+}
+
+.button.orange
+{
+	color: black;
+	background-color: FF9933;
+	border-bottom: black 2px solid;
+	border-top: 2px FF9933 solid;
+}
+
+.gray:active
+{
+	border-top: black 2px solid;
+	border-bottom: 2px #6f6f6f solid;
+}
+
+.pink:active
+{
+	border-top:black 2px solid;
+	border-bottom:#ff4561 2px solid;
+}
+
+.black:active
+{
+	border-top: black 2px solid;
+	border-bottom: #303030 2px solid;
+}
+
+.orange:active
+{
+	border-top: black 2px solid;
+	border-bottom: FF9933 2px solid;
+}
+
+/***********************      STOPWATCH      ****************************/
+
+.wrapper{
+	user-select: none;
+}
+
+.wrapper .time{
+	height: 60px;
+	width: 250px;
+	background: #fff;
+	display: flex;
+	border-radius: 6px;
+	padding: 0 10px;
+}
+
+.wrapper .time span{
+	width: 100px;
+	text-align: center;
+	font-size: 50px;
+	font-weight: 500;
+	color: #333;
+}
+
+.time span.colon{
+	width: 10px;
+}
+
+.time span.ms-colon,
+.time span.millisecond{
+	color: #ff4561;
+}
+
+.wrapper .buttons{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.buttons button{
+	padding: 6px 16px;
+	outline: none;
+	border: none;
+	margin: 0 5px;
+	color: black;
+	font-size: 19px;
+	font-weight: 500;
+	border-radius: 4px;
+	cursor: pointer;
+	box-shadow: 10px 10px 20px rgba(0,0,0,0.09);
+	padding: 10 0px;
+}
+
+.buttons button.active,
+.buttons button.stopActive{
+	pointer-events: none;
+	opacity: 0.7;
+}

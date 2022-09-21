@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>This is our server, bro</title>
+		<link rel="stylesheet" href="./styles.css">
+		<link rel="icon" type="image/png" href="./favicon.png"/>
+	</head>
+	<body>
+		<!-- Menu -->
+
+		<ul class="navbar">
+			<br>
+			<br>
+			<li><a href="index.html">HOME</a>
+			<li><a href="upload/upload.html">FILES</a>
+			<li><a href="tools/tools.html">TOOLS</a>
+			<li><a href="cgi-bin/cgi.html">CGI</a>
+			<li><a href="choice/other.html">CHOICE</a>
+		</ul>
+
+		<!-- Content -->
+
+		<h1>WEBSERVER 1.0</h1>
+		<button class="click" onclick="redbutton()" style="background-color: #ff6666;">RED</button>
+		<button class="click" onclick="greenbutton()" style="background-color: #b3ffb3;">GREEN</button>
+		<button class="click" onclick="bluebutton()" style="background-color: #b3c6ff;">BLUE</button>
+		<button class="click" onclick="blackbutton()" style="background-color: #b3b3b3;">BLACK</button>
+		<button class="click" onclick="whitebutton()" style="background-color: #e6e6e6;">WHITE</button>
+		<p>Welcome to our server!
+		<p>Here you can upload and download files, wander through all the directories, catch various errors pages and try different cgi things&hellip;</p>
+		<p>There should be more here, but I don't know what yet..</p>
+		<address></address>
+		<p><img src="./sparta.jpg" alt="This is SERVER!!!"></p>
+			<script>
+				var setCookie = function (key, val) {
+					document.cookie = key + "=" + val + ";";
+				}
+
+				var getCookie = function (key) {
+					var name = key + "=";
+					var rgbCode = document.cookie.split(';');
+
+					for (var i = 0; i < rgbCode.length; i++) {
+						var c = rgbCode[i];
+						while (c.charAt(0) == ' ') c = c.substring(1);
+						if (c.indexOf(name) == 0) {
+							return c.substring(name.length, c.length);
+						}
+					}
+					return "";
+				}
+
+				document.onclick = function (change) {
+					if (change.target.className == 'click') {
+						var baseColor = change.target.style.backgroundColor;
+						setCookie('color', baseColor);
+						document.body.style.backgroundColor = baseColor;
+						console.log(baseColor);
+					}
+				}
+
+				window.onload = function () {
+					var baseColor = document.body.style.backgroundColor;
+					var newColor = getCookie('color');
+
+					if (newColor === '')
+						document.body.style.backgroundColor = baseColor;
+					else
+						document.body.style.backgroundColor = newColor;
+				}
+			</script>
+		<div></div>
+	</body>
+	<p>&copy; Made 15 March 2022 by jkassand, mgracefo and ebalgruu.</p>
+</html>
