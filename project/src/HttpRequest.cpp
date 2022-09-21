@@ -159,6 +159,13 @@ unsigned long ft::HttpRequest::getContentLength() const
 	return _contentLength;
 }
 
+std::string	ft::HttpRequest::getContenType() const
+{
+	if (_headers.find("Content-Type") != _headers.end())
+		return (_headers.at("Content-Type").at(0));
+	return ("");
+}
+
 bool ft::HttpRequest::isChunked() const
 {
 	return _chunked;

@@ -19,16 +19,12 @@ ft::Cgi::Cgi()
 
 ft::Cgi::~Cgi()
 {
-	//free argv
 	for (size_t i = 0; _argv[i] != NULL; ++i)
 		free(_argv[i]);
-	//free env
 	for (size_t i = 0; _env[i] != NULL; ++i)
 		free(_env[i]);
-	//need kill fork
 	if (_pid > 0)
 		kill(_pid, SIGTERM);
-	//delete create file: _outName, _inName
 	if (_outFd > 0)
 	{
 		remove(_outName.c_str());
@@ -148,7 +144,7 @@ void	ft::Cgi::fillEnv(DataFd &data)
 {
 	_env[0] = ft::Utils::getEnvStr("AUTH_TYPE", "");//?
 	_env[1] = ft::Utils::getEnvStr("CONTENT_LENGTH",ft::Utils::to_string(data.httpRequest->getContentLength()));
-	_env[2] = ft::Utils::getEnvStr("CONTENT_TYPE", ""); //?
+	_env[2] = ft::Utils::getEnvStr("CONTENT_TYPE", data.httpRequest->getContenType());
 	_env[3] = ft::Utils::getEnvStr("DOCUMENT_ROOT", data.loc->getRoot()); //?
 	_env[4] = ft::Utils::getEnvStr("GATEWAY_INTERFACE", "CGI/1.1");
 	_env[5] = ft::Utils::getEnvStr("PATH_INFO", _pathInfo);
@@ -162,11 +158,11 @@ void	ft::Cgi::fillEnv(DataFd &data)
 	_env[13] = ft::Utils::getEnvStr("SERVER_NAME", data.configServer->getServerName());
 	_env[14] = ft::Utils::getEnvStr("SERVER_PORT", ""); //data.configServer->getPort() return u_short
 	_env[15] = ft::Utils::getEnvStr("SERVER_PROTOCOL", data.httpRequest->getHttpVersion());
-	_env[16] = ft::Utils::getEnvStr("SERVER_SOFTWARE", "webserv 21");
+	_env[16] = ft::Utils::getEnvStr("SERVER_SOFTWARE", "webserv_21");
 
-	_env[17] = ft::Utils::getEnvStr("HTTP_ACCEPT", "");
-	_env[18] = ft::Utils::getEnvStr("HTTP_FROM", "");
-	_env[19] = ft::Utils::getEnvStr("HTTP_REFERER", "");
+	_env[17] = ft::Utils::getEnvStr("HTTP_ACCEPT", ""); //?
+	_env[18] = ft::Utils::getEnvStr("HTTP_FROM", ""); //?
+	_env[19] = ft::Utils::getEnvStr("HTTP_REFERER", ""); //?
 	_env[20] = ft::Utils::getEnvStr("HTTP_USER_AGENT", ""); //browser
 }
 
@@ -197,6 +193,7 @@ void	ft::Cgi::runChildProcess(DataFd &data)
 	}
 	if (_pid == 0)
 		childProcess();
+	// if (!data.httpResponse->bodyIsRead() && data.httpRequest->getMethod() == "POST")
 	_hasChildProcess = true;
 }
 

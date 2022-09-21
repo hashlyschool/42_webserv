@@ -88,6 +88,7 @@ namespace ft
 
 			std::string		getRequestStr() const;
 			unsigned long	getContentLength() const;
+			std::string		getContenType() const;
 			bool			isChunked() const;
 			bool			bodyIsRead() const;
 			const char		*getBody() const;
