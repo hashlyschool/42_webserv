@@ -12,7 +12,11 @@ ft::DataFd::DataFd(int fd)
 	this->outFile = NULL;
 	this->autoIndexHtml = "";
 	this->loc = NULL;
-	gettimeofday(&this->_timeLastAction, NULL);
+	if (gettimeofday(&this->_timeLastAction, NULL) < 0)
+	{
+		this->_timeLastAction.tv_sec = 0;
+		this->_timeLastAction.tv_usec = 0;
+	}
 }
 
 ft::DataFd::~DataFd()
@@ -55,7 +59,11 @@ void	ft::DataFd::updateTime()
 {
 	if (cgi->hasChildProcess())
 		return ;
-	gettimeofday(&_timeLastAction, NULL);
+	if (gettimeofday(&this->_timeLastAction, NULL) < 0)
+	{
+		this->_timeLastAction.tv_sec = 0;
+		this->_timeLastAction.tv_usec = 0;
+	}
 }
 
 struct timeval	ft::DataFd::getTimeLastAct() const { return (_timeLastAction); }

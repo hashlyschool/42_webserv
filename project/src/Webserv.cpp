@@ -142,8 +142,8 @@ void	ft::Webserv::checkTimeConnection(int &fd)
 {
 	struct timeval time;
 
-	gettimeofday(&time, NULL);
-	//keep-alive
+	if (gettimeofday(&time, NULL) < 0 || _dataResr.find(fd) == _dataResr.end())
+		return ;
 	if (time.tv_sec - _dataResr[fd]->getTimeLastAct().tv_sec >= MAX_TIME_CONNECTION)
 		sendErrorToClientSocket(fd, HTTP_REQUEST_TIMEOUT);
 }
