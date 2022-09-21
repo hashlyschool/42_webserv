@@ -70,7 +70,7 @@ namespace ft
 		const int &getRedirectionCode() const;
 
 		void setErrorPages(const int &code, const std::string &path);
-		std::map<int, std::string> &getErrorPages();
+		const std::map<int, std::string> &getErrorPages() const;
 	};
 }
 

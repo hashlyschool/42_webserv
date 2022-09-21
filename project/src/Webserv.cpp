@@ -173,7 +173,6 @@ void	ft::Webserv::removeFdClientSocket()
 		if (*it == _num)
 			_num--;
 	}
-
 	_fdForDelete.clear();
 }
 

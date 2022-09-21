@@ -4,6 +4,7 @@ ft::Cgi::Cgi()
 {
 	_isPy = false;
 	_isSh = false;
+	_isCGI = -2;
 	_pathInterpreter = NULL;
 	_hasChildProcess = false;
 
@@ -48,21 +49,21 @@ char	ft::Cgi::parseURL(DataFd &data)
 
 	fullURL = data.httpRequest->getUrl();
 	_rootPath = data.loc->getRoot();
-	_pathTranslated = data.configServer->getFilename(fullURL, *data.loc);
 	_outName = _rootPath + "/outCgi" + ft::Utils::to_string(data.fd);
 	_inName = _rootPath + "/inCgi" + ft::Utils::to_string(data.fd);
-
 	posStart = fullURL.find(data.loc->getUrl());
 	if (posStart == std::string::npos)
 		return (-1);
 	posStart += data.loc->getUrl().length();
-	// posStart--;
 	posEnd = fullURL.find('/', posStart + 1);
+	if (posEnd == std::string::npos)
+		posEnd = fullURL.find('?', posStart + 1);
 	if (posEnd == std::string::npos)
 		_scriptName = fullURL.substr(posStart, fullURL.length() - posStart);
 	else
 		_scriptName = fullURL.substr(posStart, posEnd - posStart);
-	// _pathTranslated += _scriptName;
+	_pathTranslated = _rootPath + data.loc->getUrl();
+	_pathTranslated += _scriptName;
 	if (posEnd == std::string::npos)
 		return (0);
 	posStart = posEnd;
@@ -70,10 +71,14 @@ char	ft::Cgi::parseURL(DataFd &data)
 	if (posEnd == std::string::npos)
 	{
 		_pathInfo = fullURL.substr(posStart, fullURL.length() - posStart);
+		ft::Utils::normalizedPath(_pathInfo);
 		return (0);
 	}
 	else
+	{
 		_pathInfo = fullURL.substr(posStart, posEnd - posStart);
+		ft::Utils::normalizedPath(_pathInfo);
+	}
 	_queryString = fullURL.substr(posEnd + 1);
 	return (0);
 }
@@ -84,12 +89,20 @@ char	ft::Cgi::isCGI(DataFd &data)
 	std::string	end;
 	size_t		lenght;
 
+	if (_isCGI > -2)
+		return (_isCGI);
 	if (data.loc == NULL || parseURL(data) < 0)
-		return (0);
+	{
+		_isCGI = 0;
+		return (_isCGI);
+	}
 	point = _scriptName.rfind('.');
 	lenght = _scriptName.length();
 	if (point == std::string::npos || lenght <= 3)
-		return (0);
+	{
+		_isCGI = 0;
+		return (_isCGI);
+	}
 	end = _scriptName.substr(point, _scriptName.length());
 	if (end == ".py")
 		_isPy = true;
@@ -98,16 +111,19 @@ char	ft::Cgi::isCGI(DataFd &data)
 	else
 	{
 		data.code = ft::HTTP_PRECONDITION_FAILED;
-		return (-1);
+		_isCGI = -1;
+		return (_isCGI);
 	}
 	if (data.httpRequest->getMethod() != "POST" && \
 	data.httpRequest->getMethod() != "GET" && \
 	data.httpRequest->getMethod() != "HEAD")
 	{
 		data.code = ft::HTTP_METHOD_NOT_ALLOWED;
-		return (-1);
+		_isCGI = -1;
+		return (_isCGI);
 	}
-	return (1);
+	_isCGI = 1;
+	return (_isCGI);
 }
 
 void	ft::Cgi::setPathInterpreter(DataFd &data)

@@ -112,6 +112,18 @@ char	*ft::Utils::getEnvStr(std::string key, std::string value)
 	return (strdup((key + "=" + value).c_str()));
 }
 
+std::string &ft::Utils::normalizedPath(std::string &path)
+{
+	if (!path.empty())
+	{
+		if (path[0] != '/')
+			path = "/" + path;
+		if (path[path.size() - 1] == '/')
+			path.erase(path.size() - 1, 1);
+	}
+	return (path);
+}
+
 bool ft::Utils::fileExists(std::string url)
 {
 	struct stat stat_buf;

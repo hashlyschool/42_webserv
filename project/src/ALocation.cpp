@@ -104,7 +104,7 @@ void ft::ALocation::setErrorPages(const int &code, const std::string &path)
 	_errorPages[code] = path;
 }
 
-std::map<int, std::string> &ft::ALocation::getErrorPages()
+const std::map<int, std::string> &ft::ALocation::getErrorPages() const
 {
 	return _errorPages;
 }

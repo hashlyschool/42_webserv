@@ -71,7 +71,10 @@ ft::HttpResponse::HttpResponse(DataFd & data)
 	_sizeOfBuf = 0;
 	if (_code >= 200 || _code != HTTP_NO_CONTENT)
 	{
-		setBodyUrl(data.finalUrl);
+		if (!HttpUtils::isSuccessful(_code))
+			_setErrorPage(data);
+		else
+			setBodyUrl(data.finalUrl);
 	}
 	else
 	{
@@ -184,7 +187,7 @@ void	ft::HttpResponse::setBodySize(size_t size)
 	_bodySize = size;
 }
 
-void ft::HttpResponse::setAutoIndex(std::string str)
+void ft::HttpResponse::setHtml(std::string str)
 {
 	_bodyStr = str;
 	_bodySize = str.length();
@@ -194,15 +197,8 @@ void ft::HttpResponse::setAutoIndex(std::string str)
 void ft::HttpResponse::setBodyUrl(std::string url)
 {
 	this->_url = url;
-	if (!url.empty())
-	{
-		_bodySize = Utils::getFileSize(url);
-		_bodyType = HttpUtils::getHttpFileType(url);
-	}
-	else
-	{
-		_setErrorPage();
-	}
+	_bodySize = Utils::getFileSize(url);
+	_bodyType = HttpUtils::getHttpFileType(url);
 }
 
 void	ft::HttpResponse::setBodyType(const std::string bodyType)
@@ -210,16 +206,36 @@ void	ft::HttpResponse::setBodyType(const std::string bodyType)
 	this->_bodyType = bodyType;
 }
 
-void	ft::HttpResponse::_setErrorPage()
+void	ft::HttpResponse::_setErrorPage(DataFd & data)
 {
-	std::string res = "";
-	res += "<html><head><title>" +
-	Utils::to_string(_code) +
-	"</title></head><body><center><br><br><h1>Error " +
-	Utils::to_string(_code) + ": " +
-	HttpUtils::getHttpReason(_code) +
-	"</h1><h2>Oh no! Something went wrong.</h2></center></body></html>";
-	_bodyStr = res;
-	_bodySize = res.length();
-	_bodyType = "text/html";
+	if (data.loc != NULL)
+	{
+		const std::map<int, std::string> &errorPages = data.loc->getErrorPages();
+		if (errorPages.find(_code) != errorPages.end())
+		{
+			std::string errorUrl = data.loc->getRoot() + data.loc->getUrl() + errorPages.at(_code);
+			if (Utils::fileExists(errorUrl) &&
+							Utils::fileIsReadable(errorUrl) &&
+							!Utils::isDirectory(errorUrl))
+			{
+				setBodyUrl(errorUrl);
+				return;
+			}
+		}
+	}
+	setHtml(_generateErrorPage());
+}
+
+std::string ft::HttpResponse::_generateErrorPage()
+{
+	std::stringstream res;
+	res << "<html><head>" <<
+	"<title>" << _code << "</title>" << "</head>"
+	"<body><center><br><br>" <<
+	"<h1>" <<
+	"Error " << _code << ": " << HttpUtils::getHttpReason(_code) <<
+	"</h1>" <<
+	"<h2>Oh no! Something went wrong.</h2>" <<
+	"</center></body></html>";
+	return res.str();
 }
